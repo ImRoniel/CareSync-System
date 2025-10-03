@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareSync - Sign Up</title>
+  <style>
+    :root{
+      --pine-green: #01796F;
+      --pine-light: hsl(175, 98%, 40%);
+      --accent-orange: #FFA94D;
+      --coral: #FF3B5E;
+      --teal: #2EBBAA;
+      --neutral-light: #F4F6F7;
+      --neutral-mid: #E0E3E5;
+      --neutral-dark: #6B7280;
+      --success: #2ECC71;
+      --warning: #FFB84D;
+    }
+
+    body{
+      font-family: Arial, sans-serif;
+      background: var(--neutral-light);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .signup-container{
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      width: 350px;
+    }
+
+    .signup-header{
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .signup-header h2{
+      color: var(--pine-green);
+      margin: 0;
+    }
+
+    .signup-header p{
+      color: var(--neutral-dark);
+      font-size: 0.9rem;
+    }
+
+    .form-group{
+      margin-bottom: 1rem;
+    }
+
+    .form-group label{
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: bold;
+      color: var(--neutral-dark);
+    }
+
+    .form-group input, .form-group select{
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid var(--neutral-mid);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary{
+      width: 100%;
+      background: var(--pine-green);
+      color: #fff;
+      border: none;
+      padding: 0.9rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn-primary:hover{
+      background: var(--pine-light);
+    }
+
+    .signup-footer{
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--neutral-dark);
+    }
+
+    .signup-footer a{
+      color: var(--accent-orange);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .signup-footer a:hover{
+      color: var(--coral);
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="signup-header">
+      <h2>CareSync Sign Up</h2>
+      <p>Create your account</p>
+    </div>
+    <form>
+      <div class="form-group">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" placeholder="Enter your full name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Create a password" required>
+      </div>
+      <div class="form-group">
+        <label for="role">Select Role</label>
+        <select id="role" required>
+          <option value="">-- Choose a Role --</option>
+          <option value="patient">Patient</option>
+          <option value="doctor">Doctor</option>
+          <option value="secretary">Secretary</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-primary">Sign Up</button>
+    </form>
+    <div class="signup-footer">
+      Already have an account? <a href="#">Login</a>
+    </div>
+  </div>
+</body>
+</html>
