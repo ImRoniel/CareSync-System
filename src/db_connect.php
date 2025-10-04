@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<html>
-    <body>
-        <?
-        //VARIABLE FOR CONNECTING TO SERVER 
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = " caresync_db";
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "caresync_db"; // ✅ Make sure this matches your actual database name
 
-        
-        $conn = mysqli_connect($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-        //CONDTION FOR ERROR
-        if(!$conn){
-            die("Connection Faild!!" . mysqli_connect_error());
-        } else{
-            echo "Connected Successfully!";
-        }
-        ?>
-    </body>
-</html>
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>

@@ -95,15 +95,15 @@
 
     <h2 style="color: #626262;">Login</h2>
 
-    <form action="">
+    <form action="process_login.php" method="POST">
       <div class="input-group">
         <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="Enter your email" required>
+        <input type="email" id="email" name="email" placeholder="Enter your email" required>
       </div>
 
       <div class="input-group">
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required>
+        <input type="password" id="password" name="password" placeholder="Enter your password" required>
       </div>
 
       <button type="submit" class="btn">LOGIN</button>

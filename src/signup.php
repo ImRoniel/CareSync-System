@@ -1,33 +1,42 @@
 <?php
+include "db_connect.php"; // make sure this path is correct
 session_start();
-include "db_connect.php";
 
-// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $fullname = $_POST['fullname'];
-  $email = $_POST['email'];
-  $password = $_POST['password'];
-  $confirmpassword = $_POST['confirmpassword'];
-  $role = $_POST['role'];
+    $fullname = $_POST['fullname'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirmpassword = $_POST['confirmpassword'] ?? '';
+    $role = $_POST['role'] ?? 'patient'; // default role
 
-  if ($password !== $confirmpassword) {
-    echo "<script>alert('Passwords do not match!');</script>";
-  } else {
-    // Hash password for security
+    // Basic validation
+    if (empty($fullname) || empty($email) || empty($password) || empty($confirmpassword)) {
+        echo "<script>alert('Please fill in all fields.'); window.history.back();</script>";
+        exit();
+    }
+
+    if ($password !== $confirmpassword) {
+        echo "<script>alert('Passwords do not match.'); window.history.back();</script>";
+        exit();
+    }
+
+    // Hash the password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+    // Insert user
     $stmt = $conn->prepare("INSERT INTO users (fullname, email, password, role) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $fullname, $email, $hashed_password, $role);
 
     if ($stmt->execute()) {
-      echo "<script>alert('Account created successfully!'); window.location.href='login.html';</script>";
+        echo "<script>alert('Signup successful! You can now log in.'); window.location.href='login.php';</script>";
     } else {
-      echo "<script>alert('Error: Could not create account.');</script>";
+        echo "<script>alert('Error: could not save user.'); window.history.back();</script>";
     }
 
     $stmt->close();
-  }
+    $conn->close();
 }
+?>
 
 
 ?>
@@ -138,7 +147,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <img src="images/3.png" alt="CareSync Logo">
     <h2>Create Account</h2>
 
-    <form method="POST" action="login.html" method="POST">
+    <form action="signup.php" method="POST">
       <div class="input-group">
         <label for="fullname">Full Name</label>
         <input type="text" name="fullname" id="fullname" required>
@@ -168,7 +177,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
 
     <div class="login-link">
-      have an account? <a href="login.html">Login</a> 
+      have an account? <a>Login</a> 
     </div>
   </div>
 </body>
