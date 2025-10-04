@@ -1,3 +1,37 @@
+<?php
+session_start();
+include "db_connect.php";
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $fullname = $_POST['fullname'];
+  $email = $_POST['email'];
+  $password = $_POST['password'];
+  $confirmpassword = $_POST['confirmpassword'];
+  $role = $_POST['role'];
+
+  if ($password !== $confirmpassword) {
+    echo "<script>alert('Passwords do not match!');</script>";
+  } else {
+    // Hash password for security
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    $stmt = $conn->prepare("INSERT INTO users (fullname, email, password, role) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $fullname, $email, $hashed_password, $role);
+
+    if ($stmt->execute()) {
+      echo "<script>alert('Account created successfully!'); window.location.href='login.html';</script>";
+    } else {
+      echo "<script>alert('Error: Could not create account.');</script>";
+    }
+
+    $stmt->close();
+  }
+}
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +65,7 @@
 
     h2 {
       margin-bottom: 20px;
-      color: #01796F; /* Pine Green */
+      color: #626262;
     }
 
     .input-group {
@@ -79,7 +113,7 @@
     }
 
     .btn:hover {
-      background: #154d1e; /* Darker Pine Green */
+      background: #154d1e;
     }
 
     .login-link {
@@ -96,37 +130,33 @@
 
     .login-link a:hover {
       text-decoration: underline;
-
-    
     }
   </style>
 </head>
 <body>
   <div class="signup-container">
-    <!-- CareSync Logo Placeholder -->
     <img src="images/3.png" alt="CareSync Logo">
+    <h2>Create Account</h2>
 
-    <h2 style="color: #626262;">Create Account</h2>
-
-    <form action="caresync-signup.html">
+    <form method="POST" action="login.html" method="POST">
       <div class="input-group">
         <label for="fullname">Full Name</label>
-        <input type="text" id="fullname" placeholder="Enter your full name">
+        <input type="text" name="fullname" id="fullname" required>
       </div>
 
       <div class="input-group">
         <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="Enter your email">
+        <input type="email" name="email" id="email" required>
       </div>
 
       <div class="input-group">
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password">
+        <input type="password" name="password" id="password" required>
       </div>
 
       <div class="input-group">
         <label for="confirmpassword">Confirm Password</label>
-        <input type="password" id="confirmpassword" placeholder="Re-enter password">
+        <input type="password" name="confirmpassword" id="confirmpassword" required>
       </div>
 
       <div class="role-selection">
@@ -134,11 +164,11 @@
         <label><input type="radio" name="role" value="secretary"> Secretary</label>
       </div>
 
-      <a href="login.html"><button type="submit" class="btn">SIGN UP</button></a>
+      <button type="submit" class="btn">SIGN UP</button>
     </form>
 
     <div class="login-link">
-       have an account? <a href="login.html">Login</a> 
+      have an account? <a href="login.html">Login</a> 
     </div>
   </div>
 </body>

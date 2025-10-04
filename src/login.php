@@ -95,7 +95,7 @@
 
     <h2 style="color: #626262;">Login</h2>
 
-    <form>
+    <form action="">
       <div class="input-group">
         <label for="email">Email Address</label>
         <input type="email" id="email" placeholder="Enter your email" required>
@@ -110,7 +110,7 @@
     </form>
 
     <div class="signup-link">
-       don’t have an account? <a href="caresync-signup.html">Sign Up</a>
+       don’t have an account? <a href="signup.php">Sign Up</a>
     </div>
   </div>
 </body>
