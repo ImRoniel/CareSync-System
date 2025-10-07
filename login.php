@@ -1,3 +1,41 @@
+<?php
+session_start();
+include('db_connect.php'); // Your connection file
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    $query = "SELECT * FROM users WHERE email = '$email'";
+    $result = mysqli_query($conn, $query);
+
+    if (mysqli_num_rows($result) == 1) {
+        $user = mysqli_fetch_assoc($result);
+        
+        if (password_verify($password, $user['password'])) {
+            // Create a session for this user
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];  // doctor, patient, secretary
+
+            // Redirect based on role
+            if ($user['role'] == 'doctor') {
+                header("Location: signup/doctor_dashboard.php");
+            } elseif ($user['role'] == 'patient') {
+                header("Location: signup/patient_dashboard.php");
+            } elseif ($user['role'] == 'secretary') {
+                header("Location: signup/secretary_dashboard.php");
+            }
+            exit();
+        } else {
+            echo "Invalid password.";
+        }
+    } else {
+        echo "No user found with that email.";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

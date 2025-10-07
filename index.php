@@ -256,7 +256,6 @@
                     <h3>I Am a Secretary</h3>
                     <p class="role-description">Manage appointments, handle patients records, and digitize prescription</p>
                     <a class="btn btn-primary" href="signup/secretary_signup.php?role=secretary" role="button">Continue as Secretary</a>
-
                 </div>
             </div>
         </div>
