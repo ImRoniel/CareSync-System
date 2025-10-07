@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "caresync_db"; // ✅ Make sure this matches your actual database name
+$dbname = "caresync_db"; 
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
