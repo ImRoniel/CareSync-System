@@ -1,5 +1,5 @@
 <?php
-include('includes/db_connect.php');
+include(__DIR__ . '/../includes/db_connect.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
@@ -30,16 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="assets/css/signup.css">
+  <link rel="stylesheet" href="../assets/css/signup.css">
   <meta charset="UTF-8">
   <title>CareSync | Secretary Signup</title>
 </head>
 <body>
   <div class="signup-container">
-    <img src="assets/images/logo.png" alt="CareSync Logo">
+    <img src="../assets/images/3.png" alt="CareSync Logo">
     <h2>Secretary Registration</h2>
 
     <form action="controllers/auth/register_user.php" method="POST">
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button type="submit" class="btn">Sign Up</button>
     </form>
 
-    <p class="login-link">Already have an account? <a href="login.php">Login</a></p>
+    <p class="login-link">Already have an account? <a href="../login.php">Login</a></p>
   </div>
 </body>
 </html>

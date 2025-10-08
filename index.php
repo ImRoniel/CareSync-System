@@ -237,7 +237,7 @@
                     </div>
                     <h3>I Am a Patient</h3>
                     <p class="role-description">Book appointments, view prescriptions, track your bills, and health records </p>
-                    <a class="btn btn-primary" href="signup/patient_signup.php?role=patient" role="button">Continue as Patient</a>
+                    <a class="btn btn-primary" href="../signup/patient_signup.php?role=patient" role="button">Continue as Patient</a>
                 </div>
                 
                 <div class="role-card">
@@ -246,7 +246,7 @@
                     </div>
                     <h3>I Am a Doctor</h3>
                     <p class="role-description">View your schedules, patient details, and billing updates easily and securely</p>
-                    <a class="btn btn-primary" href="signup/doctor_signup.php?role=doctor" role="button" >Continue as Doctor</a>
+                    <a class="btn btn-primary" href="../signup/doctor_signup.php?role=doctor" role="button" >Continue as Doctor</a>
                 </div>
                 
                 <div class="role-card">
@@ -255,7 +255,7 @@
                     </div>
                     <h3>I Am a Secretary</h3>
                     <p class="role-description">Manage appointments, handle patients records, and digitize prescription</p>
-                    <a class="btn btn-primary" href="signup/secretary_signup.php?role=secretary" role="button">Continue as Secretary</a>
+                    <a class="btn btn-primary" href="../signup/secretary_signup.php?role=secretary" role="button">Continue as Secretary</a>
                 </div>
             </div>
         </div>

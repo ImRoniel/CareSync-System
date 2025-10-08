@@ -44,6 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Error: " . $e->getMessage();
     }
 }
+  if (isset($_GET['success']) && $_GET['success'] === 'logged_out'): ?>
+    <p style="color: green;">You have been logged out successfully.</p>
+<?php endif; 
 ?>
 
 
