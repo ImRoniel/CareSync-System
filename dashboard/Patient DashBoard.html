@@ -1,11 +1,9 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareSync - Doctor Dashboard</title>
+    <title>CareSync - Patient</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -321,11 +319,6 @@
             color: var(--danger);
         }
         
-        .status-in-progress {
-            background-color: rgba(46, 96, 61, 0.1);
-            color: var(--text-medium);
-        }
-        
         .activity-list {
             list-style: none;
         }
@@ -415,6 +408,37 @@
             font-size: 0.9rem;
             color: var(--text-medium);
             margin-bottom: 0;
+        }
+        
+        .prescription-list {
+            list-style: none;
+        }
+        
+        .prescription-item {
+            padding: 15px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 15px;
+        }
+        
+        .prescription-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .prescription-doctor {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .prescription-date {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .prescription-details {
+            color: var(--text-medium);
         }
         
         footer {
@@ -542,17 +566,17 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">s
-                    <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
+                <div class="logo">
+                    <img src="3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </div>
                 
                 <nav class="nav-links">
                     <a>Dashboard</a>
-                    <a>Schedule</a>
-                    <a>Patients</a>
+                    <a>Appointments</a>
                     <a>Prescriptions</a>
-                    <a>Reports</a>
+                    <a>Health Records</a>
+                    <a>Billing</a>
                 </nav>
                 
                 <div class="nav-actions">
@@ -571,14 +595,14 @@
         <div class="container">
             <div class="dashboard-header">
                 <div>
-                    <h1>Doctor</h1>
-                    <p>Welcome back, Dr. Name here</p>
+                    <h1>Patient</h1>
+                    <p>Welcome back, Name here</p>
                 </div>
                 <div class="user-info">
-                    <div class="user-avatar">MC</div>
+                    <div class="user-avatar">SJ</div>
                     <div>
-                        <p>Dr. Name here</p>
-                        <small>type of doctor here e.g. cardiologist</small>
+                        <p>Name here</p>
+                        <small>Patient ID: ID idk?</small>
                     </div>
                 </div>
             </div>
@@ -589,18 +613,8 @@
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>18</h3>
-                        <p>Today's Appointments</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>142</h3>
-                        <p>Total Patients</p>
+                        <h3>2</h3>
+                        <p>Upcoming Appointments</p>
                     </div>
                 </div>
                 
@@ -609,18 +623,28 @@
                         <i class="fas fa-prescription"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>24</h3>
-                        <p>Prescriptions Today</p>
+                        <h3>5</h3>
+                        <p>Active Prescriptions</p>
                     </div>
                 </div>
                 
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="fas fa-file-invoice"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>$3,240</h3>
-                        <p>Revenue This Week</p>
+                        <h3>1</h3>
+                        <p>Pending Bills</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>12</h3>
+                        <p>Health Records</p>
                     </div>
                 </div>
             </div>
@@ -629,49 +653,31 @@
                 <div class="left-column">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Today's Appointments</h2>
-                            <div class="btn btn-secondary">View Schedule</div>
+                            <h2>Upcoming Appointments</h2>
+                            <div class="btn btn-secondary">View All</div>
                         </div>
                         
                         <table class="appointments-table">
                             <thead>
                                 <tr>
-                                    <th>Patient</th>
-                                    <th>Time</th>
+                                    <th>Doctor</th>
+                                    <th>Date & Time</th>
                                     <th>Type</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Name here</td>
-                                    <td>9:00 AM</td>
-                                    <td>Consultation</td>
+                                    <td>Dr. Name here</td>
+                                    <td>Oct 1, 2025 - 10:00 AM</td>
+                                    <td>Follow-up</td>
                                     <td><span class="status-badge status-confirmed">Confirmed</span></td>
                                 </tr>
                                 <tr>
-                                    <td>Name here</td>
-                                    <td>10:15 AM</td>
-                                    <td>Follow-up</td>
-                                    <td><span class="status-badge status-in-progress">In Progress</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>11:30 AM</td>
-                                    <td>Check-up</td>
+                                    <td>Dr. Name here</td>
+                                    <td>Oct 2, 2025 - 2:30 PM</td>
+                                    <td>Consultation</td>
                                     <td><span class="status-badge status-pending">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>2:00 PM</td>
-                                    <td>Consultation</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>3:45 PM</td>
-                                    <td>Follow-up</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -679,13 +685,34 @@
                     
                     <div class="card">
                         <div class="card-header">
-                            <h2>Patient Statistics</h2>
-                            <div class="btn btn-secondary">View Report</div>
+                            <h2>Current Prescriptions</h2>
+                            <div class="btn btn-secondary">View All</div>
                         </div>
                         
-                        <div class="chart-container">
-                            <p>Patient Visit Trends Chart</p>
-                        </div>
+                        <ul class="prescription-list">
+                            <li class="prescription-item">
+                                <div class="prescription-header">
+                                    <span class="prescription-doctor">Dr. Name here</span>
+                                    <span class="prescription-date">Sept 28, 2023</span>
+                                </div>
+                                <div class="prescription-details">
+                                    <p><strong>Medication:</strong> Lisinopril 10mg</p>
+                                    <p><strong>Dosage:</strong> Once daily</p>
+                                    <p><strong>Refills:</strong> 2 remaining</p>
+                                </div>
+                            </li>
+                            <li class="prescription-item">
+                                <div class="prescription-header">
+                                    <span class="prescription-doctor">Dr. Name here</span>
+                                    <span class="prescription-date">Sept 15, 2023</span>
+                                </div>
+                                <div class="prescription-details">
+                                    <p><strong>Medication:</strong> Metformin 500mg</p>
+                                    <p><strong>Dosage:</strong> Twice daily</p>
+                                    <p><strong>Refills:</strong> 1 remaining</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 
@@ -700,28 +727,28 @@
                                 <div class="action-icon">
                                     <i class="fas fa-calendar-plus"></i>
                                 </div>
-                                <p>Add Availability</p>
+                                <p>Book Appointment</p>
                             </div>
                             
                             <div class="action-btn">
                                 <div class="action-icon">
                                     <i class="fas fa-prescription"></i>
                                 </div>
-                                <p>Create Prescription</p>
+                                <p>Request Refill</p>
                             </div>
                             
                             <div class="action-btn">
                                 <div class="action-icon">
                                     <i class="fas fa-file-medical"></i>
                                 </div>
-                                <p>Update Records</p>
+                                <p>View Records</p>
                             </div>
                             
                             <div class="action-btn">
                                 <div class="action-icon">
-                                    <i class="fas fa-chart-line"></i>
+                                    <i class="fas fa-credit-card"></i>
                                 </div>
-                                <p>View Reports</p>
+                                <p>Pay Bill</p>
                             </div>
                         </div>
                     </div>
@@ -734,23 +761,23 @@
                         <ul class="activity-list">
                             <li class="activity-item">
                                 <div class="activity-icon">
-                                    <i class="fas fa-prescription"></i>
+                                    <i class="fas fa-calendar-check"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <h4>New Prescription</h4>
-                                    <p>Prescription created for Name here</p>
-                                    <div class="activity-time">10 minutes ago</div>
+                                    <h4>Appointment Booked</h4>
+                                    <p>Follow-up with Dr. Name here</p>
+                                    <div class="activity-time">2 days ago</div>
                                 </div>
                             </li>
                             
                             <li class="activity-item">
                                 <div class="activity-icon">
-                                    <i class="fas fa-calendar-plus"></i>
+                                    <i class="fas fa-prescription"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <h4>Appointment Scheduled</h4>
-                                    <p>New appointment with Name here</p>
-                                    <div class="activity-time">1 hour ago</div>
+                                    <h4>Prescription Refilled</h4>
+                                    <p>Lisinopril 10mg</p>
+                                    <div class="activity-time">1 week ago</div>
                                 </div>
                             </li>
                             
@@ -759,20 +786,9 @@
                                     <i class="fas fa-file-invoice"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <h4>Payment Received</h4>
-                                    <p>Payment from Name here</p>
-                                    <div class="activity-time">2 hours ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Patient</h4>
-                                    <p>Name here registered as new patient</p>
-                                    <div class="activity-time">Yesterday</div>
+                                    <h4>Bill Paid</h4>
+                                    <p>Consultation fee - $150</p>
+                                    <div class="activity-time">2 weeks ago</div>
                                 </div>
                             </li>
                         </ul>
@@ -800,9 +816,9 @@
                     <h3>Quick Links</h3>
                     <ul>
                         <li><a>Dashboard</a></li>
-                        <li><a>Schedule</a></li>
-                        <li><a>Patients</a></li>
+                        <li><a>Appointments</a></li>
                         <li><a>Prescriptions</a></li>
+                        <li><a>Health Records</a></li>
                     </ul>
                 </div>
                 
