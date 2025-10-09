@@ -1,0 +1,7 @@
+1. dynamic signup
+2. if role == patient 
+    certain credential for patient
+    else if role == doctor 
+     certain credential for doctor
+     else role == secretaries 
+      certain credential for secretaries

@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.role-container {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.role-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.role {
+    display: inline-block;
+    text-decoration: none;
+    background: #2E8949;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.role:hover {
+    background: #256c3a;
+}
+
+.doctor { background: #3b7ddd; }
+.patient { background: #2E8949; }
+.secretary { background: #ad5057; }
+
+.doctor:hover { background: #2e5ca8; }
+.patient:hover { background: #256c3a; }
+.secretary:hover { background: #903b46; }

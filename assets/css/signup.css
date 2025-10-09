@@ -1,93 +1,54 @@
 body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+    font-family: Arial, sans-serif;
+    background: #f7f9fb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-    .signup-container {
-      background: #ffffff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-      width: 400px;
-      text-align: center;
-    }
+.signup-container {
+    background: white;
+    padding: 35px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
 
-    .signup-container img {
-      width: 80px;
-      margin-bottom: 20px;
-    }
+.signup-container h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
 
-    h2 {
-      margin-bottom: 20px;
-      color: #626262;
-    }
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
 
-    .input-group {
-      margin-bottom: 15px;
-      text-align: left;
-    }
+textarea {
+    height: 80px;
+    resize: none;
+}
 
-    .input-group label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: bold;
-      color: #333;
-    }
+button {
+    width: 100%;
+    padding: 10px;
+    background: #2E8949;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
 
-    .input-group input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      font-size: 14px;
-    }
+button:hover {
+    background: #256c3a;
+}
 
-    .role-selection {
-      margin: 15px 0;
-      text-align: left;
-    }
-
-    .role-selection label {
-      margin-right: 15px;
-      font-size: 14px;
-      color: #333;
-    }
-
-    .btn {
-      background: #207c33;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      width: 100%;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .btn:hover {
-      background: #154d1e;
-    }
-
-    .login-link {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #333;
-    }
-
-    .login-link a {
-      color: #207c33;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .login-link a:hover {
-      text-decoration: underline;
-    }
+.error {
+    color: red;
+    text-align: center;
+    font-size: 0.9em;
+}
