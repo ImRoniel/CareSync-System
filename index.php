@@ -627,8 +627,8 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <a href="#" class="logo">
-                    <img src="3.png" alt="CareSync Logo" class="logo-image">
+                <a href="index.php" class="logo">
+                    <img src="assets/images/3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </a>
                 
@@ -640,8 +640,8 @@
                 </nav>
                 
                 <div class="nav-actions">
-                    <a href="#" class="btn btn-secondary">Sign In</a>
-                    <a href="#contact" class="btn btn-primary">Contact Us</a>
+                    <a href="../login/login.php" class="btn btn-secondary">Sign In</a>
+                    <a href="signup.php" class="btn btn-primary">Sign Up</a>
                 </div>
                 
                 <button class="mobile-menu-btn">
@@ -658,7 +658,7 @@
                 <p>CareSync is a comprehensive clinic management system that integrates patient scheduling, digital prescriptions, and billing into one seamless platform. Save time, reduce errors, and improve patient care.</p>
                 <div class="hero-actions">
                     <a href="#features" class="btn btn-primary btn-large">Learn More</a>
-                    <a href="#contact" class="btn btn-secondary">Contact Us</a>
+                    <a href="signup/signup.php" class="btn btn-secondary">Get Started</a>
                 </div>
             </div>
         </div>
@@ -802,7 +802,7 @@
             </div>
             
             <div class="solutions-grid">
-                <div class="solution-card" onclick="location.href='#role-selection'">
+                <div class="solution-card" onclick="location.href='role_selection.php'">
                     <div class="solution-image">
                         <i class="fas fa-laptop"></i>
                     </div>
@@ -812,7 +812,7 @@
                     </div>
                 </div>
                 
-                <div class="solution-card" onclick="location.href='#role-selection'">
+                <div class="solution-card" onclick="location.href='role_selection.php'">
                     <div class="solution-image">
                         <i class="fas fa-tasks"></i>
                     </div>
@@ -822,7 +822,7 @@
                     </div>
                 </div>
                 
-                <div class="solution-card" onclick="location.href='#role-selection'">
+                <div class="solution-card" onclick="location.href='role_selection.php'">
                     <div class="solution-image">
                         <i class="fas fa-stethoscope"></i>
                     </div>
@@ -843,31 +843,31 @@
             </div>
             
             <div class="roles-grid">
-                <div class="role-card" onclick="location.href='patient-dashboard.html'">
+                <div class="role-card" onclick="location.href='signup/signup.php?role=patient'">
                     <div class="role-icon">
                         <i class="fas fa-user-injured"></i>
                     </div>
                     <h3>I Am a Patient</h3>
-                    <p class="role-description">Book appointments, view prescriptions, track your bills, and health records </p>
-                    <a href="patient-dashboard.html" class="btn btn-primary">Continue as Patient</a>
+                    <p class="role-description">Book appointments, view prescriptions, track your bills, and health records</p>
+                    <a href="signup/signup.php?role=patient" class="btn btn-primary">Continue as Patient</a>
                 </div>
                 
-                <div class="role-card" onclick="location.href='doctor-dashboard.html'">
+                <div class="role-card" onclick="location.href='signup/signup.php?role=doctor'">
                     <div class="role-icon">
                         <i class="fas fa-user-md"></i>
                     </div>
                     <h3>I Am a Doctor</h3>
                     <p class="role-description">View your schedules, patient details, and billing updates</p>
-                    <a href="doctor-dashboard.html" class="btn btn-primary">Continue as Doctor</a>
+                    <a href="signup/signup.php?role=doctor" class="btn btn-primary">Continue as Doctor</a>
                 </div>
                 
-                <div class="role-card" onclick="location.href='secretary-dashboard.html'">
+                <div class="role-card" onclick="location.href='signup/signup.php?role=secretary'">
                     <div class="role-icon">
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <h3>I Am a Secretary</h3>
                     <p class="role-description">Manage appointments, handle patients records, and digitize prescription</p>
-                    <a href="secretary-dashboard.html" class="btn btn-primary">Continue as Secretary</a>
+                    <a href="signup/signup.php?role=secretary" class="btn btn-primary">Continue as Secretary</a>
                 </div>
             </div>
         </div>
@@ -878,8 +878,8 @@
             <h2>Ready to Transform Your Clinic?</h2>
             <p>Join hundreds of clinics that have streamlined their operations with CareSync. Contact us to learn more about our solution.</p>
             <div class="hero-actions">
-                <a href="contact.html" class="btn btn-primary btn-large">Contact Us</a>
-                <a href="#features" class="btn btn-secondary">Explore Features</a>
+                <a href="contact.php" class="btn btn-primary btn-large">Contact Us</a>
+                <a href="signup.php" class="btn btn-secondary">Get Started</a>
             </div>
         </div>
     </section>
