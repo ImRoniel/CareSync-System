@@ -94,10 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     error_log("Form not submitted via POST method");
 }
 
-// Close database connection
-$conn->close();
+// Don't close connection here as we might need it for future requests
+// $conn->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

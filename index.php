@@ -640,8 +640,8 @@
                 </nav>
                 
                 <div class="nav-actions">
-                    <a href="../login/login.php" class="btn btn-secondary">Sign In</a>
-                    <a href="signup.php" class="btn btn-primary">Sign Up</a>
+                    <a href="login/login.php" class="btn btn-secondary">Sign In</a>
+                    <a href="signup/role_selection.php" class="btn btn-primary">Sign Up</a>
                 </div>
                 
                 <button class="mobile-menu-btn">

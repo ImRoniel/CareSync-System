@@ -98,10 +98,10 @@
             font-weight: 600;
             text-decoration: none;
             border: none;
-            cursor: default;
+            cursor: pointer;
             gap: 10px;
             font-size: 1rem;
-            pointer-events: none;
+            transition: all 0.3s ease;
         }
         
         .btn-primary {
@@ -109,10 +109,22 @@
             color: white;
         }
         
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
         .btn-secondary {
             background-color: transparent;
             border: 2px solid var(--primary);
             color: var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(46, 137, 73, 0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         
         header {
@@ -140,8 +152,7 @@
             font-size: 1.75rem;
             color: var(--primary);
             text-decoration: none;
-            cursor: default;
-            pointer-events: none;
+            cursor: pointer;
         }
         
         .logo-image {
@@ -159,9 +170,30 @@
             text-decoration: none;
             color: var(--text-dark);
             font-weight: 500;
-            transition: none;
-            cursor: default;
-            pointer-events: none;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            padding: 8px 0;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .nav-links a.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
         }
         
         .nav-actions {
@@ -175,8 +207,7 @@
             border: none;
             font-size: 1.5rem;
             color: var(--text-dark);
-            cursor: default;
-            pointer-events: none;
+            cursor: pointer;
         }
         
         .dashboard {
@@ -209,6 +240,12 @@
             color: white;
             font-weight: bold;
             font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
         }
         
         .stats-grid {
@@ -226,6 +263,13 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
         }
         
         .stat-icon {
@@ -264,6 +308,11 @@
             padding: 20px;
             box-shadow: var(--shadow-sm);
             margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-md);
         }
         
         .card-header {
@@ -301,12 +350,27 @@
             border-bottom: none;
         }
         
+        .appointments-table tr {
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .appointments-table tr:hover {
+            background-color: rgba(46, 137, 73, 0.05);
+        }
+        
         .status-badge {
             display: inline-block;
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .status-badge:hover {
+            transform: scale(1.05);
         }
         
         .status-confirmed {
@@ -333,6 +397,15 @@
             gap: 15px;
             padding: 15px 0;
             border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .activity-item:hover {
+            background-color: rgba(46, 137, 73, 0.05);
+            border-radius: var(--radius-md);
+            padding-left: 10px;
+            padding-right: 10px;
         }
         
         .activity-item:last-child {
@@ -382,7 +455,14 @@
             border-radius: var(--radius-md);
             padding: 20px 10px;
             text-align: center;
-            cursor: default;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(46, 137, 73, 0.15);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
         }
         
         .action-icon {
@@ -416,6 +496,13 @@
             border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
             margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .queue-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
         }
         
         .queue-info h4 {
@@ -429,6 +516,12 @@
         
         .queue-status {
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .queue-status:hover {
+            transform: scale(1.05);
         }
         
         .prescription-requests {
@@ -440,6 +533,14 @@
             border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
             margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .prescription-request-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
         }
         
         .request-header {
@@ -493,9 +594,12 @@
         .footer-column ul li a {
             color: var(--text-light);
             text-decoration: none;
-            transition: none;
-            cursor: default;
-            pointer-events: none;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
         }
         
         .footer-column p {
@@ -522,9 +626,13 @@
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
             text-decoration: none;
-            transition: none;
-            cursor: default;
-            pointer-events: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .social-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
         }
         
         .copyright {
@@ -533,6 +641,74 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-light);
             font-size: 0.875rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-medium);
+        }
+        
+        .modal-close:hover {
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-medium);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
         }
         
         @media (max-width: 1024px) {
@@ -587,13 +763,13 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">
+                <a class="logo" id="logo">
                     <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
-                </div>
+                </a>
                 
                 <nav class="nav-links">
-                    <a>Dashboard</a>
+                    <a class="active">Dashboard</a>
                     <a>Appointments</a>
                     <a>Patients</a>
                     <a>Queue</a>
@@ -601,11 +777,11 @@
                 </nav>
                 
                 <div class="nav-actions">
-                    <div class="btn btn-secondary">Profile</div>
-                    <div class="btn btn-primary">Logout</div>
+                    <button class="btn btn-secondary" id="profileBtn">Profile</button>
+                    <button class="btn btn-primary" id="logoutBtn">Logout</button>
                 </div>
                 
-                <button class="mobile-menu-btn">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -620,7 +796,7 @@
                     <p>Welcome back, Name here</p>
                 </div>
                 <div class="user-info">
-                    <div class="user-avatar">LT</div>
+                    <div class="user-avatar" id="userAvatar">LT</div>
                     <div>
                         <p>Name here</p>
                         <small>Clinic Secretary</small>
@@ -629,7 +805,7 @@
             </div>
             
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" id="appointmentsStat">
                     <div class="stat-icon">
                         <i class="fas fa-calendar-check"></i>
                     </div>
@@ -639,7 +815,7 @@
                     </div>
                 </div>
                 
-                <div class="stat-card">
+                <div class="stat-card" id="queueStat">
                     <div class="stat-icon">
                         <i class="fas fa-users"></i>
                     </div>
@@ -649,7 +825,7 @@
                     </div>
                 </div>
                 
-                <div class="stat-card">
+                <div class="stat-card" id="prescriptionsStat">
                     <div class="stat-icon">
                         <i class="fas fa-file-prescription"></i>
                     </div>
@@ -659,7 +835,7 @@
                     </div>
                 </div>
                 
-                <div class="stat-card">
+                <div class="stat-card" id="callsStat">
                     <div class="stat-icon">
                         <i class="fas fa-phone"></i>
                     </div>
@@ -675,7 +851,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h2>Patient Queue</h2>
-                            <div class="btn btn-secondary">Manage Queue</div>
+                            <button class="btn btn-secondary" id="manageQueueBtn">Manage Queue</button>
                         </div>
                         
                         <ul class="patient-queue">
@@ -713,7 +889,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h2>Appointment Requests</h2>
-                            <div class="btn btn-secondary">View All</div>
+                            <button class="btn btn-secondary" id="viewAllAppointmentsBtn">View All</button>
                         </div>
                         
                         <table class="appointments-table">
@@ -756,28 +932,28 @@
                         </div>
                         
                         <div class="quick-actions">
-                            <div class="action-btn">
+                            <div class="action-btn" id="scheduleAppointmentBtn">
                                 <div class="action-icon">
                                     <i class="fas fa-calendar-plus"></i>
                                 </div>
                                 <p>Schedule Appointment</p>
                             </div>
                             
-                            <div class="action-btn">
+                            <div class="action-btn" id="registerPatientBtn">
                                 <div class="action-icon">
                                     <i class="fas fa-user-plus"></i>
                                 </div>
                                 <p>Register Patient</p>
                             </div>
                             
-                            <div class="action-btn">
+                            <div class="action-btn" id="processPrescriptionBtn">
                                 <div class="action-icon">
                                     <i class="fas fa-file-prescription"></i>
                                 </div>
                                 <p>Process Prescription</p>
                             </div>
                             
-                            <div class="action-btn">
+                            <div class="action-btn" id="callPatientBtn">
                                 <div class="action-icon">
                                     <i class="fas fa-phone"></i>
                                 </div>
@@ -870,6 +1046,47 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal for Schedule Appointment -->
+    <div class="modal" id="scheduleAppointmentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule New Appointment</h2>
+                <button class="modal-close" id="closeScheduleModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="patientSelect">Select Patient</label>
+                <select class="form-control" id="patientSelect">
+                    <option value="">Choose a patient</option>
+                    <option value="1">Name here</option>
+                    <option value="2">Name here</option>
+                    <option value="3">Name here</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="appointmentDate">Appointment Date</label>
+                <input type="date" class="form-control" id="appointmentDate">
+            </div>
+            <div class="form-group">
+                <label for="appointmentTime">Appointment Time</label>
+                <input type="time" class="form-control" id="appointmentTime">
+            </div>
+            <div class="form-group">
+                <label for="doctorSelect">Select Doctor</label>
+                <select class="form-control" id="doctorSelect">
+                    <option value="">Choose a doctor</option>
+                    <option value="1">Dr. Name here</option>
+                    <option value="2">Dr. Name here</option>
+                    <option value="3">Dr. Name here</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="appointmentReason">Reason for Visit</label>
+                <textarea class="form-control" id="appointmentReason" rows="3"></textarea>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;">Schedule Appointment</button>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
