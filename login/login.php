@@ -19,8 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     
-    // Debug: Check if form data is received
-    error_log("Login attempt - Email: $email, Password: " . (empty($password) ? 'empty' : 'provided'));
+    echo "<!-- DEBUG: Form submitted - Email: $email -->";
     
     // Validation
     if (empty($email)) {
@@ -32,70 +31,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // If no validation errors, check credentials
     if (empty($errors)) {
-        // Prepare SQL statement to prevent SQL injection
-        $stmt = $conn->prepare("SELECT id, name, email, password, role FROM users WHERE email = ?");
-        if ($stmt) {
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $stmt->store_result();
+        // First, let's check if the users table exists and has data
+        $check_table = $conn->query("SHOW TABLES LIKE 'users'");
+        if ($check_table->num_rows == 0) {
+            $errors[] = "Users table doesn't exist. Please run the setup script.";
+        } else {
+            // Check if there are any users
+            $user_count = $conn->query("SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
+            echo "<!-- DEBUG: User count in database: $user_count -->";
             
-            if ($stmt->num_rows == 1) {
-                $stmt->bind_result($user_id, $user_name, $user_email, $hashed_password, $user_role);
-                $stmt->fetch();
+            // Prepare SQL statement to prevent SQL injection
+            $stmt = $conn->prepare("SELECT id, name, email, password, role FROM users WHERE email = ?");
+            if ($stmt) {
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $stmt->store_result();
                 
-                // Debug: Check what we retrieved
-                error_log("User found - ID: $user_id, Email: $user_email, Role: $user_role");
+                echo "<!-- DEBUG: Found " . $stmt->num_rows . " users with email: $email -->";
                 
-                // Verify password
-                if (password_verify($password, $hashed_password)) {
-                    // Password is correct, set session variables
-                    $_SESSION['user_id'] = $user_id;
-                    $_SESSION['user_name'] = $user_name;
-                    $_SESSION['user_email'] = $user_email;
-                    $_SESSION['user_role'] = $user_role;
-                    $_SESSION['logged_in'] = true;
+                if ($stmt->num_rows == 1) {
+                    $stmt->bind_result($user_id, $user_name, $user_email, $hashed_password, $user_role);
+                    $stmt->fetch();
                     
-                    // Debug: Session set
-                    error_log("Login successful - Redirecting to dashboard");
+                    echo "<!-- DEBUG: User found - ID: $user_id, Role: $user_role -->";
                     
-                    // Redirect based on role - CORRECTED PATHS
-                    switch ($user_role) {
-                        case 'patient':
-                            header("Location: ../dashboard/patient_dashboard.php");
-                            exit();
-                        case 'doctor':
-                            header("Location: ../dashboard/doctor_dashboard.php");
-                            exit();
-                        case 'secretary':
-                            header("Location: ../dashboard/secretary_dashboard.php");
-                            exit();
-                        default:
-                            header("Location: ../index.php");
-                            exit();
+                    // Verify password
+                    if (password_verify($password, $hashed_password)) {
+                        // Password is correct, set session variables
+                        $_SESSION['user_id'] = $user_id;
+                        $_SESSION['user_name'] = $user_name;
+                        $_SESSION['user_email'] = $user_email;
+                        $_SESSION['user_role'] = $user_role;
+                        $_SESSION['logged_in'] = true;
+                        
+                        echo "<!-- DEBUG: Login successful, redirecting... -->";
+                        
+                        // Redirect based on role
+                        switch ($user_role) {
+                            case 'patient':
+                                header("Location: ../dashboard/patient_dashboard.php");
+                                exit();
+                            case 'doctor':
+                                header("Location: ../dashboard/doctor_dashboard.php");
+                                exit();
+                            case 'secretary':
+                                header("Location: ../dashboard/secretary_dashboard.php");
+                                exit();
+                            default:
+                                header("Location: ../index.php");
+                                exit();
+                        }
+                    } else {
+                        $errors[] = "Invalid email or password";
+                        echo "<!-- DEBUG: Password verification failed -->";
                     }
                 } else {
                     $errors[] = "Invalid email or password";
-                    error_log("Password verification failed");
+                    echo "<!-- DEBUG: No user found with email: $email -->";
                 }
+                
+                $stmt->close();
             } else {
-                $errors[] = "Invalid email or password";
-                error_log("No user found with email: $email");
+                $errors[] = "Database error: " . $conn->error;
+                echo "<!-- DEBUG: Prepare statement failed: " . $conn->error . " -->";
             }
-            
-            $stmt->close();
-        } else {
-            $errors[] = "Database error: " . $conn->error;
-            error_log("Prepare statement failed: " . $conn->error);
         }
-    } else {
-        error_log("Form validation errors: " . implode(", ", $errors));
     }
-} else {
-    error_log("Form not submitted via POST method");
 }
-
-// Don't close connection here as we might need it for future requests
-// $conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -149,6 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
         
         .container {
@@ -201,6 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             width: 40px;
             height: 40px;
             object-fit: contain;
+            filter: brightness(0) invert(1);
         }
         
         .left-content {
@@ -333,12 +337,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-shadow: none;
         }
         
-        .btn-secondary {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        
         .form-options {
             display: flex;
             justify-content: space-between;
@@ -408,13 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             display: block;
         }
         
-        .role-btn.active {
-            border-color: var(--primary);
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .role-btn:hover:not(.active) {
+        .role-btn:hover {
             border-color: var(--primary);
             color: var(--primary);
         }
@@ -431,14 +423,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: var(--danger);
         }
         
-        .debug-info {
+        .alert-info {
+            background-color: rgba(46, 137, 73, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .test-credentials {
             background-color: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: var(--radius-md);
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: #6c757d;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
         }
         
         @media (max-width: 768px) {
@@ -446,7 +443,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 flex-direction: column;
                 max-width: 100%;
                 min-height: auto;
-                margin: 20px;
             }
             
             .left-panel {
@@ -479,7 +475,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container">
         <div class="left-panel">
             <a href="../index.php" class="logo">
-                <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
+                <div class="logo-image">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
                 <span>CareSync</span>
             </a>
             
@@ -504,14 +502,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p>Enter your credentials to access your account</p>
                 </div>
                 
-                <?php if (!empty($errors)): ?>
-                    <div class="alert alert-error">
-                        <?php foreach ($errors as $error): ?>
-                            <p><?php echo $error; ?></p>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-                
+               
                 <form method="POST" action="" id="loginForm">
                     <div class="form-group">
                         <label for="email" class="required">Email</label>
@@ -569,20 +560,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
-        });
-
-        // Add active class to role buttons on click
-        document.querySelectorAll('.role-btn').forEach(button => {
-            button.addEventListener('click', function(e) {
-                document.querySelectorAll('.role-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
+            
+            // Allow form to submit normally
+            return true;
         });
 
         // Debug: Check if form is working
         console.log('Login form loaded successfully');
+        
+        // Auto-fill test credentials for development
+        // document.getElementById('email').value = 'roniel@gmail.com';
+        // document.getElementById('password').value = 'password123';
     </script>
 </body>
 </html>

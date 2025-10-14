@@ -1,9 +1,30 @@
+
+
 <?php
-session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'doctor') {
-    header("Location: ../login/login.php");
+require_once '../model/patient/patient_model.php';
+require_once '../config/db_connect.php';
+require_once '../controllers/auth/session.php';
+require_once '../model/doctor/user_model.php';
+require_once '../model/appointment/appointment_model.php';
+
+$user = getUserById($conn, $_SESSION['user_id']);
+
+if (!$user) {
+    echo "User not found.";
     exit();
 }
+
+// var_dump($user);
+
+// Get doctor's appointments using doctor_id from joined query
+$appointments = [];
+if (!empty($user['doctor_id'])) {
+    $appointments = getDoctorAppointments($conn, $user['doctor_id']);
+}
+
+
+$totalPatients = getTotalPatients($conn);
+
 ?>
 
 <!DOCTYPE html>
@@ -654,13 +675,13 @@ footer {
             <div class="dashboard-header">
                 <div>
                     <h1>Doctor</h1>
-                    <p>Welcome back, Dr. Name here</p>
+                    <p>Welcome back, <?php echo htmlspecialchars($user['name']); ?></p>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar">MC</div>
                     <div>
-                        <p>Dr. Name here</p>
-                        <small>type of doctor here e.g. cardiologist</small>
+                        <p>Dr. <?php echo htmlspecialchars($user['name']); ?></p>
+                        <small><?php echo isset($user['specialization']) ? htmlspecialchars($user['specialization']) : 'N/A'; ?></p></small>
                     </div>
                 </div>
             </div>
@@ -671,7 +692,9 @@ footer {
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>18</h3>
+                        <h3>
+                            <?php echo count($appointments); ?>
+                        </h3>
                         <p>Today's Appointments</p>
                     </div>
                 </div>
@@ -681,8 +704,10 @@ footer {
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>142</h3>
+                        
+                        <h3><?php echo htmlspecialchars($totalPatients); ?></h3>
                         <p>Total Patients</p>
+
                     </div>
                 </div>
                 
@@ -724,38 +749,27 @@ footer {
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                           <tbody>
+                            <?php if (empty($appointments)): ?>
                                 <tr>
-                                    <td>Name here</td>
-                                    <td>9:00 AM</td>
-                                    <td>Consultation</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                    <td colspan="4">No appointments today.</td>
                                 </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>10:15 AM</td>
-                                    <td>Follow-up</td>
-                                    <td><span class="status-badge status-in-progress">In Progress</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>11:30 AM</td>
-                                    <td>Check-up</td>
-                                    <td><span class="status-badge status-pending">Pending</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>2:00 PM</td>
-                                    <td>Consultation</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>3:45 PM</td>
-                                    <td>Follow-up</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($appointments as $appt): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($appt['patient_name']); ?></td> <!-- Replace with name if available -->
+                                        <td><?php echo date('g:i A', strtotime($appt['appointment_time'])); ?></td>
+                                        <td>Consultation</td> <!-- You can update if you have appointment type info -->
+                                        <td>
+                                            <span class="status-badge status-<?php echo htmlspecialchars($appt['status']); ?>">
+                                                <?php echo ucfirst($appt['status']); ?>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                             </tbody>
+
                         </table>
                     </div>
                     

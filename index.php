@@ -857,7 +857,7 @@
                         <i class="fas fa-user-md"></i>
                     </div>
                     <h3>I Am a Doctor</h3>
-                    <p class="role-description">View your schedules, patient details, and billing updates</p>
+                    <p class="role-description">View your schedules, patient details, and billing updates efficiently and accurately</p>
                     <a href="signup/signup.php?role=doctor" class="btn btn-primary">Continue as Doctor</a>
                 </div>
                 

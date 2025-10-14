@@ -1,3 +1,8 @@
+<?php
+require_once '../controllers/auth/session.php';
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,18 +1,8 @@
 <?php
-session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'secretary') {
-    header("Location: ../login/login.php");
-    exit();
-}
+require_once '../controllers/auth/session.php';
 ?>
 
-<?php
-session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
-    header("Location: ../login/login.php");
-    exit();
-}
-?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -60,6 +50,13 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             background-color: var(--bg-light);
             color: var(--text-dark);
             line-height: 1.6;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         .container {
@@ -114,10 +111,15 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             font-weight: 600;
             text-decoration: none;
             border: none;
-            cursor: default;
+            cursor: pointer;
             gap: 10px;
             font-size: 1rem;
-            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
         
         .btn-primary {
@@ -125,10 +127,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             color: white;
         }
         
+        .btn-primary:hover {
+            background-color: #26753d;
+        }
+        
         .btn-secondary {
             background-color: transparent;
             border: 2px solid var(--primary);
             color: var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(46, 137, 73, 0.05);
         }
         
         header {
@@ -156,8 +166,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             font-size: 1.75rem;
             color: var(--primary);
             text-decoration: none;
-            cursor: default;
-            pointer-events: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
         }
         
         .logo-image {
@@ -175,9 +189,29 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             text-decoration: none;
             color: var(--text-dark);
             font-weight: 500;
-            transition: none;
-            cursor: default;
-            pointer-events: none;
+            transition: color 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            padding: 5px 0;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover:after {
+            width: 100%;
         }
         
         .nav-actions {
@@ -191,8 +225,13 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             border: none;
             font-size: 1.5rem;
             color: var(--text-dark);
-            cursor: default;
-            pointer-events: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu-btn:hover {
+            transform: scale(1.1);
+            color: var(--primary);
         }
         
         .dashboard {
@@ -206,6 +245,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border-light);
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .user-info {
@@ -225,6 +276,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             color: white;
             font-weight: bold;
             font-size: 1.2rem;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
         }
         
         .stats-grid {
@@ -242,6 +299,31 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             display: flex;
             align-items: center;
             gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: fadeInUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
         }
         
         .stat-icon {
@@ -254,6 +336,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             justify-content: center;
             color: var(--primary);
             font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover .stat-icon {
+            background-color: var(--primary);
+            color: white;
         }
         
         .stat-info h3 {
@@ -280,6 +368,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             padding: 20px;
             box-shadow: var(--shadow-sm);
             margin-bottom: 20px;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-md);
         }
         
         .card-header {
@@ -313,6 +407,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             font-weight: 600;
         }
         
+        .appointments-table tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .appointments-table tr:hover {
+            background-color: rgba(46, 137, 73, 0.03);
+        }
+        
         .appointments-table tr:last-child td {
             border-bottom: none;
         }
@@ -323,6 +425,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
+            transition: all 0.3s ease;
         }
         
         .status-confirmed {
@@ -344,6 +447,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             gap: 15px;
             padding: 15px 0;
             border-bottom: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .activity-item:hover {
+            background-color: rgba(46, 137, 73, 0.03);
+            padding-left: 10px;
+            border-radius: var(--radius-md);
         }
         
         .activity-item:last-child {
@@ -360,6 +471,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             justify-content: center;
             color: var(--primary);
             flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-item:hover .activity-icon {
+            background-color: var(--primary);
+            color: white;
         }
         
         .activity-content h4 {
@@ -388,7 +505,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             color: var(--text-medium);
             margin-top: 10px;
         }
-        
+        a
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -404,7 +521,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             border-radius: var(--radius-md);
             padding: 20px 10px;
             text-align: center;
-            cursor: default;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-5px);
+            background-color: rgba(46, 137, 73, 0.1);
+            box-shadow: var(--shadow-sm);
         }
         
         .action-icon {
@@ -418,6 +542,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             color: white;
             font-size: 1.2rem;
             margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover .action-icon {
+            background-color: var(--primary-dark);
+            transform: scale(1.1);
         }
         
         .action-btn p {
@@ -435,6 +565,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
             margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .prescription-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
         }
         
         .prescription-header {
@@ -488,9 +626,12 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
         .footer-column ul li a {
             color: var(--text-light);
             text-decoration: none;
-            transition: none;
-            cursor: default;
-            pointer-events: none;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
         }
         
         .footer-column p {
@@ -517,9 +658,13 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
             text-decoration: none;
-            transition: none;
-            cursor: default;
-            pointer-events: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .social-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
         }
         
         .copyright {
@@ -582,22 +727,22 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
     <header>
         <div class="container">
             <div class="header-content">
-                <div class="logo">
+                <a href="#" class="logo">
                     <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
-                </div>
+                </a>
                 
                 <nav class="nav-links">
-                    <a>Dashboard</a>
-                    <a>Appointments</a>
-                    <a>Prescriptions</a>
-                    <a>Health Records</a>
-                    <a>Billing</a>
+                    <a href="#">Dashboard</a>
+                    <a href="#">Appointments</a>
+                    <a href="#">Prescriptions</a>
+                    <a href="#">Health Records</a>
+                    <a href="#">Billing</a>
                 </nav>
                 
                 <div class="nav-actions">
-                    <div class="btn btn-secondary">Profile</div>
-                    <div class="btn btn-primary">Logout</div>
+                    <a href="#" class="btn btn-secondary">Profile</a>
+                    <a href="#" class="btn btn-primary">Logout</a>
                 </div>
                 
                 <button class="mobile-menu-btn">
@@ -612,19 +757,19 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             <div class="dashboard-header">
                 <div>
                     <h1>Patient</h1>
-                    <p>Welcome back, Name here</p>
+                    <p>Welcome back, Sarah Johnson</p>
                 </div>
                 <div class="user-info">
-                    <div class="user-avatar">SJ</div>
+                    <a href="#" class="user-avatar">SJ</a>
                     <div>
-                        <p>Name here</p>
-                        <small>Patient ID: ID idk?</small>
+                        <p>Sarah Johnson</p>
+                        <small>Patient ID: PT-2023-001</small>
                     </div>
                 </div>
             </div>
             
             <div class="stats-grid">
-                <div class="stat-card">
+                <a href="#" class="stat-card">
                     <div class="stat-icon">
                         <i class="fas fa-calendar-check"></i>
                     </div>
@@ -632,9 +777,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                         <h3>2</h3>
                         <p>Upcoming Appointments</p>
                     </div>
-                </div>
+                </a>
                 
-                <div class="stat-card">
+                <a href="#" class="stat-card">
                     <div class="stat-icon">
                         <i class="fas fa-prescription"></i>
                     </div>
@@ -642,9 +787,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                         <h3>5</h3>
                         <p>Active Prescriptions</p>
                     </div>
-                </div>
+                </a>
                 
-                <div class="stat-card">
+                <a href="#" class="stat-card">
                     <div class="stat-icon">
                         <i class="fas fa-file-invoice"></i>
                     </div>
@@ -652,9 +797,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                         <h3>1</h3>
                         <p>Pending Bills</p>
                     </div>
-                </div>
+                </a>
                 
-                <div class="stat-card">
+                <a href="#" class="stat-card">
                     <div class="stat-icon">
                         <i class="fas fa-heartbeat"></i>
                     </div>
@@ -662,7 +807,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                         <h3>12</h3>
                         <p>Health Records</p>
                     </div>
-                </div>
+                </a>
             </div>
             
             <div class="dashboard-grid">
@@ -670,7 +815,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                     <div class="card">
                         <div class="card-header">
                             <h2>Upcoming Appointments</h2>
-                            <div class="btn btn-secondary">View All</div>
+                            <a href="#" class="btn btn-secondary">View All</a>
                         </div>
                         
                         <table class="appointments-table">
@@ -683,14 +828,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Dr. Name here</td>
+                                <tr onclick="location.href='#'">
+                                    <td>Dr. Michael Chen</td>
                                     <td>Oct 1, 2025 - 10:00 AM</td>
                                     <td>Follow-up</td>
                                     <td><span class="status-badge status-confirmed">Confirmed</span></td>
                                 </tr>
-                                <tr>
-                                    <td>Dr. Name here</td>
+                                <tr onclick="location.href='#'">
+                                    <td>Dr. Emily Rodriguez</td>
                                     <td>Oct 2, 2025 - 2:30 PM</td>
                                     <td>Consultation</td>
                                     <td><span class="status-badge status-pending">Pending</span></td>
@@ -702,13 +847,13 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                     <div class="card">
                         <div class="card-header">
                             <h2>Current Prescriptions</h2>
-                            <div class="btn btn-secondary">View All</div>
+                            <a href="#" class="btn btn-secondary">View All</a>
                         </div>
                         
                         <ul class="prescription-list">
-                            <li class="prescription-item">
+                            <li class="prescription-item" onclick="location.href='#'">
                                 <div class="prescription-header">
-                                    <span class="prescription-doctor">Dr. Name here</span>
+                                    <span class="prescription-doctor">Dr. Michael Chen</span>
                                     <span class="prescription-date">Sept 28, 2023</span>
                                 </div>
                                 <div class="prescription-details">
@@ -717,9 +862,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                                     <p><strong>Refills:</strong> 2 remaining</p>
                                 </div>
                             </li>
-                            <li class="prescription-item">
+                            <li class="prescription-item" onclick="location.href='#'">
                                 <div class="prescription-header">
-                                    <span class="prescription-doctor">Dr. Name here</span>
+                                    <span class="prescription-doctor">Dr. Emily Rodriguez</span>
                                     <span class="prescription-date">Sept 15, 2023</span>
                                 </div>
                                 <div class="prescription-details">
@@ -739,33 +884,33 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                         </div>
                         
                         <div class="quick-actions">
-                            <div class="action-btn">
+                            <a href="#" class="action-btn">
                                 <div class="action-icon">
                                     <i class="fas fa-calendar-plus"></i>
                                 </div>
                                 <p>Book Appointment</p>
-                            </div>
+                            </a>
                             
-                            <div class="action-btn">
+                            <a href="#" class="action-btn">
                                 <div class="action-icon">
                                     <i class="fas fa-prescription"></i>
                                 </div>
                                 <p>Request Refill</p>
-                            </div>
+                            </a>
                             
-                            <div class="action-btn">
+                            <a href="#" class="action-btn">
                                 <div class="action-icon">
                                     <i class="fas fa-file-medical"></i>
                                 </div>
                                 <p>View Records</p>
-                            </div>
+                            </a>
                             
-                            <div class="action-btn">
+                            <a href="#" class="action-btn">
                                 <div class="action-icon">
                                     <i class="fas fa-credit-card"></i>
                                 </div>
                                 <p>Pay Bill</p>
-                            </div>
+                            </a>
                         </div>
                     </div>
                     
@@ -775,18 +920,18 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                         </div>
                         
                         <ul class="activity-list">
-                            <li class="activity-item">
+                            <li class="activity-item" onclick="location.href='#'">
                                 <div class="activity-icon">
                                     <i class="fas fa-calendar-check"></i>
                                 </div>
                                 <div class="activity-content">
                                     <h4>Appointment Booked</h4>
-                                    <p>Follow-up with Dr. Name here</p>
+                                    <p>Follow-up with Dr. Michael Chen</p>
                                     <div class="activity-time">2 days ago</div>
                                 </div>
                             </li>
                             
-                            <li class="activity-item">
+                            <li class="activity-item" onclick="location.href='#'">
                                 <div class="activity-icon">
                                     <i class="fas fa-prescription"></i>
                                 </div>
@@ -797,7 +942,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                                 </div>
                             </li>
                             
-                            <li class="activity-item">
+                            <li class="activity-item" onclick="location.href='#'">
                                 <div class="activity-icon">
                                     <i class="fas fa-file-invoice"></i>
                                 </div>
@@ -821,30 +966,30 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
                     <h3>CareSync</h3>
                     <p>A comprehensive clinic management system designed to streamline operations and improve patient care.</p>
                     <div class="social-links">
-                        <a><i class="fab fa-facebook-f"></i></a>
-                        <a><i class="fab fa-twitter"></i></a>
-                        <a><i class="fab fa-linkedin-in"></i></a>
-                        <a><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
                 
                 <div class="footer-column">
                     <h3>Quick Links</h3>
                     <ul>
-                        <li><a>Dashboard</a></li>
-                        <li><a>Appointments</a></li>
-                        <li><a>Prescriptions</a></li>
-                        <li><a>Health Records</a></li>
+                        <li><a href="#">Dashboard</a></li>
+                        <li><a href="#">Appointments</a></li>
+                        <li><a href="#">Prescriptions</a></li>
+                        <li><a href="#">Health Records</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-column">
                     <h3>Support</h3>
                     <ul>
-                        <li><a>Help Center</a></li>
-                        <li><a>Contact Us</a></li>
-                        <li><a>Privacy Policy</a></li>
-                        <li><a>Terms of Service</a></li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
@@ -854,5 +999,68 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'patient') {
             </div>
         </div>
     </footer>
+
+    <script>
+        // Simple animation for mobile menu toggle
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            const navActions = document.querySelector('.nav-actions');
+            
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+                navActions.style.display = 'none';
+            } else {
+                navLinks.style.display = 'flex';
+                navActions.style.display = 'flex';
+            }
+        });
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn, .action-btn, .stat-card').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.7);
+                transform: scale(0);
+                animation: ripple-animation 0.6s linear;
+            }
+            
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            .btn, .action-btn, .stat-card {
+                position: relative;
+                overflow: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
