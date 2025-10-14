@@ -1,22 +1,4 @@
 <?php
-session_start();
-
-
-
-if (isset($_SESSION['user_role']) && $_SESSION['logged_in'] === true) {
-    switch ($_SESSION['user_role']) {
-        case 'doctor':
-            header("Location: ../dashboard/doctor_dashboard.php");
-            exit();
-        case 'patient':
-            header("Location: ../dashboard/patient_dashboard.php");
-            exit();
-        case 'secretary':
-            header("Location: ../dashboard/secretary_dashboard.php");
-            exit();
-    }
-}
-
 
 
 // Include database connection
@@ -24,92 +6,49 @@ $config_path = __DIR__ . '/../config/db_connect.php';
 if (file_exists($config_path)) {
     require_once $config_path;
 } else {
-    die("Database configuration file not found. Please check the file path.");
+    die("Database configuration file not found. Please check the file path."); //debugger 
 }
 
-// Initialize variables
-$errors = [];
-$email = '';
+// dynamic null variable that is storing a text 
+$message = '';
+$message_type = '';
 
-// Process form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    
-    echo "<!-- DEBUG: Form submitted - Email: $email -->";
-    
-    // Validation
-    if (empty($email)) {
-        $errors[] = "Email is required";
-    }
-    if (empty($password)) {
-        $errors[] = "Password is required";
-    }
-    
-    // If no validation errors, check credentials
-    if (empty($errors)) {
-        // First, let's check if the users table exists and has data
-        $check_table = $conn->query("SHOW TABLES LIKE 'users'");
-        if ($check_table->num_rows == 0) {
-            $errors[] = "Users table doesn't exist. Please run the setup script.";
-        } else {
-            // Check if there are any users
-            $user_count = $conn->query("SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
-            echo "<!-- DEBUG: User count in database: $user_count -->";
-            
-            // Prepare SQL statement to prevent SQL injection
-            $stmt = $conn->prepare("SELECT id, name, email, password, role FROM users WHERE email = ?");
-            if ($stmt) {
-                $stmt->bind_param("s", $email);
-                $stmt->execute();
-                $stmt->store_result();
-                
-                echo "<!-- DEBUG: Found " . $stmt->num_rows . " users with email: $email -->";
-                
-                if ($stmt->num_rows == 1) {
-                    $stmt->bind_result($user_id, $user_name, $user_email, $hashed_password, $user_role);
-                    $stmt->fetch();
-                    
-                    echo "<!-- DEBUG: User found - ID: $user_id, Role: $user_role -->";
-                    
-                    // Verify password
-                    if (password_verify($password, $hashed_password)) {
-                        // Password is correct, set session variables
-                        $_SESSION['user_id'] = $user_id;
-                        $_SESSION['user_name'] = $user_name;
-                        $_SESSION['user_email'] = $user_email;
-                        $_SESSION['user_role'] = $user_role;
-                        $_SESSION['logged_in'] = true;
-                        
-                        echo "<!-- DEBUG: Login successful, redirecting... -->";
-                        
-                        // Redirect based on role
-            
-                    } else {
-                        $errors[] = "Invalid email or password";
-                        echo "<!-- DEBUG: Password verification failed -->";
-                    }
-                } else {
-                    $errors[] = "Invalid email or password";
-                    echo "<!-- DEBUG: No user found with email: $email -->";
-                }
-                
-                $stmt->close();
-            } else {
-                $errors[] = "Database error: " . $conn->error;
-                echo "<!-- DEBUG: Prepare statement failed: " . $conn->error . " -->";
-            }
-        }
+
+    // Check if the email exists in users table
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        // Generate token
+        $token = bin2hex(random_bytes(32));
+        $expires = date("Y-m-d H:i:s", strtotime("+15 minutes"));
+
+        // Store token
+        $insert = $conn->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
+        $insert->bind_param("sss", $email, $token, $expires);
+        $insert->execute();
+
+        // Show reset link (for testing)
+        $message = "A password reset link has been generated. Please check your email or use the link below:";
+        $message_type = 'info';
+        $reset_link = "reset_password.php?token=$token";
+    } else {
+        $message = "No account found with that email.";
+        $message_type = 'error';
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - CareSync</title>
+    <title>Forgot Password - CareSync</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -342,78 +281,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-shadow: none;
         }
         
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            font-size: 0.875rem;
-        }
-        
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .remember-me input {
-            width: auto;
-        }
-        
-        .forgot-password {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-        
-        .signup-link {
+        .back-link {
             text-align: center;
             margin-top: 30px;
             color: var(--text-medium);
         }
         
-        .signup-link a {
+        .back-link a {
             color: var(--primary);
             text-decoration: none;
             font-weight: 600;
         }
         
-        .signup-link a:hover {
+        .back-link a:hover {
             text-decoration: underline;
-        }
-        
-        .role-selection {
-            margin-bottom: 24px;
-        }
-        
-        .role-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        
-        .role-btn {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid var(--border-light);
-            border-radius: var(--radius-md);
-            background: white;
-            color: var(--text-medium);
-            cursor: pointer;
-            transition: var(--transition);
-            text-align: center;
-            font-weight: 500;
-            text-decoration: none;
-            display: block;
-        }
-        
-        .role-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
         }
         
         .alert {
@@ -434,13 +315,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: var(--primary);
         }
         
-        .test-credentials {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: var(--radius-md);
-            padding: 15px;
+        .reset-link {
             margin-top: 20px;
-            font-size: 0.9rem;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: var(--radius-md);
+            border: 1px solid #dee2e6;
+            word-break: break-all;
+        }
+        
+        .reset-link a {
+            color: var(--primary);
+            font-weight: 500;
         }
         
         @media (max-width: 768px) {
@@ -462,18 +348,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 font-size: 2rem;
             }
         }
-        
-        @media (max-width: 480px) {
-            .role-buttons {
-                flex-direction: column;
-            }
-            
-            .form-options {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-        }
     </style>
 </head>
 <body>
@@ -487,15 +361,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </a>
             
             <div class="left-content">
-                <h1>Welcome Back</h1>
-                <p>Sign in to your CareSync account to manage your clinic operations efficiently.</p>
+                <h1>Reset Your Password</h1>
+                <p>Enter your email address and we'll send you a link to reset your password.</p>
                 
                 <ul class="features-list">
-                    <li><i class="fas fa-check-circle"></i> Access your dashboard</li>
-                    <li><i class="fas fa-check-circle"></i> Manage appointments</li>
-                    <li><i class="fas fa-check-circle"></i> View patient records</li>
-                    <li><i class="fas fa-check-circle"></i> Handle prescriptions</li>
-                    <li><i class="fas fa-check-circle"></i> Track billing information</li>
+                    <li><i class="fas fa-check-circle"></i> Secure password reset</li>
+                    <li><i class="fas fa-check-circle"></i> Quick and easy process</li>
+                    <li><i class="fas fa-check-circle"></i> Back to your account in minutes</li>
                 </ul>
             </div>
         </div>
@@ -503,47 +375,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="right-panel">
             <div class="form-container">
                 <div class="form-header">
-                    <h2>Sign In</h2>
-                    <p>Enter your credentials to access your account</p>
+                    <h2>Forgot Password</h2>
+                    <p>Enter your email to reset your password</p>
                 </div>
                 
-               
-                <form method="POST" action="" id="loginForm">
+                <?php if ($message): ?>
+                    <div class="alert alert-<?php echo $message_type; ?>">
+                        <?php echo $message; ?>
+                    </div>
+                    
+                    <?php if (isset($reset_link)): ?>
+                        <div class="reset-link">
+                            <p><strong>For testing purposes:</strong></p>
+                            <a href="<?php echo $reset_link; ?>"><?php echo $reset_link; ?></a>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+                
+                <form method="POST" action="" id="forgotPasswordForm">
                     <div class="form-group">
                         <label for="email" class="required">Email</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" value="<?php echo htmlspecialchars($email); ?>" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password" class="required">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    </div>
-                    
-                    <div class="form-options">
-                        <div class="remember-me">
-                            <input type="checkbox" id="remember" name="remember">
-                            <label for="remember">Remember me</label>
-                        </div>
-                        <a href="../login/forgot_password.php" class="forgot-password">Forgot Password?</a>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
                     </div>
                     
                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Sign In
+                        <i class="fas fa-paper-plane"></i>
+                        Send Reset Link
                     </button>
                 </form>
                 
-                <div class="signup-link">
-                    <p>Don't have an account? <a href="../signup/signup.php">Sign up here</a></p>
-                </div>
-                
-                <div class="role-selection">
-                    <p style="text-align: center; margin-bottom: 16px; color: var(--text-medium);">Or sign up as:</p>
-                    <div class="role-buttons">
-                        <a href="../signup/signup.php?role=patient" class="role-btn">Patient</a>
-                        <a href="../signup/signup.php?role=doctor" class="role-btn">Doctor</a>
-                        <a href="../signup/signup.php?role=secretary" class="role-btn">Secretary</a>
-                    </div>
+                <div class="back-link">
+                    <p>Remember your password? <a href="login.php">Back to login</a></p>
                 </div>
             </div>
         </div>
@@ -551,31 +413,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script>
         // Form validation and feedback
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('forgotPasswordForm').addEventListener('submit', function(e) {
             const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
             const submitBtn = document.getElementById('submitBtn');
             
-            if (!email || !password) {
+            if (!email) {
                 e.preventDefault();
-                alert('Please fill in all required fields');
+                alert('Please enter your email address');
                 return;
             }
             
             // Show loading state
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             
             // Allow form to submit normally
             return true;
         });
-
-        // Debug: Check if form is working
-        console.log('Login form loaded successfully');
-        
-        // Auto-fill test credentials for development
-        // document.getElementById('email').value = 'roniel@gmail.com';
-        // document.getElementById('password').value = 'password123';
     </script>
 </body>
 </html>
