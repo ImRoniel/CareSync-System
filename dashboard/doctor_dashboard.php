@@ -6,6 +6,13 @@ require_once '../config/db_connect.php';
 require_once '../controllers/auth/session.php';
 require_once '../model/doctor/user_model.php';
 require_once '../model/appointment/appointment_model.php';
+require_once '../model/billing/billing_model.php.php';
+require_once '../model/prescription/prescription_model.php';
+require_once '../model/activity/activity_model.php';
+
+$activities = getDoctorActivity($conn, $user['doctor_id'], 5);
+
+
 
 $user = getUserById($conn, $_SESSION['user_id']);
 
@@ -25,7 +32,17 @@ if (!empty($user['doctor_id'])) {
 
 $totalPatients = getTotalPatients($conn);
 
+// ✅ Add this line to get weekly revenue
+$revenueThisWeek = 0;
+if (!empty($user['doctor_id'])) {
+    $revenueThisWeek = getRevenueThisWeek($conn, $user['doctor_id']);
+}
+
+$prescriptionsToday = getPrescriptionsToday($conn, $doctor_id);
+
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -660,7 +677,9 @@ footer {
                 
                 <div class="nav-actions">
                     <div class="btn btn-secondary">Profile</div>
-                    <button class="btn btn-primary" onclick="window.location.href='index.php'">Logout</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
+
+
                 </div>
                 
                 <button class="mobile-menu-btn">
@@ -715,10 +734,11 @@ footer {
                     <div class="stat-icon">
                         <i class="fas fa-prescription"></i>
                     </div>
-                    <div class="stat-info">
-                        <h3>24</h3>
+                   <div class="stat-info">
+                        <h3><?php echo htmlspecialchars($prescriptionsToday); ?></h3>
                         <p>Prescriptions Today</p>
                     </div>
+
                 </div>
                 
                 <div class="stat-card">
@@ -726,7 +746,7 @@ footer {
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>$3,240</h3>
+                        <h3>$<?php echo number_format($revenueThisWeek, 2); ?></h3>
                         <p>Revenue This Week</p>
                     </div>
                 </div>
@@ -755,6 +775,8 @@ footer {
                                     <td colspan="4">No appointments today.</td>
                                 </tr>
                             <?php else: ?>
+                                
+
                                 <?php foreach ($appointments as $appt): ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($appt['patient_name']); ?></td> <!-- Replace with name if available -->
@@ -822,57 +844,72 @@ footer {
                         </div>
                     </div>
                     
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Recent Activity</h2>
-                        </div>
-                        
-                        <ul class="activity-list">
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-prescription"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Prescription</h4>
-                                    <p>Prescription created for Name here</p>
-                                    <div class="activity-time">10 minutes ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Appointment Scheduled</h4>
-                                    <p>New appointment with Name here</p>
-                                    <div class="activity-time">1 hour ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-file-invoice"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Payment Received</h4>
-                                    <p>Payment from Name here</p>
-                                    <div class="activity-time">2 hours ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Patient</h4>
-                                    <p>Name here registered as new patient</p>
-                                    <div class="activity-time">Yesterday</div>
-                                </div>
-                            </li>
-                        </ul>
+                                    <div class="card">
+                    <div class="card-header">
+                        <h2>Recent Activity</h2>
                     </div>
+                    
+                    <ul class="activity-list">
+                        <?php if (empty($activities)): ?>
+                            <li class="activity-item">
+                                <div class="activity-content">
+                                    <p>No recent activity yet.</p>
+                                </div>
+                            </li>
+                        <?php else: ?>
+                            <?php foreach ($activities as $a): ?>
+                                <?php
+                                    // Choose icon and title based on activity type
+                                    switch ($a['activity_type']) {
+                                        case 'prescription':
+                                            $icon = 'fa-prescription';
+                                            $title = 'New Prescription';
+                                            break;
+                                        case 'appointment':
+                                            $icon = 'fa-calendar-plus';
+                                            $title = 'Appointment Scheduled';
+                                            break;
+                                        case 'payment':
+                                            $icon = 'fa-file-invoice';
+                                            $title = 'Payment Received';
+                                            break;
+                                        case 'new_patient':
+                                            $icon = 'fa-user-plus';
+                                            $title = 'New Patient';
+                                            break;
+                                        default:
+                                            $icon = 'fa-info-circle';
+                                            $title = ucfirst($a['activity_type']);
+                                    }
+
+                                    // Time ago formatting
+                                    $timeDiff = time() - strtotime($a['created_at']);
+                                    if ($timeDiff < 60) {
+                                        $timeAgo = $timeDiff . " seconds ago";
+                                    } elseif ($timeDiff < 3600) {
+                                        $timeAgo = floor($timeDiff / 60) . " minutes ago";
+                                    } elseif ($timeDiff < 86400) {
+                                        $timeAgo = floor($timeDiff / 3600) . " hours ago";
+                                    } else {
+                                        $timeAgo = date("M d, Y", strtotime($a['created_at']));
+                                    }
+                                ?>
+                                
+                                <li class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas <?php echo $icon; ?>"></i>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4><?php echo $title; ?></h4>
+                                        <p><?php echo htmlspecialchars($a['activity_message']); ?></p>
+                                        <div class="activity-time"><?php echo $timeAgo; ?></div>
+                                    </div>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+
                 </div>
             </div>
         </div>
