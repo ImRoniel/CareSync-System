@@ -1,9 +1,25 @@
 <?php
-session_start();
+// login.php
 
+// Start session (do NOT include session.php here to avoid redirect loop)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
+// Include DB connection
+$config_path = __DIR__ . '/../config/db_connect.php';
+if (!file_exists($config_path)) {
+    die("Database configuration file not found.");
+}
+require_once $config_path;
 
-if (isset($_SESSION['user_role']) && $_SESSION['logged_in'] === true) {
+// Initialize variables
+$errors = [];
+$email = '';
+$password = '';
+
+// If user is already logged in, redirect them to their dashboard
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && isset($_SESSION['user_role'])) {
     switch ($_SESSION['user_role']) {
         case 'doctor':
             header("Location: ../dashboard/doctor_dashboard.php");
@@ -14,96 +30,79 @@ if (isset($_SESSION['user_role']) && $_SESSION['logged_in'] === true) {
         case 'secretary':
             header("Location: ../dashboard/secretary_dashboard.php");
             exit();
+        case 'admin':
+            header("Location: ../dashboard/admin_dashboard.php");
+            exit();
     }
 }
 
-
-
-// Include database connection
-$config_path = __DIR__ . '/../config/db_connect.php';
-if (file_exists($config_path)) {
-    require_once $config_path;
-} else {
-    die("Database configuration file not found. Please check the file path.");
-}
-
-// Initialize variables
-$errors = [];
-$email = '';
-
-// Process form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
+// Handle login form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
-    
-    echo "<!-- DEBUG: Form submitted - Email: $email -->";
-    
-    // Validation
-    if (empty($email)) {
-        $errors[] = "Email is required";
-    }
-    if (empty($password)) {
-        $errors[] = "Password is required";
-    }
-    
-    // If no validation errors, check credentials
+
+    // Basic validation
+    if (empty($email)) $errors[] = "Email is required.";
+    if (empty($password)) $errors[] = "Password is required.";
+
     if (empty($errors)) {
-        // First, let's check if the users table exists and has data
+        // Check if users table exists
         $check_table = $conn->query("SHOW TABLES LIKE 'users'");
         if ($check_table->num_rows == 0) {
-            $errors[] = "Users table doesn't exist. Please run the setup script.";
+            $errors[] = "Users table doesn't exist.";
         } else {
-            // Check if there are any users
-            $user_count = $conn->query("SELECT COUNT(*) as count FROM users")->fetch_assoc()['count'];
-            echo "<!-- DEBUG: User count in database: $user_count -->";
-            
-            // Prepare SQL statement to prevent SQL injection
+            // Prepare query to find user by email
             $stmt = $conn->prepare("SELECT id, name, email, password, role FROM users WHERE email = ?");
-            if ($stmt) {
+            if (!$stmt) {
+                $errors[] = "Database error: " . $conn->error;
+            } else {
                 $stmt->bind_param("s", $email);
                 $stmt->execute();
                 $stmt->store_result();
-                
-                echo "<!-- DEBUG: Found " . $stmt->num_rows . " users with email: $email -->";
-                
-                if ($stmt->num_rows == 1) {
+
+                if ($stmt->num_rows === 1) {
                     $stmt->bind_result($user_id, $user_name, $user_email, $hashed_password, $user_role);
                     $stmt->fetch();
-                    
-                    echo "<!-- DEBUG: User found - ID: $user_id, Role: $user_role -->";
-                    
-                    // Verify password
+
                     if (password_verify($password, $hashed_password)) {
-                        // Password is correct, set session variables
+                        // ✅ Successful login
                         $_SESSION['user_id'] = $user_id;
                         $_SESSION['user_name'] = $user_name;
                         $_SESSION['user_email'] = $user_email;
                         $_SESSION['user_role'] = $user_role;
                         $_SESSION['logged_in'] = true;
-                        
-                        echo "<!-- DEBUG: Login successful, redirecting... -->";
-                        
+
                         // Redirect based on role
-            
+                        switch ($user_role) {
+                            case 'doctor':
+                                header("Location: ../dashboard/doctor_dashboard.php");
+                                exit();
+                            case 'patient':
+                                header("Location: ../dashboard/patient_dashboard.php");
+                                exit();
+                            case 'secretary':
+                                header("Location: ../dashboard/secretary_dashboard.php");
+                                exit();
+                            case 'admin':
+                                header("Location: ../dashboard/admin_dashboard.php");
+                                exit();
+                            default:
+                                header("Location: ../dashboard/default.php");
+                                exit();
+                        }
                     } else {
-                        $errors[] = "Invalid email or password";
-                        echo "<!-- DEBUG: Password verification failed -->";
+                        $errors[] = "Invalid email or password.";
                     }
                 } else {
-                    $errors[] = "Invalid email or password";
-                    echo "<!-- DEBUG: No user found with email: $email -->";
+                    $errors[] = "Invalid email or password.";
                 }
-                
                 $stmt->close();
-            } else {
-                $errors[] = "Database error: " . $conn->error;
-                echo "<!-- DEBUG: Prepare statement failed: " . $conn->error . " -->";
             }
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

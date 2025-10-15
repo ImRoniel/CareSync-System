@@ -1,6 +1,6 @@
 <?php
 
-    
+
 // Include database connection
 $config_path = __DIR__ . '/../config/db_connect.php';
 if (file_exists($config_path)) {
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<!-- DEBUG: Password hash generated successfully. -->";
 
         // Step 2 — Validate token
-        $stmt = $conn->prepare("SELECT email FROM password_resets WHERE token = ? AND expires_at > NOW()");
+        $stmt = $conn->prepare("SELECT email FROM password_resets WHERE token = ?");
         if (!$stmt) {
             echo "<div style='color:red;'>DEBUG ERROR: Failed to prepare token check statement - {$conn->error}</div>";
         }
@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Step 5 — Clean expired tokens (optional maintenance)
-    $conn->query("DELETE FROM password_resets WHERE expires_at < NOW()");
-    echo "<!-- DEBUG: Expired tokens cleanup executed. -->";
+    // $conn->query("DELETE FROM password_resets WHERE expires_at < NOW()");
+    // echo "<!-- DEBUG: Expired tokens cleanup executed. -->";
 }
 ?>
 
