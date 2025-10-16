@@ -57,8 +57,9 @@ C:.
 ¦   ¦       activity_model.php
 ¦   ¦       
 ¦   +---admin
-¦   ¦       userModel.php
-¦   ¦       
+¦   ¦   ¦   userModel.php
+¦   ¦   ¦   
+¦   ¦   +---editButton
 ¦   +---appointment
 ¦   ¦       appointment_model.php
 ¦   ¦       
@@ -74,12 +75,15 @@ C:.
 ¦   +---prescription
 ¦           prescription_model.php
 ¦           
-+---New folder
 +---signup
 ¦       role_selection.php
 ¦       signup.php
 ¦       signup_process.php
 ¦       
++---snipetViews
+¦   +---admin
+¦           edit_user.php
+¦           
 +---uploads
 ¦   +---profile_pictures
 ¦           image.png

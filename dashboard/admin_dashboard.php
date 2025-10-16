@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/../config/db_connect.php';
 require_once __DIR__ . '/../controllers/admin/userController.php';
-require_once __DIR__ . '/../controllers/auth/session.php';
+
 require_once __DIR__ . '/../model/appointment/appointment_model.php';
+//require_once __DIR__ . '/../views/admin/edit_user.php';
+
 // Include database connection
 $error_message = "";
 
@@ -51,22 +53,7 @@ if($secretaryResult && $row = $secretaryResult->fetch_assoc()){
 }
 // ✅ Optional: echo errors as HTML comments (hidden)
 echo $error_message;
-//code for system overview
-$userQuery = "
-    SELECT 
-        name,
-        email,
-        role,
-        DATE_FORMAT(created_at, '%W, %h:%i %p') AS last_login
-    FROM users
-    ORDER BY created_at DESC
-";
-$resultSystemOver = $conn->query($userQuery);
 
-// Handle query failure
-if (!$resultSystemOver) {
-    die("Query failed: " . $conn->error);
-}
 
 $appointments = [];
 if (!empty($user['doctor_id'])) {
@@ -83,6 +70,25 @@ if (!$resultSystemOver) {
     echo "No users found.";
     exit();
 }
+$userQuery = "
+    SELECT 
+        id,
+        name,
+        email,
+        role,
+        created_at,
+        DATE_FORMAT(created_at, '%W, %h:%i %p') AS last_login
+    FROM users
+    ORDER BY created_at DESC
+";
+
+$resultSystemOver = $conn->query($userQuery);
+
+if (!$resultSystemOver) {
+    die("Query failed: " . $conn->error);
+}
+  
+
 ?>
 
 <!DOCTYPE html>
@@ -1102,9 +1108,14 @@ if (!$resultSystemOver) {
                         
                         <div class="tab-content active" id="users">
                             <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search users...">
+                            <form class="form-control" method="GET" action="">
+                               <div class="search-box">
+                                <input type="text" class="form-control" placeholder="Search users..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                                 <button class="btn btn-primary">Search</button>
-                            </div>
+                            </form>
+                            </div> 
+                        </div>
+
                             
                             <div class="table-responsive">
                                 <table>
@@ -1128,13 +1139,19 @@ if (!$resultSystemOver) {
                                                     <!-- <td><span class="status-badge status-active">Active</span></td> -->
                                                     <td><?= htmlspecialchars($row['created_at']); ?></td>
                                                     <td>
-                                                       <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_user.php?id=<?= $row['id'] ?>'">Edit</button>
-                                                       <button class="btn btn-sm btn-danger" onclick="deactivateUser(<?= $row['id'] ?>)">Deactivate</button>
+                                                        <button class="btn btn-sm btn-secondary"
+                                                                onclick="window.location.href='/Caresync-System/snipetViews/edit_user.php?id=<?= htmlspecialchars($rows['id']) ?>'">
+                                                            Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger"
+                                                                onclick="window.location.href='/Caresync-System/controllers/admin/delete_user.php?id=<?= htmlspecialchars($rows['id']) ?>'">
+                                                            Delete
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             <?php endwhile; ?>
                                         <?php else: ?>
-                                            <tr>
+                                            <tr>    
                                                 <td colspan="6" style="text-align: center;">No users found</td>
                                             </tr>
                                         <?php endif; ?>

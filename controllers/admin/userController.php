@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../model/admin/userModel.php';
 
 class UserController {
@@ -12,4 +13,26 @@ class UserController {
         return $this->model->getAllUsers();
     }
 }
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
+    $user_id = $_GET['id'];
+
+    $stmt = $conn->prepare("DELETE FROM users WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+
+    if ($stmt->execute()) {
+        header("Location: /CareSync-System/dashboard/admin_dashboard.php?msg=deleted");
+        exit();
+    } else {
+        echo "Error deleting user: " . $stmt->error;
+    }
+}
+
+// $search = isset($_GET['search']) ? trim($_GET['search']) : null;
+// $users = getUsers($conn, $search);
+
+// $conn->close();
+// $search = isset($_GET['search']) ? trim($_GET['search']) : null;
+// $doctors = getDoctors($conn, $search);
+
+
 ?>
