@@ -1,17 +1,17 @@
-<!-- //
-// controller.php
-// session_start();
-// require_once '../doctor/user_controller.php';
-// require_once '../../model/doctor/user_model.php';
+<?php
+class UserModel {
+    private $conn;
 
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: login.php");
-//     exit();
-// }
+    public function __construct($conn) {
+        $this->conn = $conn;
+    }
 
-// $user = getUserById($mysqli, $_SESSION['user_id']);
-
-// if (!$user) {
-//     echo "User not found.";
-//     exit();
-} 
+    public function getUserById($id) {
+        $query = "SELECT * FROM users WHERE user_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+}
+?>

@@ -742,7 +742,7 @@ require_once '../controllers/auth/session.php';
                 
                 <div class="nav-actions">
                     <a href="#" class="btn btn-secondary">Profile</a>
-                    <a href="#" class="btn btn-primary">Logout</a>
+                    <a href="#" class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'" type="button">Logout</a>
                 </div>
                 
                 <button class="mobile-menu-btn">
