@@ -1126,10 +1126,10 @@ if (!$resultSystemOver) {
                                                     <td><?= htmlspecialchars($row['email']); ?></td>
                                                     <td><?= htmlspecialchars($row['role']); ?></td>
                                                     <!-- <td><span class="status-badge status-active">Active</span></td> -->
-                                                    <td><?= htmlspecialchars($row['last_login']); ?></td>
+                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
                                                     <td>
-                                                       <button onclick="editUser(<?= $row['id'] ?>)">Edit</button>
-                                                       <button onclick="deactivateUser(<?= $row['id'] ?>)">Deactivate</button>
+                                                       <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_user.php?id=<?= $row['id'] ?>'">Edit</button>
+                                                       <button class="btn btn-sm btn-danger" onclick="deactivateUser(<?= $row['id'] ?>)">Deactivate</button>
                                                     </td>
                                                 </tr>
                                             <?php endwhile; ?>

@@ -1,0 +1,90 @@
+Folder PATH listing for volume OS
+Volume serial number is 68C5-E9B1
+C:.
+¦   Admin DashBoard (1).html
+¦   CONTRIBUTING.md
+¦   generate_hash.php
+¦   index.php
+¦   LICENSE
+¦   README.md
+¦   structure.txt
+¦   
++---assets
+¦   +---css
+¦   ¦       index.css
+¦   ¦       login.css
+¦   ¦       
+¦   +---images
+¦           3.png
+¦           
++---config
+¦       db_connect.php
+¦       
++---controllers
+¦   +---admin
+¦   ¦       userController.php
+¦   ¦       
+¦   +---auth
+¦   ¦       logout.php
+¦   ¦       process_login.php
+¦   ¦       process_signup.php
+¦   ¦       registere_user.php
+¦   ¦       session.php
+¦   ¦       signup.php
+¦   ¦       
+¦   +---doctor
+¦   ¦       user_controller.php
+¦   ¦       
+¦   +---patient
+¦   +---secretary
++---dashboard
+¦       admin_dashboard.php
+¦       doctor_dashboard.php
+¦       patient_dashboard.php
+¦       secretary_dashboard.php
+¦       
++---flowchart
+¦       .drawio.svg
+¦       psuedocode
+¦       
++---login
+¦       forgot_password.php
+¦       login.php
+¦       reset_password.php
+¦       
++---model
+¦   +---activity
+¦   ¦       activity_model.php
+¦   ¦       
+¦   +---admin
+¦   ¦       userModel.php
+¦   ¦       
+¦   +---appointment
+¦   ¦       appointment_model.php
+¦   ¦       
+¦   +---billing
+¦   ¦       billing_model.php
+¦   ¦       
+¦   +---doctor
+¦   ¦       user_model.php
+¦   ¦       
+¦   +---patient
+¦   ¦       patient_model.php
+¦   ¦       
+¦   +---prescription
+¦           prescription_model.php
+¦           
++---New folder
++---signup
+¦       role_selection.php
+¦       signup.php
+¦       signup_process.php
+¦       
++---uploads
+¦   +---profile_pictures
+¦           image.png
+¦           
++---views
+    +---admin
+            edit_user.php
+            
