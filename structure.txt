@@ -22,6 +22,8 @@ C:.
 ¦       
 +---controllers
 ¦   +---admin
+¦   ¦       delete_user.php
+¦   ¦       search_user.php
 ¦   ¦       userController.php
 ¦   ¦       
 ¦   +---auth
@@ -80,10 +82,6 @@ C:.
 ¦       signup.php
 ¦       signup_process.php
 ¦       
-+---snipetViews
-¦   +---admin
-¦           edit_user.php
-¦           
 +---uploads
 ¦   +---profile_pictures
 ¦           image.png

@@ -1,128 +1,3 @@
-<?php
-require_once __DIR__ . '/../config/db_connect.php';
-require_once __DIR__ . '/../controllers/admin/userController.php';
-require_once __DIR__ . '/../controllers/admin/DoctorController.php';
-require_once __DIR__ . '/../model/appointment/appointment_model.php';
-//require_once __DIR__ . '/../views/admin/edit_user.php';
-
-// Include database connection
-$error_message = "";
-
-// ✅ Count total users
-$totalUsersQuery = "SELECT COUNT(*) AS total_users FROM users";
-$result = $conn->query($totalUsersQuery);
-
-if ($result && $row = $result->fetch_assoc()) {
-    $totalUsers = $row['total_users'];  
-} else {
-    $error_message .= "<!-- Error fetching total users -->";
-    $totalUsers = 0;
-}
-
-// ✅ Count total doctors
-$doctorQuery = "SELECT COUNT(*) AS total_doctors FROM users WHERE role = 'doctor'";
-$doctorResult = $conn->query($doctorQuery);
-
-if ($doctorResult && $row = $doctorResult->fetch_assoc()) {
-    $totalDoctors = $row['total_doctors'];
-} else {
-    $error_message .= "<!-- Error fetching total doctors -->";
-    $totalDoctors = 0;
-}
-
-// ✅ Count total patients
-$patientQuery = "SELECT COUNT(*) AS total_patients FROM users WHERE role = 'patient'";
-$patientResult = $conn->query($patientQuery);
-
-if ($patientResult && $row = $patientResult->fetch_assoc()) {
-    $totalPatients = $row['total_patients'];
-} else {
-    $error_message .= "<!-- Error fetching total patients -->";
-    $totalPatients = 0;
-}
-
-//count total secretaries
-$secretaryQuery = "SELECT COUNT(*) AS total_secretaries FROM users WHERE role = 'secretaries'";
-$secretaryResult = $conn->query($secretaryQuery);
-
-if($secretaryResult && $row = $secretaryResult->fetch_assoc()){
-    $totalSecretaries = $row['total_secretaries'];
-} else {
-    $error_message .= "<!-- Error fetching total secretaries -->";
-    $totalSecretaries = 0;
-}
-// ✅ Optional: echo errors as HTML comments (hidden)
-echo $error_message;
-
-
-$appointments = [];
-if (!empty($user['doctor_id'])) {
-    $appointments = getDoctorAppointments($conn, $user['doctor_id']);
-}
-
-
-
-// Create controller and fetch all users
-$controller = new UserController($conn);
-$resultSystemOver = $controller->index();
-
-if (!$resultSystemOver) {
-    echo "No users found.";
-    exit();
-}
-$userQuery = "
-    SELECT 
-        id,
-        name,
-        email,
-        role,
-        DATE_FORMAT(created_at, '%W, %h:%i %p') AS created_at
-    FROM users
-    ORDER BY created_at DESC
-";
-$resultSystemOver = $conn->query($userQuery);
-
-if (!$resultSystemOver) {
-    die('Query failed: ' . $conn->error);
-}
-
-
-// Optional: search feature
-    if (!empty($_GET['search'])) {
-        $search = strtolower(trim($_GET['search']));
-        $doctors = array_filter($doctors, function($doc) use ($search) {
-            return str_contains(strtolower($doc['doctor_name']), $search) ||
-                   str_contains(strtolower($doc['specialization'] ?? ''), $search) ||
-                   str_contains(strtolower($doc['email']), $search);
-        });
-    }
-
-// 🩺 Initialize controller
-$doctorController = new DoctorController($conn);
-
-// 🩺 Check if there's an ID
-if (!isset($_GET['id'])) {
-    die("Invalid request. No doctor ID provided.");
-}
-$id = intval($_GET['id']);
-
-// 🩺 Get doctor info
-$doctor = $doctorController->getDoctor($id);
-if (!$doctor) die("Doctor not found.");
-
-// 🩺 Handle form submission
-$message = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = "Dr. " . trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $specialization = trim($_POST['specialization']);
-
-    $doctorController->updateDoctor($id, $name, $email, $specialization);
-    header("Location: /CareSync-System/dashboard/admin_dashboard.php?message=Doctor updated successfully");
-    exit;
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,7 +6,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>CareSync - Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Your existing CSS styles remain the same */
         :root {
             --primary: #2E8949;      
             --primary-dark: #1e5c30;  
@@ -229,12 +103,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             gap: 10px;
             font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
         }
         
         .btn-primary {
@@ -310,22 +178,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-decoration: none;
             color: var(--text-dark);
             font-weight: 500;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-        
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--primary);
-        }
-        
-        .nav-links a.active:after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--primary);
         }
         
         .nav-actions {
@@ -372,12 +224,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: white;
             font-weight: bold;
             font-size: 1.2rem;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        
-        .user-avatar:hover {
-            transform: scale(1.05);
         }
         
         .stats-grid {
@@ -395,11 +241,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: flex;
             align-items: center;
             gap: 15px;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
         }
         
         .stat-icon {
@@ -430,6 +271,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .stat-icon.danger {
             background-color: rgba(173, 80, 87, 0.1);
             color: var(--danger);
+        }
+        
+        .stat-icon.success {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
         }
         
         .stat-info h3 {
@@ -496,14 +342,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-bottom: none;
         }
         
-        table tr {
-            transition: background-color 0.2s ease;
-        }
-        
-        table tr:hover {
-            background-color: rgba(46, 137, 73, 0.05);
-        }
-        
         .status-badge {
             display: inline-block;
             padding: 5px 10px;
@@ -541,15 +379,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             gap: 15px;
             padding: 15px 0;
             border-bottom: 1px solid var(--border-light);
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .activity-item:hover {
-            background-color: rgba(46, 137, 73, 0.05);
-            border-radius: var(--radius-md);
-            padding-left: 10px;
-            padding-right: 10px;
         }
         
         .activity-item:last-child {
@@ -593,12 +422,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             justify-content: center;
             color: var(--text-medium);
             margin-top: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .chart-container:hover {
-            background-color: rgba(46, 137, 73, 0.1);
         }
         
         .quick-actions {
@@ -617,12 +440,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 20px 10px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .action-btn:hover {
-            background-color: rgba(46, 137, 73, 0.1);
-            transform: translateY(-5px);
         }
         
         .action-icon {
@@ -654,11 +471,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             padding: 12px 24px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .tab:hover {
-            color: var(--primary);
         }
         
         .tab.active {
@@ -738,13 +550,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             flex-direction: column;
             align-items: center;
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
         }
         
         .user-avatar-large {
@@ -816,11 +621,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .footer-column ul li a {
             color: var(--text-light);
             text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        
-        .footer-column ul li a:hover {
-            color: white;
         }
         
         .footer-column p {
@@ -847,12 +647,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
             text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .social-links a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
         }
         
         .copyright {
@@ -882,12 +676,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             width: 90%;
             max-width: 600px;
             box-shadow: var(--shadow-lg);
-            animation: modalFadeIn 0.3s;
-        }
-        
-        @keyframes modalFadeIn {
-            from {opacity: 0; transform: translateY(-50px);}
-            to {opacity: 1; transform: translateY(0);}
         }
         
         .modal-header {
@@ -907,49 +695,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        
-        .close:hover {
-            color: var(--text-dark);
         }
         
         .modal-body {
             padding: 20px;
-        }
-        
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            top: 80px;
-            left: 0;
-            width: 100%;
-            background-color: var(--bg-white);
-            box-shadow: var(--shadow-md);
-            z-index: 999;
-            padding: 20px;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .mobile-nav.active {
-            display: flex;
-        }
-        
-        .mobile-nav a {
-            text-decoration: none;
-            color: var(--text-dark);
-            font-weight: 500;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .mobile-nav a:last-child {
-            border-bottom: none;
-        }
-        
-        .mobile-nav a.active {
-            color: var(--primary);
         }
         
         @media (max-width: 1024px) {
@@ -1021,7 +770,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo">
-                    <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
+                    <img src="3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </a>
                 
@@ -1034,38 +783,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </nav>
                 
                 <div class="nav-actions">
-                    <button class="btn btn-secondary" onclick="showModal('profile-modal')">Profile</button>
-                    <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
+                    <button class="btn btn-secondary">Profile</button>
+                    <button class="btn btn-primary">Logout</button>
                 </div>
                 
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <button class="mobile-menu-btn">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <div class="mobile-nav" id="mobile-nav">
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Users</a>
-        <a href="#">System</a>
-        <a href="#">Reports</a>
-        <a href="#">Settings</a>
-        <a href="#" onclick="showModal('profile-modal')">Profile</a>
-        <a href="#" onclick="logout()">Logout</a>
-    </div>
-
     <section class="dashboard">
         <div class="container">
             <div class="dashboard-header">
                 <div>
-                    <h1>Admin</h1>
-                    <p>Welcome back, Roniel C. Carbon</p>
+                    <h1>Admin Dashboard</h1>
+                    <p>Welcome back, System Administrator</p>
                 </div>
                 <div class="user-info">
-                    <div class="user-avatar" onclick="showModal('profile-modal')">SA</div>
+                    <div class="user-avatar">SA</div>
                     <div>
-                        <p>Roniel C. Carbon</p>
+                        <p>Name Here</p>
                         <small>System Administrator</small>
                     </div>
                 </div>
@@ -1077,7 +816,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><?php echo $totalUsers ?></h3>
+                        <h3>1,248</h3>
                         <p>Total Users</p>
                     </div>
                 </div>
@@ -1087,7 +826,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <i class="fas fa-user-md"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><?php echo $totalDoctors ?></h3>
+                        <h3>42</h3>
                         <p>Doctors</p>
                     </div>
                 </div>
@@ -1097,7 +836,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><?php echo $totalSecretaries ?></h3>
+                        <h3>18</h3>
                         <p>Secretaries</p>
                     </div>
                 </div>
@@ -1107,7 +846,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <i class="fas fa-procedures"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><?php echo $totalPatients?></h3>
+                        <h3>1,156</h3>
                         <p>Patients</p>
                     </div>
                 </div>
@@ -1117,7 +856,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><?php echo count($appointments); ?></h3>
+                        <h3>328</h3>
                         <p>Appointments Today</p>
                     </div>
                 </div>
@@ -1128,26 +867,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="card">
                         <div class="card-header">
                             <h2>System Overview</h2>
-                            <button class="btn btn-secondary" onclick="showModal('reports-modal')">Generate Report</button>
+                            <button class="btn btn-secondary">Generate Report</button>
                         </div>
                         
                         <div class="tabs">
                             <div class="tab active" data-tab="users">Users</div>
                             <div class="tab" data-tab="doctors">Doctors</div>
+                            <div class="tab" data-tab="secretaries">Secretaries</div>
                             <div class="tab" data-tab="patients">Patients</div>
                             <div class="tab" data-tab="appointments">Appointments</div>
                         </div>
                         
                         <div class="tab-content active" id="users">
                             <div class="search-box">
-                            <form class="form-control" method="GET" action="">
-                               <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search users..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                                <input type="text" class="form-control" placeholder="Search users...">
                                 <button class="btn btn-primary">Search</button>
-                            </form>
-                            </div> 
-                        </div>
-
+                            </div>
                             
                             <div class="table-responsive">
                                 <table>
@@ -1156,80 +891,123 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Role</th>
-                                            <!-- <th>Status</th> -->
-                                            <th>Last Login</th> 
+                                            <th>Status</th>
+                                            <th>Last Login</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php if($resultSystemOver->num_rows > 0): ?>
-                                            <?php while ($row = $resultSystemOver->fetch_assoc()): ?>
-                                                <tr>
-                                                    <td><?= htmlspecialchars($row['name']); ?></td>
-                                                    <td><?= htmlspecialchars($row['email']); ?></td>
-                                                    <td><?= htmlspecialchars($row['role']); ?></td>
-                                                    <!-- <td><span class="status-badge status-active">Active</span></td> -->
-                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
-                                                            Edit
-                                                        </button>
-
-                                                        <button class="btn btn-sm btn-danger"
-                                                                 onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='/Caresync-System/controllers/admin/delete_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
-                                                            Delete
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <?php endwhile; ?>
-                                        <?php else: ?>
-                                            <tr>    
-                                                <td colspan="6" style="text-align: center;">No users found</td>
-                                            </tr>
-                                        <?php endif; ?>
+                                        <tr>
+                                            <td>Dr. Name Here</td>
+                                            <td>email@caresync.com</td>
+                                            <td>Doctor</td>
+                                            <td><span class="status-badge status-active">Active</span></td>
+                                            <td>Today, 08:45 AM</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary">Edit</button>
+                                                <button class="btn btn-sm btn-danger">Deactivate</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Name Here</td>
+                                            <td>email@caresync.com</td>
+                                            <td>Secretary</td>
+                                            <td><span class="status-badge status-active">Active</span></td>
+                                            <td>Today, 07:15 AM</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary">Edit</button>
+                                                <button class="btn btn-sm btn-danger">Deactivate</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Name Here</td>
+                                            <td>email@example.com</td>
+                                            <td>Patient</td>
+                                            <td><span class="status-badge status-active">Active</span></td>
+                                            <td>Yesterday, 02:30 PM</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary">Edit</button>
+                                                <button class="btn btn-sm btn-danger">Deactivate</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Name Here</td>
+                                            <td>email@example.com</td>
+                                            <td>Patient</td>
+                                            <td><span class="status-badge status-inactive">Inactive</span></td>
+                                            <td>Date Here</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary">Edit</button>
+                                                <button class="btn btn-sm btn-primary">Activate</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dr. Name Here</td>
+                                            <td>email@caresync.com</td>
+                                            <td>Doctor</td>
+                                            <td><span class="status-badge status-pending">Pending</span></td>
+                                            <td>Never</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-secondary">Edit</button>
+                                                <button class="btn btn-sm btn-primary">Approve</button>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                         
-                         <div class="tab-content" id="doctors">
+                        <div class="tab-content" id="doctors">
                             <div class="search-box">
-                                <form method="GET" action="">
-                                    <input type="text" name="search" class="form-control" placeholder="Search doctors..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                                    <button type="submit" class="btn btn-primary mt-2">Search</button>
-                                </form>
+                                <input type="text" class="form-control" placeholder="Search doctors...">
+                                <button class="btn btn-primary">Search</button>
                             </div>
-
+                            
                             <div class="user-management-grid">
-                                <?php if (!empty($doctors)): ?>
-                                    <?php foreach ($doctors as $doctor): ?>
-                                        <div class="user-card">
-                                            <div class="user-avatar-large">
-                                                <?= strtoupper(substr($doctor['doctor_name'], 0, 1)) ?>
-                                            </div>
-                                            <div class="user-details">
-                                                <h3>Dr. <?= htmlspecialchars($doctor['doctor_name']) ?></h3>
-                                                <p><?= htmlspecialchars($doctor['specialization'] ?? 'No specialization') ?></p>
-                                                <p><?= htmlspecialchars($doctor['email']) ?></p>
-                                            </div>
-                                            <div class="user-actions">
-                                                <button class="btn btn-sm btn-secondary"
-                                                        onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
-                                                    Edit
-                                                </button>
-                                                <button class="btn btn-sm btn-info"
-                                                        onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
-                                                    Schedule
-                                                </button>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <p class="text-center text-muted mt-3">No doctors found.</p>
-                                <?php endif; ?>
+                                <div class="user-card">
+                                    <div class="user-avatar-large">NH</div>
+                                    <div class="user-details">
+                                        <h3>Dr. Name Here</h3>
+                                        <p>Specialization Here</p>
+                                        <p>email@caresync.com</p>
+                                        <p><span class="status-badge status-active">Active</span></p>
+                                    </div>
+                                    <div class="user-actions">
+                                        <button class="btn btn-sm btn-secondary">Edit</button>
+                                        <button class="btn btn-sm btn-info">Schedule</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="user-card">
+                                    <div class="user-avatar-large">NH</div>
+                                    <div class="user-details">
+                                        <h3>Dr. Name Here</h3>
+                                        <p>Specialization Here</p>
+                                        <p>email@caresync.com</p>
+                                        <p><span class="status-badge status-pending">Pending</span></p>
+                                    </div>
+                                    <div class="user-actions">
+                                        <button class="btn btn-sm btn-secondary">Edit</button>
+                                        <button class="btn btn-sm btn-primary">Approve</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="user-card">
+                                    <div class="user-avatar-large">NH</div>
+                                    <div class="user-details">
+                                        <h3>Dr. Name Here</h3>
+                                        <p>Specialization Here</p>
+                                        <p>email@caresync.com</p>
+                                        <p><span class="status-badge status-active">Active</span></p>
+                                    </div>
+                                    <div class="user-actions">
+                                        <button class="btn btn-sm btn-secondary">Edit</button>
+                                        <button class="btn btn-sm btn-info">Schedule</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <!-- secretaries -->
+                        
                         <div class="tab-content" id="secretaries">
                             <div class="search-box">
                                 <input type="text" class="form-control" placeholder="Search secretaries...">
@@ -1280,6 +1058,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="tab-content" id="patients">
                             <div class="search-box">
                                 <input type="text" class="form-control" placeholder="Search patients...">
@@ -1308,8 +1087,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td>Date Here</td>
                                             <td><span class="status-badge status-active">Active</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button>
-                                                <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
+                                                <button class="btn btn-sm btn-secondary">View</button>
+                                                <button class="btn btn-sm btn-info">Records</button>
                                             </td>
                                         </tr>
                                         <tr>
@@ -1320,8 +1099,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td>Date Here</td>
                                             <td><span class="status-badge status-active">Active</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button>
-                                                <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
+                                                <button class="btn btn-sm btn-secondary">View</button>
+                                                <button class="btn btn-sm btn-info">Records</button>
                                             </td>
                                         </tr>
                                         <tr>
@@ -1332,16 +1111,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td>Date Here</td>
                                             <td><span class="status-badge status-active">Active</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button>
-                                                <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
+                                                <button class="btn btn-sm btn-secondary">View</button>
+                                                <button class="btn btn-sm btn-info">Records</button>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        <!-- integrate it here -->
-                         s
+                        
                         <div class="tab-content" id="appointments">
                             <div class="search-box">
                                 <input type="text" class="form-control" placeholder="Search appointments...">
@@ -1356,6 +1134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <th>Patient</th>
                                             <th>Doctor</th>
                                             <th>Date & Time</th>
+                                            <th>Type</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
@@ -1365,33 +1144,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td>ID Here</td>
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
-                                            <td>Date & Time Here</td>
-                                            <td><span class="status-badge status-active">Scheduled</span></td>
+                                            <td>Date Here - Time Here</td>
+                                            <td>Type Here</td>
+                                            <td><span class="status-badge status-active">Confirmed</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewAppointment('ID Here')">View</button>
-                                                <button class="btn btn-sm btn-warning" onclick="rescheduleAppointment('ID Here')">Reschedule</button>
+                                                <button class="btn btn-sm btn-secondary">Reschedule</button>
+                                                <button class="btn btn-sm btn-danger">Cancel</button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>ID Here</td>
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
-                                            <td>Date & Time Here</td>
-                                            <td><span class="status-badge status-warning">Pending</span></td>
+                                            <td>Date Here - Time Here</td>
+                                            <td>Type Here</td>
+                                            <td><span class="status-badge status-pending">Pending</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewAppointment('ID Here')">View</button>
-                                                <button class="btn btn-sm btn-primary" onclick="approveAppointment('ID Here')">Approve</button>
+                                                <button class="btn btn-sm btn-primary">Confirm</button>
+                                                <button class="btn btn-sm btn-danger">Cancel</button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>ID Here</td>
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
-                                            <td>Date & Time Here</td>
-                                            <td><span class="status-badge status-active">Scheduled</span></td>
+                                            <td>Date Here - Time Here</td>
+                                            <td>Type Here</td>
+                                            <td><span class="status-badge status-active">Confirmed</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewAppointment('ID Here')">View</button>
-                                                <button class="btn btn-sm btn-warning" onclick="rescheduleAppointment('ID Here')">Reschedule</button>
+                                                <button class="btn btn-sm btn-secondary">Reschedule</button>
+                                                <button class="btn btn-sm btn-danger">Cancel</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1403,79 +1185,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="card">
                         <div class="card-header">
                             <h2>System Performance</h2>
-                            <button class="btn btn-secondary" onclick="showModal('performance-modal')">View Details</button>
+                            <button class="btn btn-secondary">View Details</button>
                         </div>
-                        <div class="chart-container" onclick="showModal('performance-modal')">
-                            <p>Click to view detailed performance metrics</p>
+                        
+                        <div class="chart-container">
+                            <p>System Performance Metrics Chart</p>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon primary">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>78%</h3>
+                                    <p>Storage Used</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon warning">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>42%</h3>
+                                    <p>CPU Usage</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon info">
+                                    <i class="fas fa-memory"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>65%</h3>
+                                    <p>Memory Usage</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- //right column  -->
+                
                 <div class="right-column">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Recent Activity</h2>
-                            <button class="btn btn-secondary" onclick="showModal('activity-modal')">View All</button>
-                        </div>
-                        
-                        <ul class="activity-list">
-                            <li class="activity-item" onclick="viewActivityDetails('login')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-sign-in-alt"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>User Login</h4>
-                                    <p>Dr. Name Here logged in to the system</p>
-                                    <div class="activity-time">Today, 08:45 AM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('appointment')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Appointment</h4>
-                                    <p>New appointment scheduled with Dr. Name Here</p>
-                                    <div class="activity-time">Today, 08:30 AM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('user')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New User</h4>
-                                    <p>New patient registered in the system</p>
-                                    <div class="activity-time">Yesterday, 05:20 PM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('record')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-file-medical"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Medical Record</h4>
-                                    <p>Medical record updated for Name Here</p>
-                                    <div class="activity-time">Yesterday, 03:45 PM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('system')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-cogs"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>System Update</h4>
-                                    <p>System maintenance completed successfully</p>
-                                    <div class="activity-time">Yesterday, 02:15 AM</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    
                     <div class="card">
                         <div class="card-header">
                             <h2>Quick Actions</h2>
@@ -1489,39 +1240,229 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <p>Add User</p>
                             </div>
                             
-                            <div class="action-btn" onclick="showModal('add-doctor-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-user-md"></i>
-                                </div>
-                                <p>Add Doctor</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('schedule-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <p>Manage Schedule</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('settings-modal')">
+                            <div class="action-btn" onclick="showModal('system-settings-modal')">
                                 <div class="action-icon">
                                     <i class="fas fa-cogs"></i>
                                 </div>
                                 <p>System Settings</p>
                             </div>
+                            
+                            <div class="action-btn" onclick="showModal('backup-modal')">
+                                <div class="action-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <p>Backup Data</p>
+                            </div>
+                            
+                            <div class="action-btn" onclick="showModal('reports-modal')">
+                                <div class="action-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <p>Generate Reports</p>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Recent Activity</h2>
+                        </div>
+                        
+                        <ul class="activity-list">
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>New Secretary Added</h4>
+                                    <p>Name Here added to system</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Doctor Schedule Updated</h4>
+                                    <p>Dr. Name Here schedule modified</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Secretary Assigned</h4>
+                                    <p>Name Here assigned to Dr. Name Here</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-cogs"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>System Backup</h4>
+                                    <p>Automatic system backup completed</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>System Notifications</h2>
+                        </div>
+                        
+                        <ul class="activity-list">
+                            <li class="activity-item">
+                                <div class="activity-icon" style="background-color: rgba(255, 152, 0, 0.1); color: var(--warning);">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Storage Warning</h4>
+                                    <p>Database storage is at 78% capacity</p>
+                                    <div class="activity-time">Date Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon" style="background-color: rgba(33, 150, 243, 0.1); color: var(--info);">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>System Update Available</h4>
+                                    <p>New version is ready for installation</p>
+                                    <div class="activity-time">Date Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon" style="background-color: rgba(46, 137, 73, 0.1); color: var(--primary);">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Security Patch Installed</h4>
+                                    <p>Latest security updates applied successfully</p>
+                                    <div class="activity-time">Date Here</div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <div id="add-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New User</h2>
+                <span class="close" onclick="closeModal('add-user-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="add-user-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-name">First Name</label>
+                            <input type="text" id="first-name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last-name">Last Name</label>
+                            <input type="text" id="last-name" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="role">User Role</label>
+                        <select id="role" class="form-control" required>
+                            <option value="">Select role</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="secretary">Secretary</option>
+                            <option value="patient">Patient</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialization">Specialization/Position</label>
+                        <input type="text" id="specialization" class="form-control">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('add-user-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="system-settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>System Settings</h2>
+                <span class="close" onclick="closeModal('system-settings-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="system-settings-form">
+                    <div class="form-group">
+                        <label for="clinic-name">Clinic Name</label>
+                        <input type="text" id="clinic-name" class="form-control" value="CareSync Medical Center">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="clinic-address">Clinic Address</label>
+                        <textarea id="clinic-address" class="form-control" rows="3">Address Here</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="clinic-phone">Clinic Phone</label>
+                        <input type="tel" id="clinic-phone" class="form-control" value="Phone Here">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="auto-backup">Automatic Backup</label>
+                        <select id="auto-backup" class="form-control">
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="disabled">Disabled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="session-timeout">Session Timeout</label>
+                        <input type="number" id="session-timeout" class="form-control" value="30" min="5" max="120">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('system-settings-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-column">
                     <h3>CareSync</h3>
-                    <p>Streamlining healthcare management for better patient care and efficient medical practice operations.</p>
+                    <p>A comprehensive clinic management system designed to streamline operations and improve patient care.</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook-f"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -1533,183 +1474,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="footer-column">
                     <h3>Quick Links</h3>
                     <ul>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Services</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Support</a></li>
+                        <li><a href="#">Dashboard</a></li>
+                        <li><a href="#">Users</a></li>
+                        <li><a href="#">System</a></li>
+                        <li><a href="#">Reports</a></li>
                     </ul>
                 </div>
                 
                 <div class="footer-column">
-                    <h3>Services</h3>
+                    <h3>Support</h3>
                     <ul>
-                        <li><a href="#">Patient Management</a></li>
-                        <li><a href="#">Appointment Scheduling</a></li>
-                        <li><a href="#">Medical Records</a></li>
-                        <li><a href="#">Billing & Invoicing</a></li>
-                        <li><a href="#">Reporting & Analytics</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Contact Us</h3>
-                    <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Healthcare St, Medical City</li>
-                        <li><i class="fas fa-phone"></i> (123) 456-7890</li>
-                        <li><i class="fas fa-envelope"></i> info@caresync.com</li>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="copyright">
-                <p>&copy; 2023 CareSync. All rights reserved.</p>
+                <p>&copy; 2025 CareSync Clinic Management System. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Modals -->
-    <div id="profile-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>User Profile</h2>
-                <span class="close" onclick="closeModal('profile-modal')">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" class="form-control" value="System Administrator">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-control" value="admin@caresync.com">
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <input type="text" class="form-control" value="Administrator" disabled>
-                </div>
-                <div class="form-group">
-                    <label>Last Login</label>
-                    <input type="text" class="form-control" value="Today, 08:30 AM" disabled>
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Cancel</button>
-                    <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="add-user-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Add New User</h2>
-                <span class="close" onclick="closeModal('add-user-modal')">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" class="form-control" placeholder="Enter full name">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-control" placeholder="Enter email address">
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <select class="form-control">
-                        <option>Patient</option>
-                        <option>Doctor</option>
-                        <option>Secretary</option>
-                        <option>Administrator</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-control" placeholder="Enter password">
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeModal('add-user-modal')">Cancel</button>
-                    <button class="btn btn-primary" onclick="addUser()">Add User</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="reports-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Generate Report</h2>
-                <span class="close" onclick="closeModal('reports-modal')">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Report Type</label>
-                    <select class="form-control">
-                        <option>User Activity</option>
-                        <option>Appointment Statistics</option>
-                        <option>Financial Report</option>
-                        <option>System Performance</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="date" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>End Date</label>
-                        <input type="date" class="form-control">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Format</label>
-                    <select class="form-control">
-                        <option>PDF</option>
-                        <option>Excel</option>
-                        <option>CSV</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeModal('reports-modal')">Cancel</button>
-                    <button class="btn btn-primary" onclick="generateReport()">Generate</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Tab functionality
-        function showTab(tabId) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabId).classList.add('active');
-            
-            // Activate the corresponding tab
-            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-        }
-        
-        // Initialize tabs
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add click event to all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    showTab(tabId);
-                });
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
             });
         });
         
-        // Modal functionality
         function showModal(modalId) {
             document.getElementById(modalId).style.display = 'block';
         }
@@ -1718,7 +1517,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             document.getElementById(modalId).style.display = 'none';
         }
         
-        // Close modal when clicking outside of it
         window.onclick = function(event) {
             document.querySelectorAll('.modal').forEach(modal => {
                 if (event.target == modal) {
@@ -1727,112 +1525,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             });
         }
         
-        // Mobile menu functionality
-        function toggleMobileMenu() {
-            const mobileNav = document.getElementById('mobile-nav');
-            mobileNav.classList.toggle('active');
-        }
-        
-        // User management functions
-        function editUser(userName) {
-            alert(`Editing user: ${userName}`);
-            // In a real application, this would open a form with user details
-        }
-        
-        function deactivateUser(userName) {
-            if (confirm(`Are you sure you want to deactivate ${userName}?`)) {
-                alert(`${userName} has been deactivated.`);
-                // In a real application, this would make an API call
-            }
-        }
-        
-        function activateUser(userName) {
-            alert(`${userName} has been activated.`);
-            // In a real application, this would make an API call
-        }
-        
-        function approveUser(userName) {
-            alert(`${userName} has been approved.`);
-            // In a real application, this would make an API call
-        }
-        
-        // Doctor management functions
-        function viewDoctor(doctorName) {
-            alert(`Viewing details for: ${doctorName}`);
-            // In a real application, this would open a detailed view
-        }
-        
-        function editDoctor(doctorName) {
-            alert(`Editing doctor: ${doctorName}`);
-            // In a real application, this would open a form with doctor details
-        }
-        
-        function viewSchedule(doctorName) {
-            alert(`Viewing schedule for: ${doctorName}`);
-            // In a real application, this would open a schedule view
-        }
-        
-        function approveDoctor(doctorName) {
-            alert(`${doctorName} has been approved.`);
-            // In a real application, this would make an API call
-        }
-        
-        // Patient management functions
-        function viewPatient(patientName) {
-            alert(`Viewing details for: ${patientName}`);
-            // In a real application, this would open a detailed view
-        }
-        
-        function viewRecords(patientName) {
-            alert(`Viewing medical records for: ${patientName}`);
-            // In a real application, this would open medical records
-        }
-        
-        // Appointment management functions
-        function viewAppointment(appointmentId) {
-            alert(`Viewing appointment: ${appointmentId}`);
-            // In a real application, this would open appointment details
-        }
-        
-        function rescheduleAppointment(appointmentId) {
-            alert(`Rescheduling appointment: ${appointmentId}`);
-            // In a real application, this would open a rescheduling form
-        }
-        
-        function approveAppointment(appointmentId) {
-            alert(`Appointment ${appointmentId} has been approved.`);
-            // In a real application, this would make an API call
-        }
-        
-        // Activity functions
-        function viewActivityDetails(activityType) {
-            alert(`Viewing details for ${activityType} activity`);
-            // In a real application, this would open activity details
-        }
-        
-        // Other functions
-        function updateProfile() {
-            alert('Profile updated successfully!');
-            closeModal('profile-modal');
-        }
-        
-        function addUser() {
+        document.getElementById('add-user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
             alert('User added successfully!');
             closeModal('add-user-modal');
-        }
+            this.reset();
+        });
         
-        function generateReport() {
-            alert('Report generated successfully!');
-            closeModal('reports-modal');
-        }
-        
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                alert('You have been logged out.');
-                // In a real application, this would redirect to login page
-            }
-        }
+        document.getElementById('system-settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('System settings updated successfully!');
+            closeModal('system-settings-modal');
+        });
     </script>
-    
 </body>
-</html> 
+</html>

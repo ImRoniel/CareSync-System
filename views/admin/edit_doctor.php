@@ -9,15 +9,15 @@ $id = intval($_GET['id']);
 $message = "";
 
 // ✅ 2. Fetch user data
-$sql = "SELECT id, name, email, role FROM users WHERE id = ?";
+$sql = "SELECT id, name, email, specializatoin FROM doctors WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$doctor = $result->fetch_assoc();
 $stmt->close();
 
-if (!$user) {
+if (!$doctor) {
     die("User not found.");
 }
 
