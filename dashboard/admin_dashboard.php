@@ -3,12 +3,13 @@ require_once __DIR__ . '/../config/db_connect.php';
 require_once __DIR__ . '/../controllers/admin/userController.php';
 require_once __DIR__ . '/../controllers/admin/DoctorController.php';
 require_once __DIR__ . '/../model/appointment/appointment_model.php';
+
 //require_once __DIR__ . '/../views/admin/edit_user.php';
 
 // Include database connection
 $error_message = "";
 
-// ✅ Count total users
+// Count total users
 $totalUsersQuery = "SELECT COUNT(*) AS total_users FROM users";
 $result = $conn->query($totalUsersQuery);
 
@@ -19,7 +20,7 @@ if ($result && $row = $result->fetch_assoc()) {
     $totalUsers = 0;
 }
 
-// ✅ Count total doctors
+// Count total doctors
 $doctorQuery = "SELECT COUNT(*) AS total_doctors FROM users WHERE role = 'doctor'";
 $doctorResult = $conn->query($doctorQuery);
 
@@ -30,7 +31,7 @@ if ($doctorResult && $row = $doctorResult->fetch_assoc()) {
     $totalDoctors = 0;
 }
 
-// ✅ Count total patients
+// Count total patients
 $patientQuery = "SELECT COUNT(*) AS total_patients FROM users WHERE role = 'patient'";
 $patientResult = $conn->query($patientQuery);
 
@@ -51,7 +52,7 @@ if($secretaryResult && $row = $secretaryResult->fetch_assoc()){
     $error_message .= "<!-- Error fetching total secretaries -->";
     $totalSecretaries = 0;
 }
-// ✅ Optional: echo errors as HTML comments (hidden)
+// Optional: echo errors as HTML comments (hidden)
 echo $error_message;
 
 
@@ -87,7 +88,7 @@ if (!$resultSystemOver) {
 }
 
 
-// Optional: search feature
+
     if (!empty($_GET['search'])) {
         $search = strtolower(trim($_GET['search']));
         $doctors = array_filter($doctors, function($doc) use ($search) {
@@ -97,30 +98,32 @@ if (!$resultSystemOver) {
         });
     }
 
-// 🩺 Initialize controller
-$doctorController = new DoctorController($conn);
+//  Initialize controller
+// $doctorController = new DoctorController($conn);
+// if(!$doctorController){
+//     echo $error_message = "doctor controller not found";
+// }
+// //  Check if there's an ID
+// if (!isset($_GET['id'])) {
+//     die("Invalid request. No doctor ID provided.");
+// }
+// $id = intval($_GET['id']);
 
-// 🩺 Check if there's an ID
-if (!isset($_GET['id'])) {
-    die("Invalid request. No doctor ID provided.");
-}
-$id = intval($_GET['id']);
+// // Get doctor info
+// $doctor = $doctorController->getDoctor($id);
+// if (!$doctor) die("Doctor not found.");
 
-// 🩺 Get doctor info
-$doctor = $doctorController->getDoctor($id);
-if (!$doctor) die("Doctor not found.");
+// // Handle form submission
+// $message = "";
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//     $name = "Dr. " . trim($_POST['name']);
+//     $email = trim($_POST['email']);
+//     $specialization = trim($_POST['specialization']);
 
-// 🩺 Handle form submission
-$message = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = "Dr. " . trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $specialization = trim($_POST['specialization']);
-
-    $doctorController->updateDoctor($id, $name, $email, $specialization);
-    header("Location: /CareSync-System/dashboard/admin_dashboard.php?message=Doctor updated successfully");
-    exit;
-}
+//     $doctorController->updateDoctor($id, $name, $email, $specialization);
+//     header("Location: /Caresync-System/dashboard/admin_dashboard.php?message=Doctor updated successfully");
+//     exit;
+// }
 ?>
 
 <!DOCTYPE html>
@@ -1134,23 +1137,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="tabs">
                             <div class="tab active" data-tab="users">Users</div>
                             <div class="tab" data-tab="doctors">Doctors</div>
+                            <div class="tab" data-tan="secretaries">Secretaries</div>
                             <div class="tab" data-tab="patients">Patients</div>
                             <div class="tab" data-tab="appointments">Appointments</div>
                         </div>
                         
                         <div class="tab-content active" id="users">
                             <div class="search-box">
-                            <form class="form-control" method="GET" action="">
-                               <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search users..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                                <button class="btn btn-primary">Search</button>
+                                <form class="form-comtrol" method="GET" action="/../CareSync-System/controllers/admin/userController.php">
+                                <input type="hidden" name="action" value="list">
+                                <input type="text" name="search" class="form-control" 
+                                    placeholder="Search users..." 
+                                    value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                                <button type="submit" class="btn btn-primary 2">Search</button>
                             </form>
-                            </div> 
-                        </div>
+                            </div>
+                        
 
                             
                             <div class="table-responsive">
-                                <table>
+                                    <table>
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -1171,7 +1177,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                     <!-- <td><span class="status-badge status-active">Active</span></td> -->
                                                     <td><?= htmlspecialchars($row['created_at']); ?></td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
+                                                        <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
                                                             Edit
                                                         </button>
 
@@ -1192,17 +1198,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </div>
                         </div>
                         
-                         <div class="tab-content" id="doctors">
+                        
+
+                        <div class="tab-content" id="doctors">
                             <div class="search-box">
                                 <form method="GET" action="">
-                                    <input type="text" name="search" class="form-control" placeholder="Search doctors..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                                    <input type="text" name="search" class="form-control"
+                                        placeholder="Search doctors..."
+                                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
                                     <button type="submit" class="btn btn-primary mt-2">Search</button>
                                 </form>
                             </div>
 
                             <div class="user-management-grid">
-                                <?php if (!empty($doctors)): ?>
-                                    <?php foreach ($doctors as $doctor): ?>
+                                <?php if ($doctors && $doctors->num_rows > 0): ?>
+                                    <?php while ($doctor = $doctors->fetch_assoc()): ?>
                                         <div class="user-card">
                                             <div class="user-avatar-large">
                                                 <?= strtoupper(substr($doctor['doctor_name'], 0, 1)) ?>
@@ -1214,21 +1224,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </div>
                                             <div class="user-actions">
                                                 <button class="btn btn-sm btn-secondary"
-                                                        onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
+                                                        onclick="window.location.href='/CareSync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
                                                     Edit
                                                 </button>
                                                 <button class="btn btn-sm btn-info"
-                                                        onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
+                                                        onclick="window.location.href='/CareSync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
                                                     Schedule
                                                 </button>
                                             </div>
                                         </div>
-                                    <?php endforeach; ?>
+                                    <?php endwhile; ?>
                                 <?php else: ?>
-                                    <p class="text-center text-muted mt-3">No doctors found.</p>
+                                    <p class="text-center text-muted mt-3">⚠️ No doctors found.</p>
                                 <?php endif; ?>
                             </div>
                         </div>
+
                         <!-- secretaries -->
                         <div class="tab-content" id="secretaries">
                             <div class="search-box">
@@ -1341,13 +1352,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </div>
                         </div>
                         <!-- integrate it here -->
-                         s
+                         
                         <div class="tab-content" id="appointments">
                             <div class="search-box">
                                 <input type="text" class="form-control" placeholder="Search appointments...">
                                 <button class="btn btn-primary">Search</button>
                             </div>
-                            
+                                    
                             <div class="table-responsive">
                                 <table>
                                     <thead>

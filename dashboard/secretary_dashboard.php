@@ -1,5 +1,5 @@
 <?php
-require_once '../controllers/auth/session.php';
+// 999
 ?>
 
 

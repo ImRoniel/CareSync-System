@@ -1,9 +1,9 @@
 
 
 <?php
-session_start();
-
-// ✅ Check user role and ID directly, no need to require session.php again
+// session_start();
+// require_once __DIR__ . '../../controllers/auth/session.php';
+//  Check user role and ID directly, no need to require session.php again
 if (empty($_SESSION['user_id']) || $_SESSION['user_role'] !== 'doctor') {
     header("Location: ../login/login.php");
     exit();

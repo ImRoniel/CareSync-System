@@ -1,22 +1,22 @@
 <?php
 // controllers/admin/DoctorController.php
+require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../model/doctor/DoctorModel.php';
 
 class DoctorController {
-    private $model;
+    private $doctorModel;
 
     public function __construct($conn) {
-        $this->model = new DoctorModel($conn);
+        $this->doctorModel = new DoctorModel($conn);
     }
 
-    // Get a doctor
-    public function getDoctor($id) {
-        return $this->model->getDoctorById($id);
-    }
-
-    // Update a doctor
-    public function updateDoctor($id, $name, $email, $specialization) {
-        return $this->model->updateDoctor($id, $name, $email, $specialization);
+    public function search() {
+        $searchTerm = $_GET['search'] ?? '';
+        return $this->doctorModel->searchDoctors($searchTerm);
     }
 }
+
+// When accessed directly
+$controller = new DoctorController($conn);
+$doctors = $controller->search();
 ?>

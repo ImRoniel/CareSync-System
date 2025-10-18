@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: /Caresync-System/login/login.php");
     exit();
 } else {
-    // Optional: debug info, remove in production
+    
     // echo 'User logged in with user_id: ' . $_SESSION['user_id'];
 }
 ?>

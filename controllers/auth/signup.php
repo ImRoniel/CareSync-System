@@ -17,7 +17,7 @@
     if ($stmt->execute()) {
         $user_id = $stmt->insert_id; // Get last inserted user ID
 
-        // Step 2: Insert into specific role table
+        // Insert into specific role table
         if ($role === 'patient') {
             $phone = $_POST['phone'] ?? null;
             $address = $_POST['address'] ?? null;
@@ -36,7 +36,7 @@
         $_SESSION['role'] = $role;
         $_SESSION['name'] = $name;
 
-        // Step 3: Redirect based on role
+        // : Redirect based on role
         switch ($role) {
             case 'patient':
                 header("Location: dashboard/patient_dashboard.php");

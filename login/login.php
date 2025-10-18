@@ -1,7 +1,7 @@
 <?php
 // login.php
 
-// Start session (do NOT include session.php here to avoid redirect loop)
+// Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->fetch();
 
                     if (password_verify($password, $hashed_password)) {
-                        // ✅ Successful login
+                        //  Successful login
                         $_SESSION['user_id'] = $user_id;
                         $_SESSION['user_name'] = $user_name;
                         $_SESSION['user_email'] = $user_email;

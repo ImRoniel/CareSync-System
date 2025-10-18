@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirm_password = $_POST['confirm_password'] ?? '';
     $role = $_POST['role'] ?? 'patient'; // optional
 
-    // 🔍 Basic validation
+    //  Basic validation
     if (empty($fullname) || empty($email) || empty($password) || empty($confirm_password)) {
         echo "<script>alert('All fields are required.'); window.history.back();</script>";
         exit();
@@ -20,10 +20,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // 🔐 Hash password
+    //  Hash password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // 🧠 Check if email already exists
+    //  Check if email already exists
     $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
     $check->bind_param("s", $email);
     $check->execute();
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    // ✅ Insert new user
+    //  Insert new user
     $stmt = $conn->prepare("INSERT INTO users (fullname, email, password, role) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssss", $fullname, $email, $hashed_password, $role);
 

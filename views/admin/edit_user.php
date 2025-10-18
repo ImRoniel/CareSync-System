@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
 $id = intval($_GET['id']);
 $message = "";
 
-// ✅ 2. Fetch user data
+// 2. Fetch user data
 $sql = "SELECT id, name, email, role FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
@@ -21,7 +21,7 @@ if (!$user) {
     die("User not found.");
 }
 
-// ✅ 3. Handle update
+//  3. Handle update
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("sssi", $name, $email, $role, $id);
 
     if ($stmt->execute()) {
-        // ✅ 4. Role synchronization logic
+        // . Role synchronization logic
         if ($role === 'Doctor') {
             // If user is a doctor, ensure they exist in doctors table
             $check = $conn->prepare("SELECT * FROM doctors WHERE user_id = ?");
@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $delete->close();
         }
 
-        // ✅ 5. Redirect back to dashboard
+        // . Redirect back to dashboard
         header("Location: /Caresync-System/dashboard/admin_dashboard.php?message=User updated successfully");
         exit;
     } else {

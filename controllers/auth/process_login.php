@@ -1,5 +1,5 @@
 <?php
-include "db_connect.php"; // ✅ Make sure this path is correct
+include "db_connect.php"; //  Make sure this path is correct
 
 session_start();
 

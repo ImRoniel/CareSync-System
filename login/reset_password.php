@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Step 1 — Validation
+    //  Validation
     if ($password !== $confirm_password) {
         $message = "Passwords do not match.";
         $message_type = 'error';
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $newPassword = password_hash($password, PASSWORD_DEFAULT);
         echo "<!-- DEBUG: Password hash generated successfully. -->";
 
-        // Step 2 — Validate token
+        //  Validate token
         $stmt = $conn->prepare("SELECT email FROM password_resets WHERE token = ?");
         if (!$stmt) {
             echo "<div style='color:red;'>DEBUG ERROR: Failed to prepare token check statement - {$conn->error}</div>";
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = strtolower(trim($row['email']));
             echo "<!-- DEBUG: Valid token. Found email: {$email} -->";
 
-            // Step 3 — Update password
+            // Update password
             $update = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
             if (!$update) {
                 echo "<div style='color:red;'>DEBUG ERROR: Failed to prepare update - {$conn->error}</div>";
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($update->execute()) {
                 echo "<!-- DEBUG: Password updated successfully for user: {$email} -->";
 
-                // Step 4 — Delete token
+                //  Delete token
                 $delete = $conn->prepare("DELETE FROM password_resets WHERE email = ?");
                 $delete->bind_param("s", $email);
                 $delete->execute();
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Step 5 — Clean expired tokens (optional maintenance)
+    //  Clean expired tokens (optional maintenance)
     // $conn->query("DELETE FROM password_resets WHERE expires_at < NOW()");
     // echo "<!-- DEBUG: Expired tokens cleanup executed. -->";
 }

@@ -14,7 +14,7 @@ class UserModel {
         $stmt->execute();
         return $stmt->get_result();
     }
-}
+}   
 
 
 // controller logic for search
@@ -43,30 +43,30 @@ function getUsers($conn, $search = null) {
 }
 
 //doctor logic 
-// function getDoctors($conn, $search = null) {
-//     if ($search) {
-//         $sql = "SELECT * FROM users 
-//                 WHERE role = 'doctor' 
-//                 AND (name LIKE ? OR email LIKE ?)";
-//         $stmt = $conn->prepare($sql);
-//         $like = "%" . $search . "%";
-//         $stmt->bind_param("ss", $like, $like);
-//     } else {
-//         $sql = "SELECT * FROM users WHERE role = 'doctor'";
-//         $stmt = $conn->prepare($sql);
-//     }
+function getDoctors($conn, $search = null) {
+    if ($search) {
+        $sql = "SELECT * FROM users 
+                WHERE role = 'doctor' 
+                AND (name LIKE ? OR email LIKE ?)";
+        $stmt = $conn->prepare($sql);
+        $like = "%" . $search . "%";
+        $stmt->bind_param("ss", $like, $like);
+    } else {
+        $sql = "SELECT * FROM users WHERE role = 'doctor'";
+        $stmt = $conn->prepare($sql);
+    }
 
-//     $stmt->execute();
-//     $result = $stmt->get_result();
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-//     $doctors = [];
-//     while ($row = $result->fetch_assoc()) {
-//         $doctors[] = $row;
-//     }
+    $doctors = [];
+    while ($row = $result->fetch_assoc()) {
+        $doctors[] = $row;
+    }
 
-//     $stmt->close();
-//     return $doctors;
-// }
+    $stmt->close();
+    return $doctors;
+}
 
 //code for system overview
 

@@ -1,7 +1,7 @@
 Folder PATH listing for volume OS
 Volume serial number is 68C5-E9B1
 C:.
-¦   Admin DashBoard (1).html
+¦   Admin DashBoard (2).html
 ¦   CONTRIBUTING.md
 ¦   generate_hash.php
 ¦   index.php
@@ -23,6 +23,7 @@ C:.
 +---controllers
 ¦   +---admin
 ¦   ¦       delete_user.php
+¦   ¦       DoctorController.php
 ¦   ¦       search_user.php
 ¦   ¦       userController.php
 ¦   ¦       
@@ -59,9 +60,9 @@ C:.
 ¦   ¦       activity_model.php
 ¦   ¦       
 ¦   +---admin
-¦   ¦   ¦   userModel.php
-¦   ¦   ¦   
-¦   ¦   +---editButton
+¦   ¦       search_user.php
+¦   ¦       userModel.php
+¦   ¦       
 ¦   +---appointment
 ¦   ¦       appointment_model.php
 ¦   ¦       
@@ -69,6 +70,7 @@ C:.
 ¦   ¦       billing_model.php
 ¦   ¦       
 ¦   +---doctor
+¦   ¦       DoctorModel.php
 ¦   ¦       user_model.php
 ¦   ¦       
 ¦   +---patient
@@ -88,5 +90,8 @@ C:.
 ¦           
 +---views
     +---admin
+            edit_doctor.php
             edit_user.php
+            schedule_doctor.php
+            user_list.php
             
