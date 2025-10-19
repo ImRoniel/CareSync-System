@@ -13,6 +13,8 @@ class UserController {
         return $this->model->getAllUsers();
     }
 }
+
+//IN USER THAT, this is the delete logic 
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $user_id = $_GET['id'];
 
@@ -33,6 +35,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
 // $conn->close();
 // $search = isset($_GET['search']) ? trim($_GET['search']) : null;
 // $doctors = getDoctors($conn, $search);
+
+//logic for user search implementation  
 $userModel = new UserModel($conn);
 
 $action = $_GET['action'] ?? '';

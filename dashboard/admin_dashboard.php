@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/../config/db_connect.php';
-require_once __DIR__ . '/../controllers/admin/userController.php';
-require_once __DIR__ . '/../controllers/admin/DoctorController.php';
-require_once __DIR__ . '/../model/appointment/appointment_model.php';
-
+require_once __DIR__ . '/../config/db_connect.php'; //our main db
+require_once __DIR__ . '/../controllers/admin/userController.php'; //controller admin in user controller
+require_once __DIR__ . '/../controllers/admin/patientController.php';
+require_once __DIR__ . '/../controllers/admin/DoctorController.php'; //controller admin in doctor controller 
+require_once __DIR__ . '/../model/appointment/appointment_model.php'; // appointment function 
+require_once __DIR__ . '/../controllers/admin/secretaryController.php';
 //require_once __DIR__ . '/../views/admin/edit_user.php';
 
 // Include database connection
@@ -124,6 +125,9 @@ if (!$resultSystemOver) {
 //     header("Location: /Caresync-System/dashboard/admin_dashboard.php?message=Doctor updated successfully");
 //     exit;
 // }
+
+$patientController = new PatientController($conn);
+$resultPatientSystemOver = $patientController->index();
 ?>
 
 <!DOCTYPE html>
@@ -1144,19 +1148,19 @@ if (!$resultSystemOver) {
                         
                         <div class="tab-content active" id="users">
                             <div class="search-box">
-                                <form class="form-comtrol" method="GET" action="/../CareSync-System/controllers/admin/userController.php">
+                                <form class="search-box" method="GET" action="/../Caresync-System/controllers/admin/userController.php">
                                 <input type="hidden" name="action" value="list">
                                 <input type="text" name="search" class="form-control" 
                                     placeholder="Search users..." 
                                     value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                                <button type="submit" class="btn btn-primary 2">Search</button>
-                            </form>
+                                <button type="submit" class="btn btn-primary ">Search</button>
+                                </form>
                             </div>
                         
 
                             
                             <div class="table-responsive">
-                                    <table>
+                                <table>
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -1243,114 +1247,92 @@ if (!$resultSystemOver) {
                         <!-- secretaries -->
                         <div class="tab-content" id="secretaries">
                             <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search secretaries...">
-                                <button class="btn btn-primary">Search</button>
+                                <form method="GET" action="">
+                                    <input type="text" name="search" class="form-control"
+                                        placeholder="Search secretaries..."
+                                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                                    <button type="submit" class="btn btn-primary mt-2">Search</button>
+                                </form>
                             </div>
-                            
+
                             <div class="user-management-grid">
-                                <div class="user-card">
-                                    <div class="user-avatar-large">NH</div>
-                                    <div class="user-details">
-                                        <h3>Name Here</h3>
-                                        <p>Senior Secretary</p>
-                                        <p>email@caresync.com</p>
-                                        <p><span class="status-badge status-active">Active</span></p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-secondary">Edit</button>
-                                        <button class="btn btn-sm btn-info">Schedule</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="user-card">
-                                    <div class="user-avatar-large">NH</div>
-                                    <div class="user-details">
-                                        <h3>Name Here</h3>
-                                        <p>Reception Secretary</p>
-                                        <p>email@caresync.com</p>
-                                        <p><span class="status-badge status-active">Active</span></p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-secondary">Edit</button>
-                                        <button class="btn btn-sm btn-info">Schedule</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="user-card">
-                                    <div class="user-avatar-large">NH</div>
-                                    <div class="user-details">
-                                        <h3>Name Here</h3>
-                                        <p>Appointment Secretary</p>
-                                        <p>email@caresync.com</p>
-                                        <p><span class="status-badge status-pending">Pending</span></p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-secondary">Edit</button>
-                                        <button class="btn btn-sm btn-primary">Approve</button>
-                                    </div>
-                                </div>
+                                <?php if($secretaries && $doctors->num_rows > 0):  ?>
+                                    <?php while($doctor = $doctors->fetch_assoc()): ?> 
+                                    
+                                        <div class="user-card">
+                                                <div class="user-avatar-large">
+                                                    <?= strtoupper(substr($secretaries['secretaries_name'], 0, 1)) ?>
+                                                </div>
+                                                <div class="user-details">
+                                                    <h3><?= htmlspecialchars($secretaries['name']) ?></h3>
+                                                    <p><?= htmlspecialchars($secretaries['department'] ?? 'No Department') ?></p>
+                                                    <p><?= htmlspecialchars($secretaries['email']) ?></p>
+                                                    
+                                                </div>
+
+                                                <!-- balikan natin ito mamaya -->
+                                                <div class="user-actions">
+                                                    <button class="btn btn-sm btn-secondary"
+                                                            onclick="window.location.href='/CareSync-System/views/admin/edit_secretary.php?id=<?= htmlspecialchars($sec['user_id']) ?>'">
+                                                        Edit
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info"
+                                                        onclick="window.location.href='/CareSync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
+                                                    Schedule
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <p class="text-center text-muted mt-3">⚠️ No secretaries found.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
+
                         <div class="tab-content" id="patients">
                             <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search patients...">
-                                <button class="btn btn-primary">Search</button>
+                                <div class="search-box">
+                                    <input type="text" class="form-control" placeholder="Search patients...">
+                                    <button class="btn btn-primary">Search</button>
+                                </div>
                             </div>
                             
-                            <div class="table-responsive">
+                            
+                            <div class="table-responsive">   
                                 <table>
                                     <thead>
                                         <tr>
                                             <th>Patient ID</th>
                                             <th>Name</th>
-                                            <th>Contact</th>
+                                            <th>Email</th>
                                             <th>Doctor</th>
-                                            <th>Last Visit</th>
-                                            <th>Status</th>
+                                            <th>Last Login</th> 
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>ID Here</td>
-                                            <td>Name Here</td>
-                                            <td>email@example.com</td>
-                                            <td>Dr. Name Here</td>
-                                            <td>Date Here</td>
-                                            <td><span class="status-badge status-active">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button>
-                                                <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>ID Here</td>
-                                            <td>Name Here</td>
-                                            <td>email@example.com</td>
-                                            <td>Dr. Name Here</td>
-                                            <td>Date Here</td>
-                                            <td><span class="status-badge status-active">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button>
-                                                <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>ID Here</td>
-                                            <td>Name Here</td>
-                                            <td>email@example.com</td>
-                                            <td>Dr. Name Here</td>
-                                            <td>Date Here</td>
-                                            <td><span class="status-badge status-active">Active</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button>
-                                                <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
-                                            </td>
-                                        </tr>
+                                        <?php if($resultPatientSystemOver->num_rows > 0): ?>
+                                            <?php while($row = $resultPatientSystemOver->fetch_assoc()):?>
+                                        
+                                                <tr>
+                                                    <td><?= htmlspecialchars($row['id']); ?></td>
+                                                    <td><?= htmlspecialchars($row['name']); ?></td>
+                                                    <td><?= htmlspecialchars($row['email']); ?></td>
+                                                    <td><?= htmlspecialchars($row['doctor_name'] ?? 'No doctor') ?></td>
+                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
+                                                    <td>
+                                                        <!-- we need to put a validation for this button viwe -->
+                                                        <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button> 
+                                                        <!-- we need to put a validatio for this button  -->
+                                                        <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
+                                                    </td>
+                                                </tr>
+                                            <?php endwhile ?>  
+                                        <?php endif ?>
                                     </tbody>
-                                </table>
+                                </table>                         
                             </div>
-                        </div>
+                    </div>
                         <!-- integrate it here -->
                          
                         <div class="tab-content" id="appointments">
@@ -1711,6 +1693,7 @@ if (!$resultSystemOver) {
         
         // Initialize tabs
         document.addEventListener('DOMContentLoaded', function() {
+        
             // Add click event to all tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', function() {
