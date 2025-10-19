@@ -4,7 +4,7 @@ require_once __DIR__ . '/../controllers/admin/userController.php'; //controller 
 require_once __DIR__ . '/../controllers/admin/patientController.php';
 require_once __DIR__ . '/../controllers/admin/DoctorController.php'; //controller admin in doctor controller 
 require_once __DIR__ . '/../model/appointment/appointment_model.php'; // appointment function 
-require_once __DIR__ . '/../controllers/admin/secretaryController.php';
+require_once __DIR__ . '/../controllers/secretary/secretariesController.php';
 //require_once __DIR__ . '/../views/admin/edit_user.php';
 
 // Include database connection
@@ -44,7 +44,7 @@ if ($patientResult && $row = $patientResult->fetch_assoc()) {
 }
 
 //count total secretaries
-$secretaryQuery = "SELECT COUNT(*) AS total_secretaries FROM users WHERE role = 'secretaries'";
+$secretaryQuery = "SELECT COUNT(*) AS total_secretaries FROM users WHERE role = 'secretary'";
 $secretaryResult = $conn->query($secretaryQuery);
 
 if($secretaryResult && $row = $secretaryResult->fetch_assoc()){
@@ -63,8 +63,6 @@ if (!empty($user['doctor_id'])) {
 }
 
 
-
-// Create controller and fetch all users
 $controller = new UserController($conn);
 $resultSystemOver = $controller->index();
 
@@ -128,6 +126,23 @@ if (!$resultSystemOver) {
 
 $patientController = new PatientController($conn);
 $resultPatientSystemOver = $patientController->index();
+
+// Create controller and fetch all users
+$secretariesController = new secretariesControllerForAdmin($conn);
+$secretaryResult = $secretariesController->index();
+
+if (!$secretaryResult) {
+    die("Query failed: " . $conn->error);  // 🔍 Debug message
+}
+
+if ($secretaryResult->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        // your logic
+    }
+}
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -1256,15 +1271,15 @@ $resultPatientSystemOver = $patientController->index();
                             </div>
 
                             <div class="user-management-grid">
-                                <?php if($secretaries && $doctors->num_rows > 0):  ?>
-                                    <?php while($doctor = $doctors->fetch_assoc()): ?> 
+                                <?php if($secretaryResult->num_rows > 0):  ?>
+                                    <?php while($secretaries = $secretaryResult->fetch_assoc()): ?> 
                                     
                                         <div class="user-card">
                                                 <div class="user-avatar-large">
-                                                    <?= strtoupper(substr($secretaries['secretaries_name'], 0, 1)) ?>
+                                                    <?= strtoupper(substr($secretaries['secretary_name'], 0, 1)) ?>
                                                 </div>
                                                 <div class="user-details">
-                                                    <h3><?= htmlspecialchars($secretaries['name']) ?></h3>
+                                                    <h3><?= htmlspecialchars($secretaries['secretary_name']) ?></h3>
                                                     <p><?= htmlspecialchars($secretaries['department'] ?? 'No Department') ?></p>
                                                     <p><?= htmlspecialchars($secretaries['email']) ?></p>
                                                     
@@ -1277,7 +1292,7 @@ $resultPatientSystemOver = $patientController->index();
                                                         Edit
                                                     </button>
                                                     <button class="btn btn-sm btn-info"
-                                                        onclick="window.location.href='/CareSync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
+                                                        onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
                                                     Schedule
                                                 </button>
                                             </div>

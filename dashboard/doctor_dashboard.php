@@ -4,18 +4,16 @@
 // session_start();
 // require_once __DIR__ . '../../controllers/auth/session.php';
 //  Check user role and ID directly, no need to require session.php again
-if (empty($_SESSION['user_id']) || $_SESSION['user_role'] !== 'doctor') {
-    header("Location: ../login/login.php");
-    exit();
-}
+
 
 require_once '../config/db_connect.php';
-require_once '../model/patient/patient_model.php';
+require_once '../model/patient/patientModel.php';
 require_once '../model/doctor/user_model.php';
 require_once '../model/appointment/appointment_model.php';
 require_once '../model/billing/billing_model.php';
 require_once '../model/prescription/prescription_model.php';
 require_once '../model/activity/activity_model.php';
+require_once __DIR__ . '/../controllers/admin/patientController.php'; 
 
 $user = getUserById($conn, $_SESSION['user_id']);
 if (!$user) {
@@ -28,7 +26,8 @@ if (!empty($user['doctor_id'])) {
     $appointments = getDoctorAppointments($conn, $user['doctor_id']);
 }
 
-$totalPatients = getTotalPatients($conn);
+// $totalPatients = getAllPatients($conn);
+
 $revenueThisWeek = 0;
 if (!empty($user['doctor_id'])) {
     $revenueThisWeek = getRevenueThisWeek($conn, $user['doctor_id']);

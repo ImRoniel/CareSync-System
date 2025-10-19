@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['fullname'] = $user['fullname'];
             $_SESSION['role'] = $user['role'];
 
-            echo "<script>alert('Login successful!'); window.location.href='patient_dashboard.php';</script>";
+            echo "<script>alert('Login successful!'); ;</script>";
         } else {
             echo "<script>alert('Invalid password.'); window.history.back();</script>";
         }

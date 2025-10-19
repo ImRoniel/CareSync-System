@@ -13,8 +13,8 @@ function getUserById($conn, $id) {
             doctors.license_no,
             doctors.years_experience,
             doctors.clinic_room
-        FROM users
-        LEFT JOIN doctors ON users.id = doctors.user_id
+        FROM users u
+        LEFT JOIN u doctors ON users.id = doctors.user_id
         WHERE users.id = ?
     ");
 

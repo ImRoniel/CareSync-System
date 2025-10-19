@@ -1,5 +1,17 @@
 <?php
-// 999
+require_once __DIR__ . '/../controllers/auth/session.php';
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../controllers/secretary/secretariesController.php';
+
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: /Caresync-System/login/login.php");
+    exit();
+}
+
+$userId = $_SESSION['user_id']; // pulled from session.php
+$controller = new SecretaryController($conn);
+$secretary = $controller->getProfile($userId);
 ?>
 
 
@@ -795,19 +807,25 @@
 
     <section class="dashboard">
         <div class="container">
-            <div class="dashboard-header">
-                <div>
-                    <h1>Secretary</h1>
-                    <p>Welcome back, Name here</p>
-                </div>
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">LT</div>
+            <?php if ($secretary): ?>
+                <div class="dashboard-header">
                     <div>
-                        <p>Name here</p>
-                        <small>Clinic Secretary</small>
+                        <h1>Secretary</h1>
+                        <p>Welcome back, <strong><?= htmlspecialchars($secretary['name']) ?></strong></p>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">
+                            <?= strtoupper(substr($secretary['name'], 0, 2)) ?>
+                        </div>
+                        <div>
+                            <p><?= htmlspecialchars($secretary['name']) ?></p>
+                            <small>Clinic Secretary</small>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php else: ?>
+                <p style="color: red;">No secretary data found for this user.</p>
+            <?php endif; ?>
             
             <div class="stats-grid">
                 <div class="stat-card" id="appointmentsStat">
@@ -944,12 +962,12 @@
                                 <p>Schedule Appointment</p>
                             </div>
                             
-                            <div class="action-btn" id="registerPatientBtn">
+                            <!-- <div class="action-btn" id="registerPatientBtn">
                                 <div class="action-icon">
                                     <i class="fas fa-user-plus"></i>
                                 </div>
                                 <p>Register Patient</p>
-                            </div>
+                            </div> -->
                             
                             <div class="action-btn" id="processPrescriptionBtn">
                                 <div class="action-icon">

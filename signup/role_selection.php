@@ -204,7 +204,7 @@
             </div>
 
             <div class="login-link">
-                Already have an account? <a href="login.php">Log in here</a>
+                Already have an account? <a href="../login/login.php">Log in here</a>
             </div>
         </section>
     </div>

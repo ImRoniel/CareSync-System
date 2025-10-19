@@ -24,7 +24,9 @@ C:.
 ¦   +---admin
 ¦   ¦       delete_user.php
 ¦   ¦       DoctorController.php
+¦   ¦       patientController.php
 ¦   ¦       search_user.php
+¦   ¦       secretaryController.php
 ¦   ¦       userController.php
 ¦   ¦       
 ¦   +---auth
@@ -36,10 +38,10 @@ C:.
 ¦   ¦       signup.php
 ¦   ¦       
 ¦   +---doctor
-¦   ¦       user_controller.php
-¦   ¦       
 ¦   +---patient
 ¦   +---secretary
+¦           secretariesController.php
+¦           
 +---dashboard
 ¦       admin_dashboard.php
 ¦       doctor_dashboard.php
@@ -61,6 +63,7 @@ C:.
 ¦   ¦       
 ¦   +---admin
 ¦   ¦       search_user.php
+¦   ¦       secretaryModel.php
 ¦   ¦       userModel.php
 ¦   ¦       
 ¦   +---appointment
@@ -74,10 +77,13 @@ C:.
 ¦   ¦       user_model.php
 ¦   ¦       
 ¦   +---patient
-¦   ¦       patient_model.php
+¦   ¦       patientModel.php
 ¦   ¦       
 ¦   +---prescription
-¦           prescription_model.php
+¦   ¦       prescription_model.php
+¦   ¦       
+¦   +---secretaries
+¦           secretariesModel.php
 ¦           
 +---signup
 ¦       role_selection.php
