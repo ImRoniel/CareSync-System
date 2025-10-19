@@ -1137,7 +1137,7 @@ if (!$resultSystemOver) {
                         <div class="tabs">
                             <div class="tab active" data-tab="users">Users</div>
                             <div class="tab" data-tab="doctors">Doctors</div>
-                            <div class="tab" data-tan="secretaries">Secretaries</div>
+                            <div class="tab" data-tab="secretaries">Secretaries</div>
                             <div class="tab" data-tab="patients">Patients</div>
                             <div class="tab" data-tab="appointments">Appointments</div>
                         </div>
