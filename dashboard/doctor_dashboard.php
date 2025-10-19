@@ -2,7 +2,7 @@
 
 <?php
 // session_start();
-// require_once __DIR__ . '../../controllers/auth/session.php';
+require_once __DIR__ . '../../controllers/auth/session.php';
 //  Check user role and ID directly, no need to require session.php again
 
 
@@ -14,7 +14,7 @@ require_once '../model/billing/billing_model.php';
 require_once '../model/prescription/prescription_model.php';
 require_once '../model/activity/activity_model.php';
 require_once __DIR__ . '/../controllers/admin/patientController.php'; 
-
+require_once __DIR__ . '/../controllers/admin/DoctorController.php';
 $user = getUserById($conn, $_SESSION['user_id']);
 if (!$user) {
     echo "User not found.";
@@ -26,8 +26,11 @@ if (!empty($user['doctor_id'])) {
     $appointments = getDoctorAppointments($conn, $user['doctor_id']);
 }
 
-// $totalPatients = getAllPatients($conn);
 
+
+$patientController = new PatientController($conn);
+$search = $_GET['search'] ?? '';
+$patients = $patientController->index($search);
 $revenueThisWeek = 0;
 if (!empty($user['doctor_id'])) {
     $revenueThisWeek = getRevenueThisWeek($conn, $user['doctor_id']);
@@ -35,6 +38,13 @@ if (!empty($user['doctor_id'])) {
 $activities = getDoctorActivity($conn, $user['doctor_id'], 5);
 
 $prescriptionsToday = getPrescriptionsToday($conn, $user['doctor_id']);
+
+
+// ✅ Create controller
+$patientCounts = new DoctorController($conn);
+
+// ✅ Get total patient count
+$totalPatients = $patientCounts->getPatientCount();
 ?>
 
 

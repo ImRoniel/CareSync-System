@@ -18,7 +18,7 @@ class PatientModel {
                     u.email, 
                     u.created_at,
                     d.name AS doctor_name
-                FROM users u
+                FROM users AS u
                 LEFT JOIN patients p ON u.id = p.user_id
                 LEFT JOIN users d ON p.assign_doctor_id = d.id
                 WHERE u.role = 'patient'
@@ -31,3 +31,5 @@ class PatientModel {
     }
 }
 ?>
+
+

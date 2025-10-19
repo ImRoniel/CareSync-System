@@ -1,76 +1,24 @@
 <?php 
-include "../../config/db_connect.php";
+require_once __DIR__ . '/../../config/db_connect.php';
+require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
 
 // . Validate user ID
 if (!isset($_GET['id'])) {
-    die("Invalid request. No user ID provided.");
+    die("Invalid request. No doctor ID provided.");
 }
-$id = intval($_GET['id']);
-$message = "";
+$doctor_id = intval($_GET['id']);
+$controller = new DoctorController($conn);
 
-//  Fetch user data
-$sql = "SELECT id, email, name,  specialization FROM users WHERE id = ?";
+// ✅ If form is submitted, update doctor
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller->update($doctor_id);
+    exit;
+}
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$result = $stmt->get_result();
-$doctor = $result->fetch_assoc();
-$stmt->close();
-
+// ✅ Otherwise, load doctor data
+$doctor = $controller->edit($doctor_id);
 if (!$doctor) {
-    die("User not found.");
-}
-
-//  Handle update
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $role = trim($_POST['role']);
-
-    // Update user info in users table
-    $sql = "UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $name, $email, $role, $id);
-
-    if ($stmt->execute()) {
-        // . Role synchronization logic
-        if ($role === 'Doctor') {
-            // If user is a doctor, ensure they exist in doctors table
-            $check = $conn->prepare("SELECT * FROM doctors WHERE user_id = ?");
-            $check->bind_param("i", $id);
-            $check->execute();
-            $result = $check->get_result();
-
-            if ($result->num_rows === 0) {
-                $insert = $conn->prepare("INSERT INTO doctors (user_id, specialization) VALUES (?, 'General')");
-                $insert->bind_param("i", $id);
-                $insert->execute();
-                $insert->close();
-            }
-            $check->close();
-
-        } elseif ($role === 'Secretary') {
-            // If user becomes a secretary, remove from doctors table if exists
-            $delete = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
-            $delete->bind_param("i", $id);
-            $delete->execute();
-            $delete->close();
-        } elseif ($role === 'Patient') {
-            // If user becomes a patient, also remove from doctors table
-            $delete = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
-            $delete->bind_param("i", $id);
-            $delete->execute();
-            $delete->close();
-        }
-
-        // . Redirect back to dashboard
-        header("Location: /Caresync-System/dashboard/admin_dashboard.php?message=User updated successfully");
-        exit;
-    } else {
-        $message = "Error updating user: " . $stmt->error;
-    }
-    $stmt->close();
+    die("Doctor not found.");
 }
 ?>
 
@@ -81,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareSync - Edit User</title>
+    <title>CareSync - Edit Doctor</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -119,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         .edit-container {
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
             background: white;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
@@ -165,6 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            text-decoration: none;
         }
         
         .back-btn:hover {
@@ -299,24 +248,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-left-color: #ef4444;
         }
         
-        .role-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            margin-top: 8px;
-            background: var(--primary-light);
-            color: var(--primary-dark);
-        }
-        
-        .form-select option {
-            padding: 12px;
-            font-size: 15px;
-        }
-        
         .user-avatar {
             width: 80px;
             height: 80px;
@@ -331,6 +262,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 0 auto 20px;
             border: 4px solid white;
             box-shadow: var(--shadow);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
         }
         
         @media (max-width: 576px) {
@@ -363,6 +303,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 width: 36px;
                 height: 36px;
             }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
         }
     </style>
 </head>
@@ -372,8 +317,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="/CareSync-System/dashboard/admin_dashboard.php" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
             </a>
-            <h1>Edit User</h1>
-            <p>Update user information</p>
+            <h1>Edit Doctor</h1>
+            <p>Update doctor information</p>
         </div>
         
         <div class="edit-form-container">
@@ -385,49 +330,69 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
             
             <div class="user-avatar">
-                <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
+                <i class="fas fa-user-md"></i>
             </div>
             
             <form method="POST" action="">
                 <div class="form-group">
-                    <label class="form-label" for="name">Full Name</label>
+                    <label class="form-label" for="phone">Phone</label>
                     <div class="input-icon">
-                        <i class="fas fa-user"></i>
-                        <input type="text" class="form-input" id="name" name="name" 
-                               value="<?php echo htmlspecialchars($user['name']); ?>" required
-                               placeholder="Enter full name">
+                        <i class="fas fa-phone"></i>
+                        <input type="text" class="form-input" id="phone" name="phone" 
+                               value="<?php echo htmlspecialchars($doctor['phone']); ?>" 
+                               placeholder="Enter phone number">
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label" for="email">Email Address</label>
+                    <label class="form-label" for="address">Address</label>
                     <div class="input-icon">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" class="form-input" id="email" name="email" 
-                               value="<?php echo htmlspecialchars($user['email']); ?>" required
-                               placeholder="Enter email address">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" class="form-input" id="address" name="address" 
+                               value="<?php echo htmlspecialchars($doctor['address']); ?>" 
+                               placeholder="Enter address">
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label" for="role">User Role</label>
+                    <label class="form-label" for="license_no">License No</label>
                     <div class="input-icon">
-                        <i class="fas fa-user-tag"></i>
-                        <select class="form-select" id="role" name="role" required>
-                            <option value="patient" <?php echo $user['role'] == 'patient' ? 'selected' : ''; ?>>
-                                Patient
-                            </option>
-                            <option value="doctor" <?php echo $user['role'] == 'doctor' ? 'selected' : ''; ?>>
-                                Doctor
-                            </option>
-                            <option value="secretary" <?php echo $user['role'] == 'secretary' ? 'selected' : ''; ?>>
-                                Secretary
-                            </option>
-                        </select>
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" class="form-input" id="license_no" name="license_no" 
+                               value="<?php echo htmlspecialchars($doctor['license_no']); ?>" 
+                               placeholder="Enter license number">
                     </div>
-                    <div class="role-indicator">
-                        <i class="fas fa-info-circle"></i>
-                        Current role: <?php echo ucfirst($user['role']); ?>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="specialization">Specialization</label>
+                    <div class="input-icon">
+                        <i class="fas fa-stethoscope"></i>
+                        <input type="text" class="form-input" id="specialization" name="specialization" 
+                               value="<?php echo htmlspecialchars($doctor['specialization']); ?>" 
+                               placeholder="Enter specialization">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="years_experience">Years of Experience</label>
+                        <div class="input-icon">
+                            <i class="fas fa-briefcase"></i>
+                            <input type="number" class="form-input" id="years_experience" name="years_experience" 
+                                   value="<?php echo htmlspecialchars($doctor['years_experience']); ?>" 
+                                   placeholder="Years">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="clinic_room">Clinic Room</label>
+                        <div class="input-icon">
+                            <i class="fas fa-door-open"></i>
+                            <input type="text" class="form-input" id="clinic_room" name="clinic_room" 
+                                   value="<?php echo htmlspecialchars($doctor['clinic_room']); ?>" 
+                                   placeholder="Room number">
+                        </div>
                     </div>
                 </div>
                 

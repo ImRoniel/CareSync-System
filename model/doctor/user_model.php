@@ -2,20 +2,20 @@
 function getUserById($conn, $id) {
     $stmt = $conn->prepare("
         SELECT 
-            users.id,
-            users.name,
-            users.email,
-            users.role,
-            users.created_at,
-            doctors.doctor_id,
-            doctors.specialization,
-            doctors.phone,
-            doctors.license_no,
-            doctors.years_experience,
-            doctors.clinic_room
-        FROM users u
-        LEFT JOIN u doctors ON users.id = doctors.user_id
-        WHERE users.id = ?
+            u.id,
+            u.name,
+            u.email,
+            u.role,
+            u.created_at,
+            d.doctor_id,
+            d.specialization,
+            d.phone,
+            d.license_no,
+            d.years_experience,
+            d.clinic_room
+        FROM users AS u
+        LEFT JOIN doctors AS d ON u.id = d.user_id
+        WHERE u.id = ?
     ");
 
     $stmt->bind_param("i", $id);
@@ -26,5 +26,4 @@ function getUserById($conn, $id) {
 
     return $user;
 }
-
 ?>

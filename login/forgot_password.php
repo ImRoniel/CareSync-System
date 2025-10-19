@@ -2,7 +2,7 @@
 
 
 // Include database connection
-$config_path = __DIR__ . '/../config/db_connect.php';
+$config_path = __DIR__ .  '/../config/db_connect.php';
 if (file_exists($config_path)) {
     require_once $config_path;
 } else {

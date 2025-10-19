@@ -22,7 +22,7 @@ if (!$user) {
 }
 
 //  3. Handle update
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $role = trim($_POST['role']);

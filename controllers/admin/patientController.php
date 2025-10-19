@@ -1,18 +1,18 @@
 <?php
-    require_once __DIR__ . '/../../config/db_connect.php';
-    require_once __DIR__ . '/../../model/patient/patientModel.php';
-//class for patient controller
+require_once __DIR__ . '/../../config/db_connect.php';
+require_once __DIR__ . '/../../model/patient/patientModel.php';
+
 class PatientController {
     private $model;
 
-
-    //method constructor to ues patientcontroller 
-    public function __construct($mysqli){
+    // ✅ Constructor: initializes the model using the shared DB connection
+    public function __construct($mysqli) {
         $this->model = new PatientModel($mysqli);
     }
 
-    public function index(){
-        return $this->model->getAllPatients();
+    // ✅ Fetch all patients (with optional search)
+    public function index($search = '') {
+        return $this->model->getAllPatients($search);
     }
 }
 ?>

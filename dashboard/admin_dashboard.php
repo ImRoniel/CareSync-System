@@ -1243,11 +1243,11 @@ if ($secretaryResult->num_rows > 0) {
                                             </div>
                                             <div class="user-actions">
                                                 <button class="btn btn-sm btn-secondary"
-                                                        onclick="window.location.href='/CareSync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
+                                                        onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
                                                     Edit
                                                 </button>
                                                 <button class="btn btn-sm btn-info"
-                                                        onclick="window.location.href='/CareSync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
+                                                        onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
                                                     Schedule
                                                 </button>
                                             </div>
