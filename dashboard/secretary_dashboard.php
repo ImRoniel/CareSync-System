@@ -807,7 +807,7 @@ $secretary = $controller->getProfile($userId);
 
     <section class="dashboard">
         <div class="container">
-            <?php if ($secretary): ?>
+            <?php if (!$secretary): ?>
                 <div class="dashboard-header">
                     <div>
                         <h1>Secretary</h1>

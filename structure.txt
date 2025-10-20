@@ -1,7 +1,7 @@
 Folder PATH listing for volume OS
 Volume serial number is 68C5-E9B1
 C:.
-¦   Admin DashBoard (2).html
+¦   caresync_db (10).sql
 ¦   CONTRIBUTING.md
 ¦   generate_hash.php
 ¦   index.php
@@ -44,9 +44,13 @@ C:.
 ¦           
 +---dashboard
 ¦       admin_dashboard.php
+¦       Admin_Dashboard1.php
 ¦       doctor_dashboard.php
+¦       Doctor_DashBoard1.php
 ¦       patient_dashboard.php
+¦       Patient_DashBoard1.php
 ¦       secretary_dashboard.php
+¦       Secretary_DashBoard1.php
 ¦       
 +---flowchart
 ¦       .drawio.svg

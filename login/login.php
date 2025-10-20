@@ -22,16 +22,16 @@ $password = '';
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && isset($_SESSION['user_role'])) {
     switch ($_SESSION['user_role']) {
         case 'doctor':
-            header("Location: ../dashboard/doctor_dashboard.php");
+            header("Location: ../dashboard/Doctor_DashBoard1.php");
             exit();
         case 'patient':
-            header("Location: ../dashboard/patient_dashboard.php");
+            header("Location: ../dashboard/Patient_DashBoard1.php");
             exit();
         case 'secretary':
-            header("Location: ../dashboard/secretary_dashboard.php");
+            header("Location: ../dashboard/Secretary_Dashboard1.php");
             exit();
         case 'admin':
-            header("Location: ../dashboard/admin_dashboard.php");
+            header("Location: ../dashboard/admin_dashboard1.php");
             exit();
     }
 }

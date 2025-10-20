@@ -1,3 +1,4 @@
+
 <?php
 require_once __DIR__ . '/../config/db_connect.php'; //our main db
 require_once __DIR__ . '/../controllers/admin/userController.php'; //controller admin in user controller
@@ -142,7 +143,6 @@ if ($secretaryResult->num_rows > 0) {
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -151,16 +151,13 @@ if ($secretaryResult->num_rows > 0) {
     <title>CareSync - Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Your existing CSS styles remain the same */
         :root {
             --primary: #2E8949;      
-            --primary-dark: #1e5c30;  
-            --primary-light: #4CAF50; 
+            --primary-dark: #2E8949;  
+            --primary-light: #AD5057; 
             --secondary: #CFCFCF;     
             --accent: #AD5057;        
             --danger: #AD5057;        
-            --warning: #FF9800;       
-            --info: #2196F3;          
             
             --text-dark: #111814;     
             --text-medium: #2E603D;   
@@ -196,7 +193,7 @@ if ($secretaryResult->num_rows > 0) {
         
         .container {
             width: 100%;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -249,12 +246,6 @@ if ($secretaryResult->num_rows > 0) {
             cursor: pointer;
             gap: 10px;
             font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
         }
         
         .btn-primary {
@@ -273,19 +264,19 @@ if ($secretaryResult->num_rows > 0) {
             color: white;
         }
         
-        .btn-warning {
-            background-color: var(--warning);
-            color: white;
-        }
-        
         .btn-info {
-            background-color: var(--info);
+            background-color: #2196F3;
             color: white;
         }
         
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 0.875rem;
+        .btn-warning {
+            background-color: #FF9800;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #4CAF50;
+            color: white;
         }
         
         header {
@@ -330,22 +321,7 @@ if ($secretaryResult->num_rows > 0) {
             text-decoration: none;
             color: var(--text-dark);
             font-weight: 500;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-        
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--primary);
-        }
-        
-        .nav-links a.active:after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--primary);
+            cursor: pointer;
         }
         
         .nav-actions {
@@ -362,8 +338,13 @@ if ($secretaryResult->num_rows > 0) {
             cursor: pointer;
         }
         
-        .dashboard {
+        .page {
+            display: none;
             padding: 140px 0 40px;
+        }
+        
+        .page.active {
+            display: block;
         }
         
         .dashboard-header {
@@ -392,12 +373,6 @@ if ($secretaryResult->num_rows > 0) {
             color: white;
             font-weight: bold;
             font-size: 1.2rem;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        
-        .user-avatar:hover {
-            transform: scale(1.05);
         }
         
         .stats-grid {
@@ -417,44 +392,22 @@ if ($secretaryResult->num_rows > 0) {
             gap: 15px;
         }
         
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-        
         .stat-icon {
             width: 60px;
             height: 60px;
             border-radius: 50%;
+            background-color: rgba(46, 137, 73, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-        }
-        
-        .stat-icon.primary {
-            background-color: rgba(46, 137, 73, 0.1);
             color: var(--primary);
-        }
-        
-        .stat-icon.warning {
-            background-color: rgba(255, 152, 0, 0.1);
-            color: var(--warning);
-        }
-        
-        .stat-icon.info {
-            background-color: rgba(33, 150, 243, 0.1);
-            color: var(--info);
-        }
-        
-        .stat-icon.danger {
-            background-color: rgba(173, 80, 87, 0.1);
-            color: var(--danger);
+            font-size: 1.5rem;
         }
         
         .stat-info h3 {
             font-size: 1.8rem;
             margin-bottom: 5px;
+            color: var(--primary);
         }
         
         .stat-info p {
@@ -516,14 +469,6 @@ if ($secretaryResult->num_rows > 0) {
             border-bottom: none;
         }
         
-        table tr {
-            transition: background-color 0.2s ease;
-        }
-        
-        table tr:hover {
-            background-color: rgba(46, 137, 73, 0.05);
-        }
-        
         .status-badge {
             display: inline-block;
             padding: 5px 10px;
@@ -549,7 +494,7 @@ if ($secretaryResult->num_rows > 0) {
         
         .status-warning {
             background-color: rgba(255, 152, 0, 0.1);
-            color: var(--warning);
+            color: #FF9800;
         }
         
         .activity-list {
@@ -561,15 +506,6 @@ if ($secretaryResult->num_rows > 0) {
             gap: 15px;
             padding: 15px 0;
             border-bottom: 1px solid var(--border-light);
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .activity-item:hover {
-            background-color: rgba(46, 137, 73, 0.05);
-            border-radius: var(--radius-md);
-            padding-left: 10px;
-            padding-right: 10px;
         }
         
         .activity-item:last-child {
@@ -613,12 +549,6 @@ if ($secretaryResult->num_rows > 0) {
             justify-content: center;
             color: var(--text-medium);
             margin-top: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .chart-container:hover {
-            background-color: rgba(46, 137, 73, 0.1);
         }
         
         .quick-actions {
@@ -637,12 +567,6 @@ if ($secretaryResult->num_rows > 0) {
             padding: 20px 10px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .action-btn:hover {
-            background-color: rgba(46, 137, 73, 0.1);
-            transform: translateY(-5px);
         }
         
         .action-icon {
@@ -674,11 +598,6 @@ if ($secretaryResult->num_rows > 0) {
             padding: 12px 24px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .tab:hover {
-            color: var(--primary);
         }
         
         .tab.active {
@@ -758,13 +677,6 @@ if ($secretaryResult->num_rows > 0) {
             flex-direction: column;
             align-items: center;
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
         }
         
         .user-avatar-large {
@@ -805,6 +717,58 @@ if ($secretaryResult->num_rows > 0) {
             flex: 1;
         }
         
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        
+        .profile-sidebar {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 3rem;
+            margin: 0 auto 20px;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .profile-stat {
+            text-align: center;
+            padding: 15px;
+            background-color: var(--bg-light);
+            border-radius: var(--radius-md);
+        }
+        
+        .profile-stat h3 {
+            margin-bottom: 5px;
+            font-size: 1.5rem;
+        }
+        
+        .profile-stat p {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+        
         footer {
             background-color: var(--primary-dark);
             color: var(--text-light);
@@ -836,11 +800,7 @@ if ($secretaryResult->num_rows > 0) {
         .footer-column ul li a {
             color: var(--text-light);
             text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        
-        .footer-column ul li a:hover {
-            color: white;
+            cursor: pointer;
         }
         
         .footer-column p {
@@ -867,12 +827,7 @@ if ($secretaryResult->num_rows > 0) {
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
             text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .social-links a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
+            cursor: pointer;
         }
         
         .copyright {
@@ -902,12 +857,6 @@ if ($secretaryResult->num_rows > 0) {
             width: 90%;
             max-width: 600px;
             box-shadow: var(--shadow-lg);
-            animation: modalFadeIn 0.3s;
-        }
-        
-        @keyframes modalFadeIn {
-            from {opacity: 0; transform: translateY(-50px);}
-            to {opacity: 1; transform: translateY(0);}
         }
         
         .modal-header {
@@ -927,49 +876,32 @@ if ($secretaryResult->num_rows > 0) {
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        
-        .close:hover {
-            color: var(--text-dark);
         }
         
         .modal-body {
             padding: 20px;
         }
         
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+        
         .mobile-nav {
             display: none;
-            position: fixed;
-            top: 80px;
+            position: absolute;
+            top: 100%;
             left: 0;
-            width: 100%;
+            right: 0;
             background-color: var(--bg-white);
             box-shadow: var(--shadow-md);
-            z-index: 999;
-            padding: 20px;
             flex-direction: column;
+            padding: 20px;
             gap: 15px;
         }
         
         .mobile-nav.active {
             display: flex;
-        }
-        
-        .mobile-nav a {
-            text-decoration: none;
-            color: var(--text-dark);
-            font-weight: 500;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .mobile-nav a:last-child {
-            border-bottom: none;
-        }
-        
-        .mobile-nav a.active {
-            color: var(--primary);
         }
         
         @media (max-width: 1024px) {
@@ -978,6 +910,10 @@ if ($secretaryResult->num_rows > 0) {
             }
             
             .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-container {
                 grid-template-columns: 1fr;
             }
         }
@@ -995,7 +931,7 @@ if ($secretaryResult->num_rows > 0) {
                 display: block;
             }
             
-            .dashboard {
+            .page {
                 padding: 120px 0 30px;
             }
             
@@ -1040,17 +976,16 @@ if ($secretaryResult->num_rows > 0) {
     <header>
         <div class="container">
             <div class="header-content">
-                <a href="#" class="logo">
+                <a   class="logo" onclick="showPage('dashboard')">
                     <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </a>
                 
                 <nav class="nav-links">
-                    <a href="#" class="active">Dashboard</a>
-                    <a href="#">Users</a>
-                    <a href="#">System</a>
-                    <a href="#">Reports</a>
-                    <a href="#">Settings</a>
+                    <a onclick="showPage('dashboard')">Dashboard</a>
+                    <a onclick="showPage('users')">Users</a>
+                    <a onclick="showPage('reports')">Reports</a>
+                    <a onclick="showPage('settings')">Settings</a>
                 </nav>
                 
                 <div class="nav-actions">
@@ -1058,42 +993,43 @@ if ($secretaryResult->num_rows > 0) {
                     <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
                 </div>
                 
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
                     <i class="fas fa-bars"></i>
                 </button>
+            </div>
+            
+            <div class="mobile-nav" id="mobileNav">
+                <a onclick="showPage('dashboard'); hideMobileNav()">Dashboard</a>
+                <a onclick="showPage('users'); hideMobileNav()">Users</a>
+                <a onclick="showPage('reports'); hideMobileNav()">Reports</a>
+                <a onclick="showPage('settings'); hideMobileNav()">Settings</a>
+                <div class="mobile-nav-actions">
+                    <button class="btn btn-secondary" onclick="showModal('profile-modal'); hideMobileNav()">Profile</button>
+                    <button class="btn btn-primary">Logout</button>
+                </div>
             </div>
         </div>
     </header>
 
-    <div class="mobile-nav" id="mobile-nav">
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Users</a>
-        <a href="#">System</a>
-        <a href="#">Reports</a>
-        <a href="#">Settings</a>
-        <a href="#" onclick="showModal('profile-modal')">Profile</a>
-        <a href="#" onclick="logout()">Logout</a>
-    </div>
-
-    <section class="dashboard">
+    <section id="dashboard" class="page active">
         <div class="container">
             <div class="dashboard-header">
                 <div>
-                    <h1>Admin</h1>
-                    <p>Welcome back, Roniel C. Carbon</p>
+                    <h1>Admin Dashboard</h1>
+                    <p>Welcome back, RONIEL C. CARBON</p>
                 </div>
                 <div class="user-info">
-                    <div class="user-avatar" onclick="showModal('profile-modal')">SA</div>
+                    <div class="user-avatar">SA</div>
                     <div>
-                        <p>Roniel C. Carbon</p>
-                        <small>System Administrator</small>
+                        <p>RONIEL C. CARBON</p>
+                        <small>Administrator Account</small>
                     </div>
                 </div>
             </div>
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon primary">
+                    <div class="stat-icon">
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-info">
@@ -1103,7 +1039,7 @@ if ($secretaryResult->num_rows > 0) {
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon warning">
+                    <div class="stat-icon">
                         <i class="fas fa-user-md"></i>
                     </div>
                     <div class="stat-info">
@@ -1113,7 +1049,7 @@ if ($secretaryResult->num_rows > 0) {
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon success">
+                    <div class="stat-icon">
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <div class="stat-info">
@@ -1123,7 +1059,7 @@ if ($secretaryResult->num_rows > 0) {
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon info">
+                    <div class="stat-icon">
                         <i class="fas fa-procedures"></i>
                     </div>
                     <div class="stat-info">
@@ -1133,7 +1069,7 @@ if ($secretaryResult->num_rows > 0) {
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon danger">
+                    <div class="stat-icon">
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
@@ -1159,7 +1095,7 @@ if ($secretaryResult->num_rows > 0) {
                             <div class="tab" data-tab="appointments">Appointments</div>
                         </div>
                         
-                        <div class="tab-content active" id="users">
+                        <div class="tab-content active" id="users-tab">
                             <div class="search-box">
                                 <form class="search-box" method="GET" action="/../Caresync-System/controllers/admin/userController.php">
                                 <input type="hidden" name="action" value="list">
@@ -1169,8 +1105,6 @@ if ($secretaryResult->num_rows > 0) {
                                 <button type="submit" class="btn btn-primary ">Search</button>
                                 </form>
                             </div>
-                        
-
                             
                             <div class="table-responsive">
                                 <table>
@@ -1180,7 +1114,7 @@ if ($secretaryResult->num_rows > 0) {
                                             <th>Email</th>
                                             <th>Role</th>
                                             <!-- <th>Status</th> -->
-                                            <th>Last Login</th> 
+                                            <th>Last Login</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -1204,20 +1138,18 @@ if ($secretaryResult->num_rows > 0) {
                                                         </button>
                                                     </td>
                                                 </tr>
-                                            <?php endwhile; ?>
-                                        <?php else: ?>
+                                            <?php endwhile; ?> 
+                                        <?php else: ?>     
                                             <tr>    
                                                 <td colspan="6" style="text-align: center;">No users found</td>
-                                            </tr>
+                                            </tr>  
                                         <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                         
-                        
-
-                        <div class="tab-content" id="doctors">
+                        <div class="tab-content" id="doctors-tab">
                             <div class="search-box">
                                 <form method="GET" action="">
                                     <input type="text" name="search" class="form-control"
@@ -1226,8 +1158,8 @@ if ($secretaryResult->num_rows > 0) {
                                     <button type="submit" class="btn btn-primary mt-2">Search</button>
                                 </form>
                             </div>
-
-                            <div class="user-management-grid">
+                            
+                           <div class="user-management-grid">
                                 <?php if ($doctors && $doctors->num_rows > 0): ?>
                                     <?php while ($doctor = $doctors->fetch_assoc()): ?>
                                         <div class="user-card">
@@ -1256,18 +1188,17 @@ if ($secretaryResult->num_rows > 0) {
                                 <?php endif; ?>
                             </div>
                         </div>
-
-                        <!-- secretaries -->
-                        <div class="tab-content" id="secretaries">
+                        
+                        <div class="tab-content" id="secretaries-tab">
                             <div class="search-box">
                                 <form class="search-box" method="GET" action="">
                                     <input type="text" name="search" class="form-control"
                                         placeholder="Search secretaries..."
                                         value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                                    <button type="submit" class="btn btn-primary mt-2">Search</button>
+                                    <button type="submit" class="btn btn-primary">Search</button>
                                 </form>
                             </div>
-
+                            
                             <div class="user-management-grid">
                                 <?php if($secretaryResult->num_rows > 0):  ?>
                                     <?php while($secretaries = $secretaryResult->fetch_assoc()): ?> 
@@ -1301,25 +1232,23 @@ if ($secretaryResult->num_rows > 0) {
                                 <?php endif; ?>
                             </div>
                         </div>
-
-                        <div class="tab-content" id="patients">
+                        
+                        <div class="tab-content" id="patients-tab">
                             <div class="search-box">
-                                <div class="search-box">
-                                    <input type="text" class="form-control" placeholder="Search patients...">
-                                    <button class="btn btn-primary">Search</button>
-                                </div>
+                                <input type="text" class="form-control" placeholder="Search patients...">
+                                <button class="btn btn-primary">Search</button>
                             </div>
                             
-                            
-                            <div class="table-responsive">   
+                            <div class="table-responsive">
                                 <table>
                                     <thead>
                                         <tr>
                                             <th>Patient ID</th>
                                             <th>Name</th>
-                                            <th>Email</th>
+                                            <th>Contact</th>
                                             <th>Doctor</th>
-                                            <th>Last Login</th> 
+                                            <th>Last Visit</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -1343,17 +1272,16 @@ if ($secretaryResult->num_rows > 0) {
                                             <?php endwhile ?>  
                                         <?php endif ?>
                                     </tbody>
-                                </table>                         
+                                </table>
                             </div>
-                    </div>
-                        <!-- integrate it here -->
-                         
-                        <div class="tab-content" id="appointments">
+                        </div>
+                        
+                        <div class="tab-content" id="appointments-tab">
                             <div class="search-box">
                                 <input type="text" class="form-control" placeholder="Search appointments...">
                                 <button class="btn btn-primary">Search</button>
                             </div>
-                                    
+                            
                             <div class="table-responsive">
                                 <table>
                                     <thead>
@@ -1362,6 +1290,7 @@ if ($secretaryResult->num_rows > 0) {
                                             <th>Patient</th>
                                             <th>Doctor</th>
                                             <th>Date & Time</th>
+                                            <th>Type</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
@@ -1371,33 +1300,36 @@ if ($secretaryResult->num_rows > 0) {
                                             <td>ID Here</td>
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
-                                            <td>Date & Time Here</td>
-                                            <td><span class="status-badge status-active">Scheduled</span></td>
+                                            <td>Date Here - Time Here</td>
+                                            <td>Type Here</td>
+                                            <td><span class="status-badge status-active">Confirmed</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewAppointment('ID Here')">View</button>
-                                                <button class="btn btn-sm btn-warning" onclick="rescheduleAppointment('ID Here')">Reschedule</button>
+                                                <button class="btn btn-sm btn-secondary">Reschedule</button>
+                                                <button class="btn btn-sm btn-danger">Cancel</button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>ID Here</td>
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
-                                            <td>Date & Time Here</td>
-                                            <td><span class="status-badge status-warning">Pending</span></td>
+                                            <td>Date Here - Time Here</td>
+                                            <td>Type Here</td>
+                                            <td><span class="status-badge status-pending">Pending</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewAppointment('ID Here')">View</button>
-                                                <button class="btn btn-sm btn-primary" onclick="approveAppointment('ID Here')">Approve</button>
+                                                <button class="btn btn-sm btn-primary">Confirm</button>
+                                                <button class="btn btn-sm btn-danger">Cancel</button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>ID Here</td>
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
-                                            <td>Date & Time Here</td>
-                                            <td><span class="status-badge status-active">Scheduled</span></td>
+                                            <td>Date Here - Time Here</td>
+                                            <td>Type Here</td>
+                                            <td><span class="status-badge status-active">Confirmed</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-secondary" onclick="viewAppointment('ID Here')">View</button>
-                                                <button class="btn btn-sm btn-warning" onclick="rescheduleAppointment('ID Here')">Reschedule</button>
+                                                <button class="btn btn-sm btn-secondary">Reschedule</button>
+                                                <button class="btn btn-sm btn-danger">Cancel</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -1408,80 +1340,49 @@ if ($secretaryResult->num_rows > 0) {
                     
                     <div class="card">
                         <div class="card-header">
-                            <h2>System Performance</h2>
-                            <button class="btn btn-secondary" onclick="showModal('performance-modal')">View Details</button>
+                            <h2>Clinic Analytics</h2>
+                            <button class="btn btn-secondary">View Details</button>
                         </div>
-                        <div class="chart-container" onclick="showModal('performance-modal')">
-                            <p>Click to view detailed performance metrics</p>
+                        
+                        <div class="chart-container">
+                            <p>Monthly Appointment Trends Chart</p>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>1,245</h3>
+                                    <p>Monthly Appointments</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user-injured"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>89%</h3>
+                                    <p>Patient Satisfaction</p>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>12min</h3>
+                                    <p>Avg. Wait Time</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- //right column  -->
+                
                 <div class="right-column">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Recent Activity</h2>
-                            <button class="btn btn-secondary" onclick="showModal('activity-modal')">View All</button>
-                        </div>
-                        
-                        <ul class="activity-list">
-                            <li class="activity-item" onclick="viewActivityDetails('login')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-sign-in-alt"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>User Login</h4>
-                                    <p>Dr. Name Here logged in to the system</p>
-                                    <div class="activity-time">Today, 08:45 AM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('appointment')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Appointment</h4>
-                                    <p>New appointment scheduled with Dr. Name Here</p>
-                                    <div class="activity-time">Today, 08:30 AM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('user')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New User</h4>
-                                    <p>New patient registered in the system</p>
-                                    <div class="activity-time">Yesterday, 05:20 PM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('record')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-file-medical"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Medical Record</h4>
-                                    <p>Medical record updated for Name Here</p>
-                                    <div class="activity-time">Yesterday, 03:45 PM</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item" onclick="viewActivityDetails('system')">
-                                <div class="activity-icon">
-                                    <i class="fas fa-cogs"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>System Update</h4>
-                                    <p>System maintenance completed successfully</p>
-                                    <div class="activity-time">Yesterday, 02:15 AM</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    
                     <div class="card">
                         <div class="card-header">
                             <h2>Quick Actions</h2>
@@ -1495,116 +1396,362 @@ if ($secretaryResult->num_rows > 0) {
                                 <p>Add User</p>
                             </div>
                             
-                            <div class="action-btn" onclick="showModal('add-doctor-modal')">
+                            <div class="action-btn" onclick="showModal('appointment-modal')">
                                 <div class="action-icon">
-                                    <i class="fas fa-user-md"></i>
+                                    <i class="fas fa-calendar-plus"></i>
                                 </div>
-                                <p>Add Doctor</p>
+                                <p>New Appointment</p>
                             </div>
                             
-                            <div class="action-btn" onclick="showModal('schedule-modal')">
+                            <div class="action-btn" onclick="showModal('reports-modal')">
                                 <div class="action-icon">
-                                    <i class="fas fa-calendar-alt"></i>
+                                    <i class="fas fa-chart-bar"></i>
                                 </div>
-                                <p>Manage Schedule</p>
+                                <p>Generate Reports</p>
                             </div>
                             
                             <div class="action-btn" onclick="showModal('settings-modal')">
                                 <div class="action-icon">
                                     <i class="fas fa-cogs"></i>
                                 </div>
-                                <p>System Settings</p>
+                                <p>Settings</p>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Recent Activity</h2>
+                        </div>
+                        
+                        <ul class="activity-list">
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>New Secretary Added</h4>
+                                    <p>Name Here added to system</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Doctor Schedule Updated</h4>
+                                    <p>Dr. Name Here schedule modified</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Secretary Assigned</h4>
+                                    <p>Name Here assigned to Dr. Name Here</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Appointment Completed</h4>
+                                    <p>Patient Name Here with Dr. Name Here</p>
+                                    <div class="activity-time">Time Here</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Upcoming Appointments</h2>
+                        </div>
+                        
+                        <ul class="activity-list">
+                            <li class="activity-item">
+                                <div class="activity-icon" style="background-color: rgba(46, 137, 73, 0.1); color: var(--primary);">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Patient Name Here</h4>
+                                    <p>With Dr. Name Here - 10:00 AM</p>
+                                    <div class="activity-time">Today</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon" style="background-color: rgba(33, 150, 243, 0.1); color: #2196F3;">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Patient Name Here</h4>
+                                    <p>With Dr. Name Here - 11:30 AM</p>
+                                    <div class="activity-time">Today</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon" style="background-color: rgba(255, 152, 0, 0.1); color: #FF9800;">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Patient Name Here</h4>
+                                    <p>With Dr. Name Here - 2:15 PM</p>
+                                    <div class="activity-time">Today</div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer>
+    <section id="users" class="page">
         <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>CareSync</h3>
-                    <p>Streamlining healthcare management for better patient care and efficient medical practice operations.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
+            <div class="dashboard-header">
+                <h1>User Management</h1>
+                <button class="btn btn-primary" onclick="showModal('add-user-modal')">Add New User</button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>All Users</h2>
+                    <div class="search-box">
+                        <input type="text" class="form-control" placeholder="Search users...">
+                        <button class="btn btn-primary">Search</button>
                     </div>
                 </div>
                 
-                <div class="footer-column">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Services</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Support</a></li>
-                    </ul>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Dr. Name here</td>
+                                <td>email@caresync.com</td>
+                                <td>Doctor</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>Today, 08:45 AM</td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
+                                    <button class="btn btn-sm btn-danger">Deactivate</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Name here</td>
+                                <td>email@caresync.com</td>
+                                <td>Secretary</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>Today, 07:15 AM</td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
+                                    <button class="btn btn-sm btn-danger">Deactivate</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Dr. Name here</td>
+                                <td>email@caresync.com</td>
+                                <td>Doctor</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>Never</td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
+                                    <button class="btn btn-sm btn-primary">Approve</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Name here</td>
+                                <td>email@caresync.com</td>
+                                <td>Secretary</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>Yesterday, 03:30 PM</td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
+                                    <button class="btn btn-sm btn-danger">Deactivate</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Name here</td>
+                                <td>email@caresync.com</td>
+                                <td>Administrator</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>Today, 09:20 AM</td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
+                                    <button class="btn btn-sm btn-danger">Deactivate</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="reports" class="page">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Reports & Analytics</h1>
+                <button class="btn btn-primary" onclick="showModal('reports-modal')">Generate Report</button>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Appointment Reports</h2>
+                    </div>
+                    <div class="chart-container">
+                        <p>Appointment Statistics Chart</p>
+                    </div>
                 </div>
                 
-                <div class="footer-column">
-                    <h3>Services</h3>
-                    <ul>
-                        <li><a href="#">Patient Management</a></li>
-                        <li><a href="#">Appointment Scheduling</a></li>
-                        <li><a href="#">Medical Records</a></li>
-                        <li><a href="#">Billing & Invoicing</a></li>
-                        <li><a href="#">Reporting & Analytics</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Contact Us</h3>
-                    <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Healthcare St, Medical City</li>
-                        <li><i class="fas fa-phone"></i> (123) 456-7890</li>
-                        <li><i class="fas fa-envelope"></i> info@caresync.com</li>
-                    </ul>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>User Activity Reports</h2>
+                    </div>
+                    <div class="chart-container">
+                        <p>User Activity Chart</p>
+                    </div>
                 </div>
             </div>
             
-            <div class="copyright">
-                <p>&copy; 2023 CareSync. All rights reserved.</p>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Report History</h2>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Generated By</th>
+                                <th>Date Generated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Monthly Appointment Summary - October 2023</td>
+                                <td>System Administrator</td>
+                                <td>Nov 1, 2023</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Download</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>User Activity Report - Last 30 Days</td>
+                                <td>System Administrator</td>
+                                <td>Oct 28, 2023</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Download</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Patient Demographics Analysis</td>
+                                <td>System Administrator</td>
+                                <td>Oct 15, 2023</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Download</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Financial Report - Q3 2023</td>
+                                <td>System Administrator</td>
+                                <td>Oct 5, 2023</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary">Download</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </footer>
+    </section>
 
-    <!-- Modals -->
-    <div id="profile-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>User Profile</h2>
-                <span class="close" onclick="closeModal('profile-modal')">&times;</span>
+    <section id="settings" class="page">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>System Settings</h1>
+                <p>Configure system preferences</p>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" class="form-control" value="System Administrator">
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>General Settings</h2>
                 </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-control" value="admin@caresync.com">
+                <form id="general-settings-form">
+                    <div class="form-group">
+                        <label for="clinic-name">Clinic Name</label>
+                        <input type="text" id="clinic-name" class="form-control" value="CareSync Medical Center">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="clinic-address">Clinic Address</label>
+                        <textarea id="clinic-address" class="form-control" rows="3">Address Here</textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="clinic-phone">Clinic Phone</label>
+                            <input type="tel" id="clinic-phone" class="form-control" value="Phone Here">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="clinic-email">Clinic Email</label>
+                            <input type="email" id="clinic-email" class="form-control" value="contact@caresync.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary">Reset</button>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>Clinic Hours</h2>
                 </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <input type="text" class="form-control" value="Administrator" disabled>
-                </div>
-                <div class="form-group">
-                    <label>Last Login</label>
-                    <input type="text" class="form-control" value="Today, 08:30 AM" disabled>
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Cancel</button>
-                    <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
-                </div>
+                <form id="clinic-hours-form">
+                    <div class="form-group">
+                        <label for="opening-time">Opening Time</label>
+                        <input type="time" id="opening-time" class="form-control" value="08:00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="closing-time">Closing Time</label>
+                        <input type="time" id="closing-time" class="form-control" value="17:00">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary">Reset</button>
+                        <button type="submit" class="btn btn-primary">Save Hours</button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
+    </section>
 
     <div id="add-user-modal" class="modal">
         <div class="modal-content">
@@ -1613,31 +1760,141 @@ if ($secretaryResult->num_rows > 0) {
                 <span class="close" onclick="closeModal('add-user-modal')">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" class="form-control" placeholder="Enter full name">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-control" placeholder="Enter email address">
-                </div>
-                <div class="form-group">
-                    <label>Role</label>
-                    <select class="form-control">
-                        <option>Patient</option>
-                        <option>Doctor</option>
-                        <option>Secretary</option>
-                        <option>Administrator</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-control" placeholder="Enter password">
-                </div>
-                <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeModal('add-user-modal')">Cancel</button>
-                    <button class="btn btn-primary" onclick="addUser()">Add User</button>
-                </div>
+                <form id="add-user-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-name">First Name</label>
+                            <input type="text" id="first-name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last-name">Last Name</label>
+                            <input type="text" id="last-name" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="role">User Role</label>
+                        <select id="role" class="form-control" required>
+                            <option value="">Select role</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="secretary">Secretary</option>
+                            <option value="patient">Patient</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialization">Specialization/Position</label>
+                        <input type="text" id="specialization" class="form-control">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('add-user-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit User</h2>
+                <span class="close" onclick="closeModal('edit-user-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-user-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-first-name">First Name</label>
+                            <input type="text" id="edit-first-name" class="form-control" value="Name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit-last-name">Last Name</label>
+                            <input type="text" id="edit-last-name" class="form-control" value="Here" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-email">Email Address</label>
+                        <input type="email" id="edit-email" class="form-control" value="email@example.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-role">User Role</label>
+                        <select id="edit-role" class="form-control" required>
+                            <option value="doctor">Doctor</option>
+                            <option value="secretary">Secretary</option>
+                            <option value="patient">Patient</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-specialization">Specialization/Position</label>
+                        <input type="text" id="edit-specialization" class="form-control" value="Specialization">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-user-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="appointment-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule New Appointment</h2>
+                <span class="close" onclick="closeModal('appointment-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="appointment-form">
+                    <div class="form-group">
+                        <label for="patient">Select Patient</label>
+                        <select id="patient" class="form-control" required>
+                            <option value="">Select patient</option>
+                            <option value="patient1">Patient Name Here</option>
+                            <option value="patient2">Patient Name Here</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="doctor">Select Doctor</label>
+                        <select id="doctor" class="form-control" required>
+                            <option value="">Select doctor</option>
+                            <option value="doctor1">Dr. Name Here</option>
+                            <option value="doctor2">Dr. Name Here</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="appointment-date">Date</label>
+                            <input type="date" id="appointment-date" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="appointment-time">Time</label>
+                            <input type="time" id="appointment-time" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('appointment-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Schedule</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1649,74 +1906,192 @@ if ($secretaryResult->num_rows > 0) {
                 <span class="close" onclick="closeModal('reports-modal')">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>Report Type</label>
-                    <select class="form-control">
-                        <option>User Activity</option>
-                        <option>Appointment Statistics</option>
-                        <option>Financial Report</option>
-                        <option>System Performance</option>
-                    </select>
-                </div>
-                <div class="form-row">
+                <form id="reports-form">
                     <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="date" class="form-control">
+                        <label for="report-type">Report Type</label>
+                        <select id="report-type" class="form-control">
+                            <option value="appointments">Appointments Report</option>
+                            <option value="users">User Activity Report</option>
+                            <option value="patients">Patient Report</option>
+                            <option value="financial">Financial Report</option>
+                        </select>
                     </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start-date">Start Date</label>
+                            <input type="date" id="start-date" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="end-date">End Date</label>
+                            <input type="date" id="end-date" class="form-control">
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
-                        <label>End Date</label>
-                        <input type="date" class="form-control">
+                        <label for="report-format">Report Format</label>
+                        <select id="report-format" class="form-control">
+                            <option value="pdf">PDF</option>
+                            <option value="excel">Excel</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('reports-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>System Settings</h2>
+                <span class="close" onclick="closeModal('settings-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="system-name">System Name</label>
+                        <input type="text" id="system-name" class="form-control" value="CareSync">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="timezone">Timezone</label>
+                        <select id="timezone" class="form-control">
+                            <option value="est">Eastern Time</option>
+                            <option value="cst">Central Time</option>
+                            <option value="pst">Pacific Time</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="language">Language</label>
+                        <select id="language" class="form-control">
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('settings-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>My Profile</h2>
+                <span class="close" onclick="closeModal('profile-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="user-info">
+                    <div class="user-avatar">SA</div>
+                    <div>
+                        <h3>System Administrator</h3>
+                        <p>Administrator Account</p>
+                        <p>admin@caresync.com</p>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Format</label>
-                    <select class="form-control">
-                        <option>PDF</option>
-                        <option>Excel</option>
-                        <option>CSV</option>
-                    </select>
-                </div>
+                
                 <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeModal('reports-modal')">Cancel</button>
-                    <button class="btn btn-primary" onclick="generateReport()">Generate</button>
+                    <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Close</button>
+                    <button class="btn btn-primary" onclick="showModal('edit-profile-modal')">Edit Profile</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="edit-profile-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-profile-form">
+                    <div class="form-group">
+                        <label for="edit-name">Full Name</label>
+                        <input type="text" id="edit-name" class="form-control" value="System Administrator" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-email">Email</label>
+                        <input type="email" id="edit-email" class="form-control" value="admin@caresync.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-phone">Phone</label>
+                        <input type="tel" id="edit-phone" class="form-control" value="+1 (555) 123-4567">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>CareSync</h3>
+                    <p>A comprehensive clinic management system designed to streamline operations and improve patient care.</p>
+                    <div class="social-links">
+                        <a><i class="fab fa-facebook-f"></i></a>
+                        <a><i class="fab fa-twitter"></i></a>
+                        <a><i class="fab fa-linkedin-in"></i></a>
+                        <a><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a onclick="showPage('dashboard')">Dashboard</a></li>
+                        <li><a onclick="showPage('users')">Users</a></li>
+                        <li><a onclick="showPage('reports')">Reports</a></li>
+                        <li><a onclick="showPage('settings')">Settings</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a>Help Center</a></li>
+                        <li><a>Contact Us</a></li>
+                        <li><a>Privacy Policy</a></li>
+                        <li><a>Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 CareSync Clinic Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // Tab functionality
-        function showTab(tabId) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
             });
-            
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab content
-            document.getElementById(tabId).classList.add('active');
-            
-            // Activate the corresponding tab
-            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+            document.getElementById(pageId).classList.add('active');
         }
-        
-        // Initialize tabs
-        document.addEventListener('DOMContentLoaded', function() {
-        
-            // Add click event to all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    showTab(tabId);
-                });
-            });
-        });
-        
-        // Modal functionality
+
         function showModal(modalId) {
             document.getElementById(modalId).style.display = 'block';
         }
@@ -1725,121 +2100,79 @@ if ($secretaryResult->num_rows > 0) {
             document.getElementById(modalId).style.display = 'none';
         }
         
-        // Close modal when clicking outside of it
         window.onclick = function(event) {
-            document.querySelectorAll('.modal').forEach(modal => {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            });
-        }
-        
-        // Mobile menu functionality
-        function toggleMobileMenu() {
-            const mobileNav = document.getElementById('mobile-nav');
-            mobileNav.classList.toggle('active');
-        }
-        
-        // User management functions
-        function editUser(userName) {
-            alert(`Editing user: ${userName}`);
-            // In a real application, this would open a form with user details
-        }
-        
-        function deactivateUser(userName) {
-            if (confirm(`Are you sure you want to deactivate ${userName}?`)) {
-                alert(`${userName} has been deactivated.`);
-                // In a real application, this would make an API call
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
         }
         
-        function activateUser(userName) {
-            alert(`${userName} has been activated.`);
-            // In a real application, this would make an API call
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+        
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileNav.classList.toggle('active');
+        });
+        
+        function hideMobileNav() {
+            mobileNav.classList.remove('active');
         }
         
-        function approveUser(userName) {
-            alert(`${userName} has been approved.`);
-            // In a real application, this would make an API call
-        }
-        
-        // Doctor management functions
-        function viewDoctor(doctorName) {
-            alert(`Viewing details for: ${doctorName}`);
-            // In a real application, this would open a detailed view
-        }
-        
-        function editDoctor(doctorName) {
-            alert(`Editing doctor: ${doctorName}`);
-            // In a real application, this would open a form with doctor details
-        }
-        
-        function viewSchedule(doctorName) {
-            alert(`Viewing schedule for: ${doctorName}`);
-            // In a real application, this would open a schedule view
-        }
-        
-        function approveDoctor(doctorName) {
-            alert(`${doctorName} has been approved.`);
-            // In a real application, this would make an API call
-        }
-        
-        // Patient management functions
-        function viewPatient(patientName) {
-            alert(`Viewing details for: ${patientName}`);
-            // In a real application, this would open a detailed view
-        }
-        
-        function viewRecords(patientName) {
-            alert(`Viewing medical records for: ${patientName}`);
-            // In a real application, this would open medical records
-        }
-        
-        // Appointment management functions
-        function viewAppointment(appointmentId) {
-            alert(`Viewing appointment: ${appointmentId}`);
-            // In a real application, this would open appointment details
-        }
-        
-        function rescheduleAppointment(appointmentId) {
-            alert(`Rescheduling appointment: ${appointmentId}`);
-            // In a real application, this would open a rescheduling form
-        }
-        
-        function approveAppointment(appointmentId) {
-            alert(`Appointment ${appointmentId} has been approved.`);
-            // In a real application, this would make an API call
-        }
-        
-        // Activity functions
-        function viewActivityDetails(activityType) {
-            alert(`Viewing details for ${activityType} activity`);
-            // In a real application, this would open activity details
-        }
-        
-        // Other functions
-        function updateProfile() {
-            alert('Profile updated successfully!');
-            closeModal('profile-modal');
-        }
-        
-        function addUser() {
+        document.getElementById('add-user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
             alert('User added successfully!');
             closeModal('add-user-modal');
-        }
+            this.reset();
+        });
         
-        function generateReport() {
-            alert('Report generated successfully!');
+        document.getElementById('edit-user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('User updated successfully!');
+            closeModal('edit-user-modal');
+        });
+        
+        document.getElementById('appointment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Appointment scheduled successfully!');
+            closeModal('appointment-modal');
+        });
+        
+        document.getElementById('reports-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Report generation started!');
             closeModal('reports-modal');
-        }
+        });
         
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                alert('You have been logged out.');
-                // In a real application, this would redirect to login page
-            }
-        }
+        document.getElementById('settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('System settings updated successfully!');
+            closeModal('settings-modal');
+        });
+        
+        document.getElementById('general-settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('General settings updated successfully!');
+        });
+        
+        document.getElementById('clinic-hours-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Clinic hours updated successfully!');
+        });
+        
+        document.getElementById('edit-profile-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Profile updated successfully!');
+            closeModal('edit-profile-modal');
+        });
     </script>
-    
 </body>
-</html> 
+</html>

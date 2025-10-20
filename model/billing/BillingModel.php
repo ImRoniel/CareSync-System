@@ -17,3 +17,4 @@ function getRevenueThisWeek($conn, $doctor_id) {
 
     return $row['total_revenue'] ?? 0;
 }
+
