@@ -31,7 +31,7 @@ class AppointmentController {
     }
 
     private function bookAppointment() {
-        session_start();
+        include '../auth/session.php';
         
         try {
             // Validate required fields

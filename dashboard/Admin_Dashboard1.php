@@ -4,9 +4,10 @@ require_once __DIR__ . '/../config/db_connect.php'; //our main db
 require_once __DIR__ . '/../controllers/admin/userController.php'; //controller admin in user controller
 require_once __DIR__ . '/../controllers/admin/patientController.php';
 require_once __DIR__ . '/../controllers/admin/DoctorController.php'; //controller admin in doctor controller 
-require_once __DIR__ . '/../model/appointment/appointment_model.php'; // appointment function 
+// require_once __DIR__ . '/../model/appointment/appointment_model.php'; // appointment function 
 require_once __DIR__ . '/../controllers/secretary/secretariesController.php';
 //require_once __DIR__ . '/../views/admin/edit_user.php';
+require_once __DIR__ . '/../controllers/appointment/AppointmentController.php';
 
 // Include database connection
 $error_message = "";

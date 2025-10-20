@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../../model/appointment/ApointmentModel.php';
 
 class AppointmentController {
@@ -43,5 +44,11 @@ class AppointmentController {
     public function getAppointmentDetails($appointment_id) {
         return $this->model->getAppointmentById($appointment_id);
     }
+
+    public function showUpcomingAppointments($patient_id, $doctor_name = null, $dateTime = null, $type = null, $status = null) {
+        return $this->model->upcomingAppointments($patient_id, $doctor_name, $dateTime, $type, $status);
+    }
+
+    
 }
 ?>

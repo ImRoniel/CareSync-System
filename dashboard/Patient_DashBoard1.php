@@ -5,23 +5,40 @@ require_once __DIR__ . '/../controllers/appointment/AppointmentController.php';
 require_once __DIR__ . '/../model/patientDashboard/DoctorModel.php';
 
 $appointmentController = new AppointmentController($conn);
-$doctors = $appointmentController->getAvailableDoctors();
+$doctors = $appointmentController->getAvailableDoctors(); // code for getting all doctor
 
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_appointment'])) {
-//     $patient_id = $_SESSION['patient_id']; // Set during patient login
-//     $doctor_id = intval($_POST['doctor_id']);
-//     $appointment_date = $_POST['appointment_date'];
-//     $appointment_time = $_POST['appointment_time'];
-//     $reason = $_POST['reason'] ?? '';
 
-//     $result = $appointmentController->bookAppointment($patient_id, $doctor_id, $appointment_date, $appointment_time, $reason);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_appointment'])) {
+    $patient_id = $_SESSION['patient_id']; // Set during patient login
+    $doctor_id = intval($_POST['doctor_id']);
+    $appointment_date = $_POST['appointment_date'];
+    $appointment_time = $_POST['appointment_time'];
+    $reason = $_POST['reason'] ?? '';
+
+    $result = $appointmentController->bookAppointment($patient_id, $doctor_id, $appointment_date, $appointment_time, $reason);
     
-//     if ($result['success']) {
-//         echo '<div class="alert alert-success">' . $result['message'] . '</div>';
-//     } else {
-//         echo '<div class="alert alert-danger">' . $result['message'] . '</div>';
-//     }
-// }
+    if ($result['success']) {
+        echo '<div class="alert alert-success">' . $result['message'] . '</div>';
+    } else {
+        echo '<div class="alert alert-danger">' . $result['message'] . '</div>';
+    }
+}
+//FOR UPCOMING APPOINTMENT CALLING METHOD
+// Example: get upcoming appointments for the logged-in patient
+$patient_id = $_SESSION['patient_id'] ?? 0;
+$appointments = $appointmentController->showUpcomingAppointments($patient_id);
+
+$stats = $stats ?? [
+    'upcomingAppointments' => 0,
+    'activePrescriptions' => 0,
+    'pendingBills' => 0,
+    'healthRecords' => 0,
+];
+
+
+$prescriptions = $prescriptions ?? [];
+
+$bills = $bills ?? [];
 ?>
 
 <!DOCTYPE html>
@@ -770,12 +787,12 @@ $doctors = $appointmentController->getAvailableDoctors();
         }
 
         .btn-primary {
-            background-color: #007bff;
+            background-color: #2e8949;
             color: white;
         }
 
         .btn-secondary {
-            background-color: #6c757d;
+            background-color: #8e979eff;
             color: white;
         }
                 @media (max-width: 1024px) {
@@ -897,41 +914,33 @@ $doctors = $appointmentController->getAvailableDoctors();
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                     <div class="stat-info">
-                        <h3>2</h3>
+                        <h3><?= $stats['upcomingAppointments'] ?></h3>
                         <p>Upcoming Appointments</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-prescription"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-prescription"></i></div>
                     <div class="stat-info">
-                        <h3>5</h3>
+                        <h3><?= $stats['activePrescriptions'] ?></h3>
                         <p>Active Prescriptions</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
                     <div class="stat-info">
-                        <h3>1</h3>
+                        <h3><?= $stats['pendingBills'] ?></h3>
                         <p>Pending Bills</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-heartbeat"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
                     <div class="stat-info">
-                        <h3>12</h3>
+                        <h3><?= $stats['healthRecords'] ?></h3>
                         <p>Health Records</p>
                     </div>
                 </div>
@@ -955,19 +964,31 @@ $doctors = $appointmentController->getAvailableDoctors();
                                 </tr>
                             </thead>
                             <tbody>
-                                
-                                <tr>
-                                    <td>Dr. Name here</td>
-                                    <td>Date Here - Time Here</td>
-                                    <td>Type Here</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Dr. Name here</td>
-                                    <td>Date Here - Time Here</td>
-                                    <td>Type Here</td>
-                                    <td><span class="status-badge status-pending">Pending</span></td>
-                                </tr>
+                                <?php if(!empty($appointments)): ?>
+                                    <?php foreach($appointments as $appt): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($appt['doctor_name']) ?></td>
+                                            <td><?= htmlspecialchars($appt['date_time']) ?></td>
+                                            <td><?= htmlspecialchars($appt['type']) ?></td>
+                                            <td>
+                                                <?php
+                                                    $status = strtolower($appt['status']);
+                                                    $badgeClass = match($status) {
+                                                        'confirmed' => 'status-confirmed',
+                                                        'pending' => 'status-pending',
+                                                        'cancelled' => 'status-cancelled',
+                                                        default => 'status-unknown'
+                                                    };
+                                                ?>
+                                                <span class="status-badge <?= $badgeClass ?>"><?= htmlspecialchars($appt['status']) ?></span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="4">No upcoming appointments found.</td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -1101,7 +1122,7 @@ $doctors = $appointmentController->getAvailableDoctors();
                 <table class="appointments-table">
                     <thead>
                         <tr>
-                            <th>Doctor</th>
+                            <th>Name</th>
                             <th>Date & Time</th>
                             <th>Type</th>
                             <th>Status</th>
@@ -1109,30 +1130,39 @@ $doctors = $appointmentController->getAvailableDoctors();
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-secondary" onclick="showModal('reschedule-modal')">Reschedule</button>
-                                <button class="btn btn-sm btn-danger">Cancel</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-secondary" onclick="showModal('reschedule-modal')">Reschedule</button>
-                                <button class="btn btn-sm btn-danger">Cancel</button>
-                            </td>
-                        </tr>
+                        <?php if(!empty($appointments)): ?>
+                            <?php foreach($appointments as $appt): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($appt['doctor_name']) ?></td>
+                                    <td><?= htmlspecialchars($appt['date_time']) ?></td>
+                                    <td><?= htmlspecialchars($appt['type']) ?></td>
+                                    <td>
+                                        <?php
+                                            $status = strtolower($appt['status']);
+                                            $badgeClass = match($status) {
+                                                'confirmed' => 'status-confirmed',
+                                                'pending' => 'status-pending',
+                                                'cancelled' => 'status-cancelled',
+                                                default => 'status-unknown'
+                                            };
+                                        ?>
+                                        <span class="status-badge <?= $badgeClass ?>"><?= htmlspecialchars($appt['status']) ?></span>
+                                    </td>
+                                     <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="showModal('reschedule-modal')">Reschedule</button>
+                                        <button class="btn btn-sm btn-danger">Cancel</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4">No upcoming appointments found.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            
+           
             <div class="card">
                 <div class="card-header">
                     <h2>Appointment History</h2>
@@ -1183,38 +1213,30 @@ $doctors = $appointmentController->getAvailableDoctors();
                     <h2>Active Prescriptions</h2>
                 </div>
                 <ul class="prescription-list">
-                    <li class="prescription-item">
-                        <div class="prescription-header">
-                            <span class="prescription-doctor">Dr. Name here</span>
-                            <span class="prescription-date">Date Here</span>
-                        </div>
-                        <div class="prescription-details">
-                            <p><strong>Medication:</strong> Medication Here</p>
-                            <p><strong>Dosage:</strong> Dosage Here</p>
-                            <p><strong>Instructions:</strong> Instructions Here</p>
-                            <p><strong>Refills:</strong> Refills Here</p>
-                            <p><strong>Expires:</strong> Date Here</p>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn btn-primary" onclick="showModal('request-refill-modal')">Request Refill</button>
-                        </div>
-                    </li>
-                    <li class="prescription-item">
-                        <div class="prescription-header">
-                            <span class="prescription-doctor">Dr. Name here</span>
-                            <span class="prescription-date">Date Here</span>
-                        </div>
-                        <div class="prescription-details">
-                            <p><strong>Medication:</strong> Medication Here</p>
-                            <p><strong>Dosage:</strong> Dosage Here</p>
-                            <p><strong>Instructions:</strong> Instructions Here</p>
-                            <p><strong>Refills:</strong> Refills Here</p>
-                            <p><strong>Expires:</strong> Date Here</p>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn btn-primary" onclick="showModal('request-refill-modal')">Request Refill</button>
-                        </div>
-                    </li>
+                    <?php if (!empty($prescriptions)): ?>
+                        <?php foreach ($prescriptions as $p): ?>
+                            <li class="prescription-item">
+                                <div class="prescription-header">
+                                    <span class="prescription-doctor"><?= htmlspecialchars($p['doctor_name']) ?></span>
+                                    <span class="prescription-date"><?= htmlspecialchars($p['date_prescribed']) ?></span>
+                                </div>
+                                <div class="prescription-details">
+                                    <p><strong>Medication:</strong> <?= htmlspecialchars($p['medication']) ?></p>
+                                    <p><strong>Dosage:</strong> <?= htmlspecialchars($p['dosage']) ?></p>
+                                    <p><strong>Instructions:</strong> <?= htmlspecialchars($p['instructions']) ?></p>
+                                    <p><strong>Refills:</strong> <?= htmlspecialchars($p['refills']) ?></p>
+                                    <p><strong>Expires:</strong> <?= htmlspecialchars($p['expires']) ?></p>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-primary" onclick="showModal('request-refill-modal')">Request Refill</button>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="prescription-item">
+                            <p>No active prescriptions found.</p>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </div>
             
@@ -1386,17 +1408,27 @@ $doctors = $appointmentController->getAvailableDoctors();
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>ID Here</td>
-                            <td>Service Here</td>
-                            <td>Date Here</td>
-                            <td>Amount Here</td>
-                            <td>Date Here</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="showModal('payment-modal')">Pay Now</button>
-                            </td>
-                        </tr>
+                        <?php if(!empty($bills)): ?>
+                            <?php foreach($bills as $bill): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($bill['invoice_number']) ?></td>
+                                    <td><?= htmlspecialchars($bill['service']) ?></td>
+                                    <td><?= htmlspecialchars($bill['bill_date']) ?></td>
+                                    <td><?= htmlspecialchars(number_format($bill['amount'], 2)) ?></td>
+                                    <td><?= htmlspecialchars($bill['due_date']) ?></td>
+                                    <td>
+                                        <span class="status-badge status-pending"><?= htmlspecialchars($bill['status']) ?></span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="showModal('payment-modal')">Pay Now</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="7">No pending bills found.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -1447,7 +1479,7 @@ $doctors = $appointmentController->getAvailableDoctors();
             </div>
 
             <div class="modal-body">
-                <form id="book-appointment-form" method="post" action="../controllers/patientDashboard/BookAppointmentController.php">
+                <form id="book-appointment-form" method="POST" action="../controllers/appointment//AppointmentController.php">
                     
                     <!-- Hidden patient ID -->
                     <input type="hidden" name="patient_id" value="<?= $_SESSION['patient_id'] ?? '' ?>">
