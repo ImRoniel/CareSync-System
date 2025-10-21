@@ -29,6 +29,10 @@ C:.
 ¦   ¦       secretaryController.php
 ¦   ¦       userController.php
 ¦   ¦       
+¦   +---appointment
+¦   ¦       AppointmentController.php
+¦   ¦       book_appointment_action.php
+¦   ¦       
 ¦   +---auth
 ¦   ¦       logout.php
 ¦   ¦       process_login.php
@@ -38,18 +42,24 @@ C:.
 ¦   ¦       signup.php
 ¦   ¦       
 ¦   +---doctor
-¦   +---patient
+¦   +---patientDashboard
+¦   ¦       BillController.php
+¦   ¦       BookAppointmentController.php
+¦   ¦       DoctorController.php
+¦   ¦       PatientDataController.php
+¦   ¦       PatientStatsController.php
+¦   ¦       PrescriptionController.php
+¦   ¦       
+¦   +---prescription
+¦   ¦       PrescriptionController.php
+¦   ¦       
 ¦   +---secretary
 ¦           secretariesController.php
 ¦           
 +---dashboard
-¦       admin_dashboard.php
 ¦       Admin_Dashboard1.php
-¦       doctor_dashboard.php
 ¦       Doctor_DashBoard1.php
-¦       patient_dashboard.php
 ¦       Patient_DashBoard1.php
-¦       secretary_dashboard.php
 ¦       Secretary_DashBoard1.php
 ¦       
 +---flowchart
@@ -71,17 +81,22 @@ C:.
 ¦   ¦       userModel.php
 ¦   ¦       
 ¦   +---appointment
-¦   ¦       appointment_model.php
+¦   ¦       ApointmentModel.php
 ¦   ¦       
 ¦   +---billing
-¦   ¦       billing_model.php
+¦   ¦       BillingModel.php
 ¦   ¦       
 ¦   +---doctor
 ¦   ¦       DoctorModel.php
 ¦   ¦       user_model.php
 ¦   ¦       
-¦   +---patient
+¦   +---patientDashboard
+¦   ¦       BillModel.php
+¦   ¦       DoctorModel.php
+¦   ¦       PatientDataModel.php
 ¦   ¦       patientModel.php
+¦   ¦       PatientStatsModel.php
+¦   ¦       PrescriptionModel.php
 ¦   ¦       
 ¦   +---prescription
 ¦   ¦       prescription_model.php
@@ -100,8 +115,15 @@ C:.
 ¦           
 +---views
     +---admin
-            edit_doctor.php
-            edit_user.php
-            schedule_doctor.php
-            user_list.php
+    ¦       edit_doctor.php
+    ¦       edit_user.php
+    ¦       schedule_doctor.php
+    ¦       user_list.php
+    ¦       
+    +---doctor
+    ¦       prescribe_medication.php
+    ¦       
+    +---patient
+            bookAppointment.php
+            book_appointment.php
             
