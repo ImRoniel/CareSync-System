@@ -1,40 +1,36 @@
 <?php
 require_once __DIR__ . '/../../config/db_connect.php';
-require_once __DIR__ . '/../../controllers/admin/userController.php';
+require_once __DIR__ . '/../../model/userModel.php';
 
+class UserController {
+    private $model;
 
-//IN USER THAT, this is the delete logic 
-if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $user_id = $_GET['id'];
+    public function __construct($conn) {
+        $this->model = new UserModel($conn);
+    }
 
-    $stmt = $conn->prepare("DELETE FROM users WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
+    public function index($search = '') {
+        return $this->model->getAllUsers($search);
+    }
 
-    if ($stmt->execute()) {
-        header("Location: /Caresync-System/views//Admin_dashboard1.php?msg=deleted");
-        exit();
-    } else {
-        echo "Error deleting user: " . $stmt->error;
+    public function delete($id) {
+        if ($this->model->deleteUser($id)) {
+            header("Location: ../../views/admin/user_list.php?msg=deleted");
+            exit();
+        } else {
+            echo "Error deleting user.";
+        }
     }
 }
 
-// $search = isset($_GET['search']) ? trim($_GET['search']) : null;
-// $users = getUsers($conn, $search);
+// ---------- ROUTING LOGIC -------------
+$controller = new UserController($conn);
 
-// $conn->close();
-// $search = isset($_GET['search']) ? trim($_GET['search']) : null;
-// $doctors = getDoctors($conn, $search);
-
-//logic for user search implementation  
-// $userModel = new UserModel($conn);
-
-$action = $_GET['action'] ?? '';
-
-if ($action === 'list') {
-    $search = $_GET['search'] ?? '';
-    $users = $userModel->getAllUsers($search);
-    include "../../views/admin/user_list.php";
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
+    $controller->delete($_GET['id']);
     exit;
 }
 
+$search = $_GET['search'] ?? '';
+$resultSystemOver = $controller->index($search);
 ?>

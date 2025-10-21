@@ -10,6 +10,23 @@ if (!file_exists($sessionPath)) {
 
 require_once $sessionPath;
 
+//for fetching the data from the dashboard
+require_once __DIR__ . '/../../controllers/admin/AdminController.php';
+
+$controller = new AdminController($conn);
+$data = $controller->index();
+
+// Extract variables to use in HTML easily
+extract($data);
+
+//user controller, fetching data from contoller
+require_once __DIR__ . '/../../controllers/admin/userController.php';
+
+require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
+require_once __DIR__ . '/../../config/db_connect.php';
+$controller = new DoctorController($conn);
+$doctors = $controller->index();
+
 
 ?>
 <!DOCTYPE html>
@@ -846,7 +863,7 @@ require_once $sessionPath;
         <div class="container">
             <div class="header-content">
                 <a   class="logo" onclick="showPage('dashboard')">
-                    <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
+                    <img src="../../assets/images/3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </a>
                 
@@ -898,55 +915,46 @@ require_once $sessionPath;
             
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
                     <div class="stat-info">
-                        <h3><?php echo $totalUsers ?></h3>
+                        <h3><?= $totalUsers ?></h3>
                         <p>Total Users</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-user-md"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-user-md"></i></div>
                     <div class="stat-info">
-                        <h3><?php echo $totalDoctors ?></h3>
+                        <h3><?= $totalDoctors ?></h3>
                         <p>Doctors</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
                     <div class="stat-info">
-                        <h3><?php echo $totalSecretaries ?></h3>
+                        <h3><?= $totalSecretaries ?></h3>
                         <p>Secretaries</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-procedures"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-procedures"></i></div>
                     <div class="stat-info">
-                        <h3><?php echo $totalPatients?></h3>
+                        <h3><?= $totalPatients ?></h3>
                         <p>Patients</p>
                     </div>
                 </div>
-                
+
                 <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                     <div class="stat-info">
-                        <h3><?php echo count($appointments); ?></h3>
+                        <h3><?= $appointments ?></h3>
                         <p>Appointments Today</p>
                     </div>
                 </div>
             </div>
+
             
             <div class="dashboard-grid">
                 <div class="left-column">
@@ -1028,9 +1036,9 @@ require_once $sessionPath;
                                 </form>
                             </div>
                             
-                           <div class="user-management-grid">
-                                <?php if ($doctors && $doctors->num_rows > 0): ?>
-                                    <?php while ($doctor = $doctors->fetch_assoc()): ?>
+                            <div class="user-management-grid">
+                                <?php if (!empty($doctors)): ?>
+                                    <?php foreach ($doctors as $doctor): ?>
                                         <div class="user-card">
                                             <div class="user-avatar-large">
                                                 <?= strtoupper(substr($doctor['doctor_name'], 0, 1)) ?>
@@ -1051,11 +1059,14 @@ require_once $sessionPath;
                                                 </button>
                                             </div>
                                         </div>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 <?php else: ?>
                                     <p class="text-center text-muted mt-3">⚠️ No doctors found.</p>
                                 <?php endif; ?>
                             </div>
+
+
+
                         </div>
                         
                         <div class="tab-content" id="secretaries-tab">
