@@ -1,4 +1,5 @@
 <?php
+
 // login.php
 
 // Start session
@@ -22,16 +23,16 @@ $password = '';
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && isset($_SESSION['user_role'])) {
     switch ($_SESSION['user_role']) {
         case 'doctor':
-            header("Location: ../dashboard/Doctor_DashBoard1.php");
+            header("Location: ../views/doctor/Doctor_Dashboard1.php");
             exit();
         case 'patient':
-            header("Location: ../dashboard/Patient_DashBoard1.php");
+            header("Location: ../views/patient/Patient_DashBoard1.php");
             exit();
         case 'secretary':
-            header("Location: ../dashboard/Secretary_Dashboard1.php");
+            header("Location: ../views/secretary/Secretary_Dashboard1.php");
             exit();
         case 'admin':
-            header("Location: ../dashboard/admin_dashboard1.php");
+            header("Location: ../views/admin/Admin_Dashboard1.php");
             exit();
     }
 }
@@ -46,7 +47,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($password)) $errors[] = "Password is required.";
 
     if (empty($errors)) {
-        // Check if users table exists
+
+        // ✅ Static admin login (bypass database)
+        if ($email === 'admin@gmail.com' && $password === 'admin') {
+            $_SESSION['user_id'] = 0; // no DB record, just static admin
+            $_SESSION['user_name'] = 'Administrator';
+            $_SESSION['user_email'] = $email;
+            $_SESSION['user_role'] = 'admin';
+            $_SESSION['logged_in'] = true;
+
+            header("Location: ../views/admin/Admin_Dashboard1.php");
+            exit();
+        }
+
+        // ✅ Otherwise, check in database
         $check_table = $conn->query("SHOW TABLES LIKE 'users'");
         if ($check_table->num_rows == 0) {
             $errors[] = "Users table doesn't exist.";
@@ -65,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->fetch();
 
                     if (password_verify($password, $hashed_password)) {
-                        //  Successful login
+                        // Successful login
                         $_SESSION['user_id'] = $user_id;
                         $_SESSION['user_name'] = $user_name;
                         $_SESSION['user_email'] = $user_email;
@@ -75,19 +89,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Redirect based on role
                         switch ($user_role) {
                             case 'doctor':
-                                header("Location: ../dashboard/doctor_dashboard1.php");
+                                header("Location: ../dashboard/Doctor_Dashboard1.php");
                                 exit();
                             case 'patient':
-                                header("Location: ../dashboard/patient_dashboard1.php");
+                                header("Location: ../dashboard/Patient_Dashboard1.php");
                                 exit();
                             case 'secretary':
-                                header("Location: ../dashboard/secretary_dashboard1.php");
+                                header("Location: ../dashboard/Secretary_Dashboard1.php");
                                 exit();
                             case 'admin':
-                                header("Location: ../dashboard/admin_dashboard1.php");
+                                header("Location: ../dashboard/Admin_Dashboard1.php");
                                 exit();
                             default:
-                                header("Location: ../dashboard/default.php");
+                                header("Location: ../views/admin/default.php");
                                 exit();
                         }
                     } else {
@@ -102,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

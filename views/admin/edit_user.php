@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
         }
 
         // . Redirect back to dashboard
-        header("Location: /Caresync-System/dashboard/Admin_Dashboard1   .php?message=User updated successfully");
+        header("Location: /Caresync-System/views/admin/Admin_Dashboard1.php?message=User updated successfully");
         exit;
     } else {
         $message = "Error updating user: " . $stmt->error;
@@ -368,7 +368,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
 <body>
     <div class="edit-container">
         <div class="edit-header">
-            <a href="/CareSync-System/dashboard/admin_dashboard.php" class="back-btn">
+            <a href="/CareSync-System/views/admin/Admin_Dashboard1.php" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <h1>Edit User</h1>
@@ -431,7 +431,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
                 </div>
                 
                 <div class="form-actions">
-                    <a href="/CareSync-System/dashboard/admin_dashboard.php" class="cancel-btn">
+                    <a href="/Caresync-System/views/admin/Admin_Dashboard1.php" class="cancel-btn">
                         <i class="fas fa-times"></i>
                         Cancel
                     </a>
@@ -439,6 +439,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
                         <i class="fas fa-save"></i>
                         Save Changes
                     </button>
+
+                
                 </div>
             </form>
         </div>

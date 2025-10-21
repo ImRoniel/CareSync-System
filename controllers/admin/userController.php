@@ -1,18 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/db_connect.php';
-require_once __DIR__ . '/../../model/admin/userModel.php';
+require_once __DIR__ . '/../../controllers/admin/userController.php';
 
-class UserController {
-    private $model;
-
-    public function __construct($mysqli) {
-        $this->model = new UserModel($mysqli);
-    }
-
-    public function index() {
-        return $this->model->getAllUsers();
-    }
-}
 
 //IN USER THAT, this is the delete logic 
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
@@ -22,7 +11,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     $stmt->bind_param("i", $user_id);
 
     if ($stmt->execute()) {
-        header("Location: /Caresync-System/dashboard/admin_dashboard.php?msg=deleted");
+        header("Location: /Caresync-System/views//Admin_dashboard1.php?msg=deleted");
         exit();
     } else {
         echo "Error deleting user: " . $stmt->error;
@@ -37,7 +26,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
 // $doctors = getDoctors($conn, $search);
 
 //logic for user search implementation  
-$userModel = new UserModel($conn);
+// $userModel = new UserModel($conn);
 
 $action = $_GET['action'] ?? '';
 

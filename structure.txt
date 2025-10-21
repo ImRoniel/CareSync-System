@@ -42,26 +42,10 @@ C:.
 ¦   ¦       signup.php
 ¦   ¦       
 ¦   +---doctor
-¦   +---patientDashboard
-¦   ¦       BillController.php
-¦   ¦       BookAppointmentController.php
-¦   ¦       DoctorController.php
-¦   ¦       PatientDataController.php
-¦   ¦       PatientStatsController.php
-¦   ¦       PrescriptionController.php
-¦   ¦       
-¦   +---prescription
-¦   ¦       PrescriptionController.php
-¦   ¦       
+¦   +---patient
 ¦   +---secretary
 ¦           secretariesController.php
 ¦           
-+---dashboard
-¦       Admin_Dashboard1.php
-¦       Doctor_DashBoard1.php
-¦       Patient_DashBoard1.php
-¦       Secretary_DashBoard1.php
-¦       
 +---flowchart
 ¦       .drawio.svg
 ¦       psuedocode
@@ -72,38 +56,14 @@ C:.
 ¦       reset_password.php
 ¦       
 +---model
-¦   +---activity
-¦   ¦       activity_model.php
-¦   ¦       
-¦   +---admin
-¦   ¦       search_user.php
-¦   ¦       secretaryModel.php
-¦   ¦       userModel.php
-¦   ¦       
-¦   +---appointment
-¦   ¦       ApointmentModel.php
-¦   ¦       
-¦   +---billing
-¦   ¦       BillingModel.php
-¦   ¦       
-¦   +---doctor
-¦   ¦       DoctorModel.php
-¦   ¦       user_model.php
-¦   ¦       
-¦   +---patientDashboard
-¦   ¦       BillModel.php
-¦   ¦       DoctorModel.php
-¦   ¦       PatientDataModel.php
-¦   ¦       patientModel.php
-¦   ¦       PatientStatsModel.php
-¦   ¦       PrescriptionModel.php
-¦   ¦       
-¦   +---prescription
-¦   ¦       prescription_model.php
-¦   ¦       
-¦   +---secretaries
-¦           secretariesModel.php
-¦           
+¦       AppointmentModel.php
+¦       BillingModel.php
+¦       DoctorModel.php
+¦       PatientModel.php
+¦       PrescriptionModel.php
+¦       secretaryModel.php
+¦       userModel.php
+¦       
 +---signup
 ¦       role_selection.php
 ¦       signup.php
@@ -115,15 +75,21 @@ C:.
 ¦           
 +---views
     +---admin
+    ¦       Admin_Dashboard1.php
     ¦       edit_doctor.php
     ¦       edit_user.php
     ¦       schedule_doctor.php
     ¦       user_list.php
     ¦       
     +---doctor
+    ¦       Doctor_DashBoard1.php
     ¦       prescribe_medication.php
     ¦       
     +---patient
-            bookAppointment.php
-            book_appointment.php
+    ¦       bookAppointment.php
+    ¦       book_appointment.php
+    ¦       Patient_DashBoard1.php
+    ¦       
+    +---secretary
+            Secretary_DashBoard1.php
             

@@ -1,147 +1,15 @@
 
 <?php
-require_once __DIR__ . '/../config/db_connect.php'; //our main db
-require_once __DIR__ . '/../controllers/admin/userController.php'; //controller admin in user controller
-require_once __DIR__ . '/../controllers/admin/patientController.php';
-require_once __DIR__ . '/../controllers/admin/DoctorController.php'; //controller admin in doctor controller 
-// require_once __DIR__ . '/../model/appointment/appointment_model.php'; // appointment function 
-require_once __DIR__ . '/../controllers/secretary/secretariesController.php';
-//require_once __DIR__ . '/../views/admin/edit_user.php';
-require_once __DIR__ . '/../controllers/appointment/AppointmentController.php';
 
-// Include database connection
-$error_message = "";
+$sessionPath = __DIR__ . '/../../controllers/auth/session.php';
 
-// Count total users
-$totalUsersQuery = "SELECT COUNT(*) AS total_users FROM users";
-$result = $conn->query($totalUsersQuery);
-
-if ($result && $row = $result->fetch_assoc()) {
-    $totalUsers = $row['total_users'];  
-} else {
-    $error_message .= "<!-- Error fetching total users -->";
-    $totalUsers = 0;
+if (!file_exists($sessionPath)) {
+    echo "session.php not found";
+    exit;
 }
 
-// Count total doctors
-$doctorQuery = "SELECT COUNT(*) AS total_doctors FROM users WHERE role = 'doctor'";
-$doctorResult = $conn->query($doctorQuery);
+require_once $sessionPath;
 
-if ($doctorResult && $row = $doctorResult->fetch_assoc()) {
-    $totalDoctors = $row['total_doctors'];
-} else {
-    $error_message .= "<!-- Error fetching total doctors -->";
-    $totalDoctors = 0;
-}
-
-// Count total patients
-$patientQuery = "SELECT COUNT(*) AS total_patients FROM users WHERE role = 'patient'";
-$patientResult = $conn->query($patientQuery);
-
-if ($patientResult && $row = $patientResult->fetch_assoc()) {
-    $totalPatients = $row['total_patients'];
-} else {
-    $error_message .= "<!-- Error fetching total patients -->";
-    $totalPatients = 0;
-}
-
-//count total secretaries
-$secretaryQuery = "SELECT COUNT(*) AS total_secretaries FROM users WHERE role = 'secretary'";
-$secretaryResult = $conn->query($secretaryQuery);
-
-if($secretaryResult && $row = $secretaryResult->fetch_assoc()){
-    $totalSecretaries = $row['total_secretaries'];
-} else {
-    $error_message .= "<!-- Error fetching total secretaries -->";
-    $totalSecretaries = 0;
-}
-// Optional: echo errors as HTML comments (hidden)
-echo $error_message;
-
-
-$appointments = [];
-if (!empty($user['doctor_id'])) {
-    $appointments = getDoctorAppointments($conn, $user['doctor_id']);
-}
-
-
-$controller = new UserController($conn);
-$resultSystemOver = $controller->index();
-
-if (!$resultSystemOver) {
-    echo "No users found.";
-    exit();
-}
-$userQuery = "
-    SELECT 
-        id,
-        name,
-        email,
-        role,
-        DATE_FORMAT(created_at, '%W, %h:%i %p') AS created_at
-    FROM users
-    ORDER BY created_at DESC
-";
-$resultSystemOver = $conn->query($userQuery);
-
-if (!$resultSystemOver) {
-    die('Query failed: ' . $conn->error);
-}
-
-
-
-    if (!empty($_GET['search'])) {
-        $search = strtolower(trim($_GET['search']));
-        $doctors = array_filter($doctors, function($doc) use ($search) {
-            return str_contains(strtolower($doc['doctor_name']), $search) ||
-                   str_contains(strtolower($doc['specialization'] ?? ''), $search) ||
-                   str_contains(strtolower($doc['email']), $search);
-        });
-    }
-
-//  Initialize controller
-// $doctorController = new DoctorController($conn);
-// if(!$doctorController){
-//     echo $error_message = "doctor controller not found";
-// }
-// //  Check if there's an ID
-// if (!isset($_GET['id'])) {
-//     die("Invalid request. No doctor ID provided.");
-// }
-// $id = intval($_GET['id']);
-
-// // Get doctor info
-// $doctor = $doctorController->getDoctor($id);
-// if (!$doctor) die("Doctor not found.");
-
-// // Handle form submission
-// $message = "";
-// if ($_SERVER["REQUEST_METHOD"] == "POST") {
-//     $name = "Dr. " . trim($_POST['name']);
-//     $email = trim($_POST['email']);
-//     $specialization = trim($_POST['specialization']);
-
-//     $doctorController->updateDoctor($id, $name, $email, $specialization);
-//     header("Location: /Caresync-System/dashboard/admin_dashboard.php?message=Doctor updated successfully");
-//     exit;
-// }
-
-$patientController = new PatientController($conn);
-$resultPatientSystemOver = $patientController->index();
-
-// Create controller and fetch all users
-$secretariesController = new secretariesControllerForAdmin($conn);
-$secretaryResult = $secretariesController->index();
-
-if (!$secretaryResult) {
-    die("Query failed: " . $conn->error);  // 🔍 Debug message
-}
-
-if ($secretaryResult->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        // your logic
-    }
-}
 
 ?>
 <!DOCTYPE html>
@@ -991,7 +859,7 @@ if ($secretaryResult->num_rows > 0) {
                 
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="showModal('profile-modal')">Profile</button>
-                    <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
+                     <button class="btn btn-primary" onclick="window.location.href='../../controllers/auth/logout.php'">Logout</button>
                 </div>
                 
                 <button class="mobile-menu-btn" id="mobileMenuBtn">

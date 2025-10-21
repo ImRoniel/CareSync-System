@@ -1,7 +1,14 @@
 <?php
-require_once __DIR__ . '/../controllers/auth/session.php';
-require_once __DIR__ . '/../config/db_connect.php';
-require_once __DIR__ . '/../controllers/secretary/secretariesController.php';
+$sessionPath = __DIR__ . '/../../controllers/auth/session.php';
+
+if (!file_exists($sessionPath)) {
+    echo "session.php not found";
+    exit;
+}
+
+require_once $sessionPath;
+require_once __DIR__ . '/../../config/db_connect.php';
+
 
 
 if (!isset($_SESSION['user_id'])) {
@@ -10,8 +17,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = $_SESSION['user_id']; // pulled from session.php
-$controller = new SecretaryController($conn);
-$secretary = $controller->getProfile($userId);
+
 ?>
 
 
@@ -706,7 +712,7 @@ $secretary = $controller->getProfile($userId);
                 
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="showModal('profile-modal')">Profile</button>
-                    <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
+                     <button class="btn btn-primary" onclick="window.location.href='../../controllers/auth/logout.php'">Logout</button>
                 </div>
                 
                 <button class="mobile-menu-btn">

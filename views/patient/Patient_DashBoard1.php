@@ -1,5 +1,5 @@
 <?php
-$sessionPath = __DIR__ . '/../controllers/auth/session.php';
+$sessionPath = __DIR__ . '/../../controllers/auth/session.php';
 
 if (!file_exists($sessionPath)) {
     echo "session.php not found";
@@ -7,52 +7,52 @@ if (!file_exists($sessionPath)) {
 }
 
 require_once $sessionPath;
-require_once __DIR__ . '/../config/db_connect.php';
-require_once __DIR__ . '/../controllers/appointment/AppointmentController.php';
-require_once __DIR__ . '/../model/patientDashboard/DoctorModel.php';
-require_once __DIR__ . '/../controllers/patientDashboard/PatientDataController.php';
+require_once __DIR__ . '/../../config/db_connect.php';
+
+// require_once __DIR__ . '/../model/patientDashboard/DoctorModel.php';
+// require_once __DIR__ . '/../controllers/patientDashboard/PatientDataController.php';
 
 
-$appointmentController = new AppointmentController($conn);
-$doctors = $appointmentController->getAvailableDoctors(); // code for getting all doctor
+// $appointmentController = new AppointmentController($conn);
+// $doctors = $appointmentController->getAvailableDoctors(); // code for getting all doctor
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_appointment'])) {
-    $patient_id = $_SESSION['patient_id']; // Set during patient login
-    $doctor_id = intval($_POST['doctor_id']);
-    $appointment_date = $_POST['appointment_date'];
-    $appointment_time = $_POST['appointment_time'];
-    $reason = $_POST['reason'] ?? '';
+// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_appointment'])) {
+//     $patient_id = $_SESSION['patient_id']; // Set during patient login
+//     $doctor_id = intval($_POST['doctor_id']);
+//     $appointment_date = $_POST['appointment_date'];
+//     $appointment_time = $_POST['appointment_time'];
+//     $reason = $_POST['reason'] ?? '';
 
-    $result = $appointmentController->bookAppointment($patient_id, $doctor_id, $appointment_date, $appointment_time, $reason);
+//     $result = $appointmentController->bookAppointment($patient_id, $doctor_id, $appointment_date, $appointment_time, $reason);
     
-    if ($result['success']) {
-        echo '<div class="alert alert-success">' . $result['message'] . '</div>';
-    } else {
-        echo '<div class="alert alert-danger">' . $result['message'] . '</div>';
-    }
-}
-//FOR UPCOMING APPOINTMENT CALLING METHOD
-// Example: get upcoming appointments for the logged-in patient
-// $patient_id = $_SESSION['patient_id'] ?? 0;
-// $appointments = $appointmentController->showUpcomingAppointments($patient_id);
+//     if ($result['success']) {
+//         echo '<div class="alert alert-success">' . $result['message'] . '</div>';
+//     } else {
+//         echo '<div class="alert alert-danger">' . $result['message'] . '</div>';
+//     }
+// }
+// //FOR UPCOMING APPOINTMENT CALLING METHOD
+// // Example: get upcoming appointments for the logged-in patient
+// // $patient_id = $_SESSION['patient_id'] ?? 0;
+// // $appointments = $appointmentController->showUpcomingAppointments($patient_id);
 
-$stats = $stats ?? [
-    'upcomingAppointments' => 0,
-    'activePrescriptions' => 0,
-    'pendingBills' => 0,
-    'healthRecords' => 0,
-];
+// $stats = $stats ?? [
+//     'upcomingAppointments' => 0,
+//     'activePrescriptions' => 0,
+//     'pendingBills' => 0,
+//     'healthRecords' => 0,
+// ];
 
-//for prescription data
-$prescriptions = $prescriptions ?? [];
+// //for prescription data
+// $prescriptions = $prescriptions ?? [];
 
 
-//or billing data
-$bills = $bills ?? [];
+// //or billing data
+// $bills = $bills ?? [];
 
-$patientController = new PatientController($conn);
-$patients = $patientController->index();
+// $patientController = new PatientController($conn);
+// $patients = $patientController->index();
 
 
 
@@ -891,7 +891,7 @@ $patients = $patientController->index();
                 
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="showModal('profile-modal')">Profile</button>
-                    <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../controllers/auth/logout.php'">Logout</button>
                 </div>
                 
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
