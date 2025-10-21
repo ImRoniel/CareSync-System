@@ -75,16 +75,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Redirect based on role
                         switch ($user_role) {
                             case 'doctor':
-                                header("Location: ../dashboard/doctor_dashboard.php");
+                                header("Location: ../dashboard/doctor_dashboard1.php");
                                 exit();
                             case 'patient':
-                                header("Location: ../dashboard/patient_dashboard.php");
+                                header("Location: ../dashboard/patient_dashboard1.php");
                                 exit();
                             case 'secretary':
-                                header("Location: ../dashboard/secretary_dashboard.php");
+                                header("Location: ../dashboard/secretary_dashboard1.php");
                                 exit();
                             case 'admin':
-                                header("Location: ../dashboard/admin_dashboard.php");
+                                header("Location: ../dashboard/admin_dashboard1.php");
                                 exit();
                             default:
                                 header("Location: ../dashboard/default.php");

@@ -34,24 +34,24 @@ class AppointmentModel {
 
     
 
-    //method for get the available doctors
     public function getAvailableDoctors() {
-        $sql = "SELECT d.doctor_id, u.name, d.specialization, d.clinic_room 
-                FROM doctors d 
-                JOIN users u ON d.user_id = u.id 
-                WHERE u.is_active = 1 
-                ORDER BY u.name";
-        return $this->conn->query($sql);
-
-        $doctors = [];
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $doctors[] = $row;
-            }
+    $sql = "SELECT d.doctor_id, u.name, d.specialization, d.clinic_room 
+            FROM doctors d 
+            JOIN users u ON d.user_id = u.id 
+            WHERE u.is_active = 1 
+            ORDER BY u.name";
+    
+    $result = $this->conn->query($sql);
+    $doctors = [];
+    
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $doctors[] = $row;
         }
-
-        return $doctors;
-    }  
+    }
+    
+    return $doctors;
+} 
     
     // Book appointment in the database and store it on data base
     public function bookAppointment($patient_id, $doctor_id, $date, $time, $reason) {

@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
         }
 
         // . Redirect back to dashboard
-        header("Location: /Caresync-System/dashboard/admin_dashboard.php?message=User updated successfully");
+        header("Location: /Caresync-System/dashboard/Admin_Dashboard1   .php?message=User updated successfully");
         exit;
     } else {
         $message = "Error updating user: " . $stmt->error;

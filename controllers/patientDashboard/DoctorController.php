@@ -1,12 +1,12 @@
 <?php
-require_once "../../config/db_connect.php";
+
 require_once "../../model/patient/DoctorModel.php";
 
 class DoctorController {
     private $doctorModel;
 
     public function __construct($conn) {
-        $this->doctorModel = new DoctorModel($conn);
+        
     }
 
     public function listDoctors() {

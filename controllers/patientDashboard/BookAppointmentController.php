@@ -31,7 +31,7 @@ class AppointmentController {
     }
 
     private function bookAppointment() {
-        include '../auth/session.php';
+        include '../../controllers/auth/session.php';
         
         try {
             // Validate required fields

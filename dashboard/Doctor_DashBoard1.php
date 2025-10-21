@@ -5,10 +5,10 @@
 
 
 require_once '../config/db_connect.php';
-require_once '../model/patient/patientModel.php';
+// require_once '../model/patient/patientModel.php';
 require_once '../model/doctor/user_model.php';
-require_once '../model/appointment/appointment_model.php';
-require_once '../model/billing/billing_model.php';
+// require_once '../model/appointment/appointment_model.php';
+// require_once '../model/billing/billing_model.php';
 require_once '../model/prescription/prescription_model.php';
 require_once '../model/activity/activity_model.php';
 require_once __DIR__ . '/../controllers/admin/patientController.php'; 

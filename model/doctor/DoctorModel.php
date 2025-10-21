@@ -61,6 +61,25 @@ class DoctorModel {
         $row = $result->fetch_assoc();
         return $row['total'] ?? 0;
     }
+    public function getAllDoctors() {
+    $sql = "SELECT d.doctor_id, u.name, d.specialization 
+            FROM doctors d
+            INNER JOIN users u ON d.user_id = u.id
+            WHERE u.role = 'doctor'
+            ORDER BY u.name ASC";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $doctors = [];
+    while ($row = $result->fetch_assoc()) {
+        $doctors[] = $row;
+    }
+
+    return $doctors;
+}
+    
     
 }
 ?>

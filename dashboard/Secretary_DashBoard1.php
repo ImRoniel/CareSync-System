@@ -706,7 +706,7 @@ $secretary = $controller->getProfile($userId);
                 
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="showModal('profile-modal')">Profile</button>
-                    <button class="btn btn-primary">Logout</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
                 </div>
                 
                 <button class="mobile-menu-btn">

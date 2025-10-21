@@ -9,7 +9,7 @@ if (session_status() == PHP_SESSION_NONE) {
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     // User not logged in → redirect
-    header("Location: /Caresync-System/login/login.php");
+    header("Location: /CareSync-System/login/login.php");
     exit();
 } else {
     

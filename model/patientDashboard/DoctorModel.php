@@ -22,3 +22,5 @@ class DoctorModel {
         return $doctors;
     }
 }
+
+?>

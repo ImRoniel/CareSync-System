@@ -1,8 +1,17 @@
 <?php
-require_once __DIR__ . '/../controllers/auth/session.php'; //our session 
+$sessionPath = __DIR__ . '/../controllers/auth/session.php';
+
+if (!file_exists($sessionPath)) {
+    echo "session.php not found";
+    exit;
+}
+
+require_once $sessionPath;
 require_once __DIR__ . '/../config/db_connect.php';
 require_once __DIR__ . '/../controllers/appointment/AppointmentController.php';
 require_once __DIR__ . '/../model/patientDashboard/DoctorModel.php';
+require_once __DIR__ . '/../controllers/patientDashboard/PatientDataController.php';
+
 
 $appointmentController = new AppointmentController($conn);
 $doctors = $appointmentController->getAvailableDoctors(); // code for getting all doctor
@@ -25,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_appointment'])) 
 }
 //FOR UPCOMING APPOINTMENT CALLING METHOD
 // Example: get upcoming appointments for the logged-in patient
-$patient_id = $_SESSION['patient_id'] ?? 0;
-$appointments = $appointmentController->showUpcomingAppointments($patient_id);
+// $patient_id = $_SESSION['patient_id'] ?? 0;
+// $appointments = $appointmentController->showUpcomingAppointments($patient_id);
 
 $stats = $stats ?? [
     'upcomingAppointments' => 0,
@@ -35,10 +44,18 @@ $stats = $stats ?? [
     'healthRecords' => 0,
 ];
 
-
+//for prescription data
 $prescriptions = $prescriptions ?? [];
 
+
+//or billing data
 $bills = $bills ?? [];
+
+$patientController = new PatientController($conn);
+$patients = $patientController->index();
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -735,7 +752,7 @@ $bills = $bills ?? [];
         }
 
         .close {
-            color: #aaa;
+            color: #CFCFCF;
             float: right;
             font-size: 28px;
             font-weight: bold;
@@ -874,7 +891,7 @@ $bills = $bills ?? [];
                 
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="showModal('profile-modal')">Profile</button>
-                    <button class="btn btn-primary">Logout</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../controllers/auth/logout.php'">Logout</button>
                 </div>
                 
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -901,13 +918,21 @@ $bills = $bills ?? [];
             <div class="dashboard-header">
                 <div>
                     <h1>Patient Dashboard</h1>
-                    <p>Welcome back, Name here</p>
+                    <p>
+                        Welcome back, 
+                        <strong>
+                            <?= htmlspecialchars($$patients['name'] ?? 'Guest') ?>
+                        </strong>
+                    </p>
                 </div>
+
                 <div class="user-info">
-                    <div class="user-avatar">NH</div>
+                    <div class="user-avatar">
+                        <?= strtoupper(substr($patients['name'] ?? 'N/A', 0, 2)) ?>
+                    </div>
                     <div>
-                        <p>Name here</p>
-                        <small>Patient ID: ID Here</small>
+                        <p><?= htmlspecialchars($patient['name'] ?? 'Name not found') ?></p>
+                        <small>Patient ID:  <?= htmlspecialchars($_SESSION['user_id'] ?? 'N/A') ?></small>
                     </div>
                 </div>
             </div>
@@ -1112,7 +1137,7 @@ $bills = $bills ?? [];
         <div class="container">
             <div class="dashboard-header">
                 <h1>My Appointments</h1>
-                <button class="btn btn-primary" onclick="showModal('book-appointment-modal')">Book Appointment</button>
+                <button class="btn btn-primary" onclick="window.location.href='../views/patient/book_appointment.php'">Book Appointment</button>
             </div>
             
             <div class="card">
@@ -1478,67 +1503,57 @@ $bills = $bills ?? [];
                 <span class="close" onclick="closeModal('book-appointment-modal')">&times;</span>
             </div>
 
-            <div class="modal-body">
-                <form id="book-appointment-form" method="POST" action="../controllers/appointment//AppointmentController.php">
-                    
-                    <!-- Hidden patient ID -->
-                    <input type="hidden" name="patient_id" value="<?= $_SESSION['patient_id'] ?? '' ?>">
-                    
-                    <!-- Doctor Dropdown -->
+            <form id="book-appointment-form" method="POST" action="../../controllers/appointment/book_appointment_action.php">
+                <input type="hidden" name="patient_id" value="<?= $_SESSION['patient_id'] ?? '' ?>">
+
+                <div class="form-group">
+                    <label for="appointment-doctor">Select Doctor</label>
+                    <select id="appointment-doctor" name="doctor_id" class="form-control" required>
+                        <option value="">Select Doctor</option>
+                        <?php if (!empty($doctors)): ?>
+                            <?php foreach ($doctors as $doctor): ?>
+                                <option value="<?= htmlspecialchars($doctor['doctor_id']); ?>">
+                                    <?= htmlspecialchars($doctor['name']); ?> - <?= htmlspecialchars($doctor['specialization']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <option disabled>No doctors available</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="appointment-type">Appointment Type</label>
+                    <select id="appointment-type" name="appointment_type" class="form-control" required>
+                        <option value="">Select Type</option>
+                        <option value="consultation">Consultation</option>
+                        <option value="follow-up">Follow-up</option>
+                        <option value="annual-checkup">Annual Checkup</option>
+                        <option value="emergency">Emergency</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="appointment-doctor">Select Doctor</label>
-                        <select id="appointment-doctor" name="doctor_id" class="form-control" required>
-                            <option value="">Select Doctor</option>
-                            <?php if (!empty($doctors)): ?>
-                                <?php foreach ($doctors as $doctor): ?>
-                                    <option value="<?= htmlspecialchars($doctor['doctor_id']); ?>">
-                                        <?= htmlspecialchars($doctor['name']); ?> - <?= htmlspecialchars($doctor['specialization']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <option disabled>No doctors available</option>
-                            <?php endif; ?>
-                        </select>
+                        <label for="appointment-date">Preferred Date</label>
+                        <input type="date" id="appointment-date" name="appointment_date" class="form-control" min="<?= date('Y-m-d') ?>" required>
                     </div>
-
-                    <!-- Appointment Type -->
                     <div class="form-group">
-                        <label for="appointment-type">Appointment Type</label>
-                        <select id="appointment-type" name="appointment_type" class="form-control" required>
-                            <option value="">Select Type</option>
-                            <option value="consultation">Consultation</option>
-                            <option value="follow-up">Follow-up</option>
-                            <option value="annual-checkup">Annual Checkup</option>
-                            <option value="emergency">Emergency</option>
-                        </select>
+                        <label for="appointment-time">Preferred Time</label>
+                        <input type="time" id="appointment-time" name="appointment_time" class="form-control" required>
                     </div>
+                </div>
 
-                    <!-- Date and Time -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="appointment-date">Preferred Date</label>
-                            <input type="date" id="appointment-date" name="appointment_date" class="form-control" min="<?= date('Y-m-d') ?>" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="appointment-time">Preferred Time</label>
-                            <input type="time" id="appointment-time" name="appointment_time" class="form-control" required>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="appointment-reason">Reason for Visit</label>
+                    <textarea id="appointment-reason" name="reason" class="form-control" rows="3" placeholder="Describe your symptoms or reason..."></textarea>
+                </div>
 
-                    <!-- Reason -->
-                    <div class="form-group">
-                        <label for="appointment-reason">Reason for Visit</label>
-                        <textarea id="appointment-reason" name="reason" class="form-control" rows="3" placeholder="Please describe your symptoms or reason for appointment..."></textarea>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('book-appointment-modal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Book Appointment</button>
-                    </div>
-
-                </form>
-            </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('book-appointment-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Book Appointment</button>
+                </div>
+            </form>
         </div>
     </div>
 
