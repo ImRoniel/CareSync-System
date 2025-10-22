@@ -22,6 +22,7 @@ C:.
 ¦       
 +---controllers
 ¦   +---admin
+¦   ¦       AdminController.php
 ¦   ¦       delete_user.php
 ¦   ¦       DoctorController.php
 ¦   ¦       patientController.php
@@ -34,6 +35,7 @@ C:.
 ¦   ¦       book_appointment_action.php
 ¦   ¦       
 ¦   +---auth
+¦   ¦       AuthSession.php
 ¦   ¦       logout.php
 ¦   ¦       process_login.php
 ¦   ¦       process_signup.php
@@ -56,6 +58,7 @@ C:.
 ¦       reset_password.php
 ¦       
 +---model
+¦       AdminModel.php
 ¦       AppointmentModel.php
 ¦       BillingModel.php
 ¦       DoctorModel.php
@@ -76,7 +79,9 @@ C:.
 +---views
     +---admin
     ¦       Admin_Dashboard1.php
+    ¦       doctor_list.php
     ¦       edit_doctor.php
+    ¦       edit_secretary.php
     ¦       edit_user.php
     ¦       schedule_doctor.php
     ¦       user_list.php

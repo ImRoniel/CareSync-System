@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/db_connect.php';
-require_once __DIR__ . '/../../model/admin/SecretaryModel.php';
+require_once __DIR__ . '/../../model/secretaryModel.php';
 
 class SecretaryController {
     private $secretaryModel;
@@ -9,13 +9,10 @@ class SecretaryController {
         $this->secretaryModel = new SecretaryModel($conn);
     }
 
-    public function search() {
-        $searchTerm = $_GET['search'] ?? '';
-        return $this->secretaryModel->searchSecretaries($searchTerm);
+    public function index() {
+        // Get all secretaries from the model
+        $secretaries = $this->secretaryModel->getAllSecretary();
+        return $secretaries;
     }
 }
 
-// Run immediately when included
-$controller = new SecretaryController($conn);
-$secretaries = $controller->search();
-?>

@@ -9,7 +9,7 @@ if (!file_exists($sessionPath)) {
 }
 
 require_once $sessionPath;
-
+require_once __DIR__ . '/../../config/db_connect.php';
 //for fetching the data from the dashboard
 require_once __DIR__ . '/../../controllers/admin/AdminController.php';
 
@@ -23,10 +23,15 @@ extract($data);
 require_once __DIR__ . '/../../controllers/admin/userController.php';
 
 require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
-require_once __DIR__ . '/../../config/db_connect.php';
+
 $controller = new DoctorController($conn);
 $doctors = $controller->index();
 
+
+require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
+
+$controller = new SecretaryController($conn);
+$secretaries = $controller->index();
 
 ?>
 <!DOCTYPE html>
@@ -1080,17 +1085,17 @@ $doctors = $controller->index();
                             </div>
                             
                             <div class="user-management-grid">
-                                <?php if($secretaryResult->num_rows > 0):  ?>
-                                    <?php while($secretaries = $secretaryResult->fetch_assoc()): ?> 
+                                <?php if($secretaries && $secretaries->num_rows > 0):  ?>
+                                    <?php while($sec = $secretaries->fetch_assoc()): ?> 
                                     
                                         <div class="user-card">
                                                 <div class="user-avatar-large">
-                                                    <?= strtoupper(substr($secretaries['secretary_name'], 0, 1)) ?>
+                                                        <?= strtoupper(substr($sec['name'], 0, 1)) ?>
                                                 </div>
                                                 <div class="user-details">
-                                                    <h3><?= htmlspecialchars($secretaries['secretary_name']) ?></h3>
-                                                    <p><?= htmlspecialchars($secretaries['department'] ?? 'No Department') ?></p>
-                                                    <p><?= htmlspecialchars($secretaries['email']) ?></p>
+                                                    <h3><?= htmlspecialchars($sec['name']) ?></h3>
+                                                    <p><?= htmlspecialchars($sec['department'] ?? 'No Department') ?></p>
+                                                    <p><?= htmlspecialchars($sec['email']) ?></p>
                                                     
                                                 </div>
 
@@ -1100,11 +1105,12 @@ $doctors = $controller->index();
                                                             onclick="window.location.href='/CareSync-System/views/admin/edit_secretary.php?id=<?= htmlspecialchars($sec['user_id']) ?>'">
                                                         Edit
                                                     </button>
+
                                                     <button class="btn btn-sm btn-info"
-                                                        onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
-                                                    Schedule
-                                                </button>
-                                            </div>
+                                                            onclick="window.location.href='/CareSync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($sec['user_id']) ?>'">
+                                                        Schedule
+                                                    </button>
+                                                </div>
                                         </div>
                                     <?php endwhile; ?>
                                 <?php else: ?>
