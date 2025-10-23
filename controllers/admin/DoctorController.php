@@ -10,7 +10,7 @@ class DoctorController {
     }
 
     // Get all doctors for the view
-    public function getAllDoctors() {
+    public function showDoctors() {
         return $this->model->getAllDoctors();
     }
 }

@@ -1,28 +1,60 @@
 <?php 
-require_once __DIR__ . '/../../config/db_connect.php';
-require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
+include "../../config/db_connect.php";
 
-// . Validate user ID
+// ✅ 1. Validate doctor ID
 if (!isset($_GET['id'])) {
     die("Invalid request. No doctor ID provided.");
 }
-$doctor_id = intval($_GET['id']);
-$controller = new DoctorController($conn);
+$id = intval($_GET['id']);
+$message = "";
 
-// ✅ If form is submitted, update doctor
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller->update($doctor_id);
-    exit;
-}
+// 2. Fetch doctor data with user information
+$sql = "SELECT doctors.*, users.name, users.email, users.role 
+        FROM doctors
+        JOIN users ON doctors.user_id = users.id 
+        WHERE doctor_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$doctor = $result->fetch_assoc();
+$stmt->close();
 
-// ✅ Otherwise, load doctor data
-$doctor = $controller->edit($doctor_id);
 if (!$doctor) {
     die("Doctor not found.");
 }
+
+// 3. Handle update
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $phone = trim($_POST['phone']);
+    $address = trim($_POST['address']);
+    $license_no = trim($_POST['license_no']);
+    $specialization = trim($_POST['specialization']);
+    $years_experience = !empty($_POST['years_experience']) ? intval($_POST['years_experience']) : NULL;
+    $clinic_room = trim($_POST['clinic_room']);
+
+    // Update doctor info in doctors table
+    $sql = "UPDATE doctors SET 
+            phone = ?, 
+            address = ?, 
+            license_no = ?, 
+            specialization = ?, 
+            years_experience = ?, 
+            clinic_room = ? 
+            WHERE doctor_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssssisi", $phone, $address, $license_no, $specialization, $years_experience, $clinic_room, $id);
+
+    if ($stmt->execute()) {
+        // Redirect back to dashboard
+        header("Location: /Caresync-System/views/admin/Admin_Dashboard1.php?message=Doctor updated successfully");
+        exit;
+    } else {
+        $message = "Error updating doctor: " . $stmt->error;
+    }
+    $stmt->close();
+}
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -248,6 +280,25 @@ if (!$doctor) {
             border-left-color: #ef4444;
         }
         
+        .user-info {
+            background: var(--light);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .user-info h3 {
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            font-size: 16px;
+        }
+        
+        .user-info p {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
         .user-avatar {
             width: 80px;
             height: 80px;
@@ -262,15 +313,6 @@ if (!$doctor) {
             margin: 0 auto 20px;
             border: 4px solid white;
             box-shadow: var(--shadow);
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 16px;
-        }
-        
-        .form-row .form-group {
-            flex: 1;
         }
         
         @media (max-width: 576px) {
@@ -303,18 +345,13 @@ if (!$doctor) {
                 width: 36px;
                 height: 36px;
             }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
         }
     </style>
 </head>
 <body>
     <div class="edit-container">
         <div class="edit-header">
-            <a href="/CareSync-System/dashboard/admin_dashboard.php" class="back-btn">
+            <a href="/CareSync-System/views/admin/Admin_Dashboard1.php" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
             </a>
             <h1>Edit Doctor</h1>
@@ -330,16 +367,23 @@ if (!$doctor) {
             <?php endif; ?>
             
             <div class="user-avatar">
-                <i class="fas fa-user-md"></i>
+                <?php echo strtoupper(substr($doctor['name'], 0, 1)); ?>
+            </div>
+            
+            <div class="user-info">
+                <h3>User Information</h3>
+                <p><strong>Name:</strong> <?php echo htmlspecialchars($doctor['name']); ?></p>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($doctor['email']); ?></p>
+                <p><strong>Role:</strong> <?php echo ucfirst($doctor['role']); ?></p>
             </div>
             
             <form method="POST" action="">
                 <div class="form-group">
-                    <label class="form-label" for="phone">Phone</label>
+                    <label class="form-label" for="phone">Phone Number</label>
                     <div class="input-icon">
                         <i class="fas fa-phone"></i>
                         <input type="text" class="form-input" id="phone" name="phone" 
-                               value="<?php echo htmlspecialchars($doctor['phone']); ?>" 
+                               value="<?php echo htmlspecialchars($doctor['phone'] ?? ''); ?>" 
                                placeholder="Enter phone number">
                     </div>
                 </div>
@@ -349,18 +393,18 @@ if (!$doctor) {
                     <div class="input-icon">
                         <i class="fas fa-map-marker-alt"></i>
                         <input type="text" class="form-input" id="address" name="address" 
-                               value="<?php echo htmlspecialchars($doctor['address']); ?>" 
+                               value="<?php echo htmlspecialchars($doctor['address'] ?? ''); ?>" 
                                placeholder="Enter address">
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label" for="license_no">License No</label>
+                    <label class="form-label" for="license_no">License Number</label>
                     <div class="input-icon">
                         <i class="fas fa-id-card"></i>
                         <input type="text" class="form-input" id="license_no" name="license_no" 
-                               value="<?php echo htmlspecialchars($doctor['license_no']); ?>" 
-                               placeholder="Enter license number">
+                               value="<?php echo htmlspecialchars($doctor['license_no'] ?? ''); ?>" 
+                               placeholder="Enter license number" required>
                     </div>
                 </div>
                 
@@ -369,35 +413,33 @@ if (!$doctor) {
                     <div class="input-icon">
                         <i class="fas fa-stethoscope"></i>
                         <input type="text" class="form-input" id="specialization" name="specialization" 
-                               value="<?php echo htmlspecialchars($doctor['specialization']); ?>" 
+                               value="<?php echo htmlspecialchars($doctor['specialization'] ?? ''); ?>" 
                                placeholder="Enter specialization">
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="years_experience">Years of Experience</label>
-                        <div class="input-icon">
-                            <i class="fas fa-briefcase"></i>
-                            <input type="number" class="form-input" id="years_experience" name="years_experience" 
-                                   value="<?php echo htmlspecialchars($doctor['years_experience']); ?>" 
-                                   placeholder="Years">
-                        </div>
+                <div class="form-group">
+                    <label class="form-label" for="years_experience">Years of Experience</label>
+                    <div class="input-icon">
+                        <i class="fas fa-briefcase"></i>
+                        <input type="number" class="form-input" id="years_experience" name="years_experience" 
+                               value="<?php echo htmlspecialchars($doctor['years_experience'] ?? ''); ?>" 
+                               placeholder="Enter years of experience" min="0" max="50">
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="clinic_room">Clinic Room</label>
-                        <div class="input-icon">
-                            <i class="fas fa-door-open"></i>
-                            <input type="text" class="form-input" id="clinic_room" name="clinic_room" 
-                                   value="<?php echo htmlspecialchars($doctor['clinic_room']); ?>" 
-                                   placeholder="Room number">
-                        </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="clinic_room">Clinic Room</label>
+                    <div class="input-icon">
+                        <i class="fas fa-door-open"></i>
+                        <input type="text" class="form-input" id="clinic_room" name="clinic_room" 
+                               value="<?php echo htmlspecialchars($doctor['clinic_room'] ?? ''); ?>" 
+                               placeholder="Enter clinic room number">
                     </div>
                 </div>
                 
                 <div class="form-actions">
-                    <a href="/CareSync-System/dashboard/admin_dashboard.php" class="cancel-btn">
+                    <a href="/Caresync-System/views/admin/Admin_Dashboard1.php" class="cancel-btn">
                         <i class="fas fa-times"></i>
                         Cancel
                     </a>

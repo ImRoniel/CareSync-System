@@ -8,12 +8,12 @@ class DoctorModel {
 
     // Fetch all doctors with their user info
     public function getAllDoctors() {
-        $sql = "
-            SELECT doctors.user_id, users.name AS doctor_name, doctors.specialization, users.email
-            FROM doctors 
-            JOIN users  ON doctors.user_id = users.id
-        ";
-        $result = $this->model->query($sql);
+        $sql = "SELECT * 
+                FROM users
+                CROSS JOIN doctors
+                ON users.id = doctors.user_id";
+            $stmt = $this->model->query($sql);
+        $result = $stmt;
         return $result;
     }
 }

@@ -25,7 +25,7 @@ require_once __DIR__ . '/../../controllers/admin/userController.php';
 require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
 
 $controllerDoctor = new DoctorController($conn);
-$doctors = $controllerDoctor->getAllDoctors();
+$doctors = $controllerDoctor->showDoctors();
 
 
 require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
@@ -1048,20 +1048,20 @@ $secretaries = $controllerSecretary->showSecretaries();
                                     <?php while ($doctor = $doctors->fetch_assoc()): ?>
                                         <div class="user-card">
                                             <div class="user-avatar-large">
-                                                <?= strtoupper(substr($doctor['doctor_name'], 0, 1)) ?>
+                                                <?= strtoupper(substr($doctor['name'], 0, 1)) ?>
                                             </div>
                                             <div class="user-details">
-                                                <h3>Dr. <?= htmlspecialchars($doctor['doctor_name']) ?></h3>
+                                                <h3>Dr. <?= htmlspecialchars($doctor['name']) ?></h3>
                                                 <p><?= htmlspecialchars($doctor['specialization'] ?? 'No specialization') ?></p>
                                                 <p><?= htmlspecialchars($doctor['email']) ?></p>
                                             </div>
                                             <div class="user-actions">
                                                 <button class="btn btn-sm btn-secondary"
-                                                        onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
+                                                        onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
                                                     Edit
                                                 </button>
                                                 <button class="btn btn-sm btn-info"
-                                                        onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['user_id']) ?>'">
+                                                        onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
                                                     Schedule
                                                 </button>
                                             </div>
