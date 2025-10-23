@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
 
     if ($stmt->execute()) {
         // . Role synchronization logic
-        if ($role === 'Doctor') {
+        if ($role === 'doctor') {
             // If user is a doctor, ensure they exist in doctors table
             $check = $conn->prepare("SELECT * FROM doctors WHERE user_id = ?");
             $check->bind_param("i", $id);
@@ -49,13 +49,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
             }
             $check->close();
 
-        } elseif ($role === 'Secretary') {
+        } elseif ($role === 'secretary') {
             // If user becomes a secretary, remove from doctors table if exists
             $delete = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
             $delete->bind_param("i", $id);
             $delete->execute();
             $delete->close();
-        } elseif ($role === 'Patient') {
+        } elseif ($role === 'patient') {
             // If user becomes a patient, also remove from doctors table
             $delete = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
             $delete->bind_param("i", $id);
@@ -439,8 +439,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
                         <i class="fas fa-save"></i>
                         Save Changes
                     </button>
-
-                
                 </div>
             </form>
         </div>

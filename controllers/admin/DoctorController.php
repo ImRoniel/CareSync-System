@@ -10,12 +10,9 @@ class DoctorController {
     }
 
     // Get all doctors for the view
-    public function index() {
+    public function getAllDoctors() {
         return $this->model->getAllDoctors();
     }
 }
 
-// Example usage:
-$controller = new DoctorController($conn);
-$doctors = $controller->index();
 ?>

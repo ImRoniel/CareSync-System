@@ -10,10 +10,10 @@ $id = intval($_GET['id']);
 $message = "";
 
 // 2. Fetch secretary data with user information
-$sql = "SELECT s.*, u.name, u.email, u.role 
-        FROM secretaries s 
-        JOIN users u ON s.user_id = u.id 
-        WHERE s.secretary_id = ?";
+$sql = "SELECT secretaries.*, users.name, users.email, users.role 
+        FROM secretaries
+        JOIN users ON secretaries.user_id = users.id 
+        WHERE secretary_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
 $stmt->execute();

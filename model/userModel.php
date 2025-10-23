@@ -30,5 +30,12 @@ class UserModel {
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+
+    // public function searchSecretary(){
+    //     $sql = "SELECT * FROM ";
+    // }
+    public function changeRoleUser(){
+        $sql = "SELECT u";
+    }
 }
 ?>

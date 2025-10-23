@@ -13,8 +13,8 @@ require_once __DIR__ . '/../../config/db_connect.php';
 //for fetching the data from the dashboard
 require_once __DIR__ . '/../../controllers/admin/AdminController.php';
 
-$controller = new AdminController($conn);
-$data = $controller->index();
+$controllerData = new AdminController($conn);
+$data = $controllerData->index();
 
 // Extract variables to use in HTML easily
 extract($data);
@@ -24,14 +24,16 @@ require_once __DIR__ . '/../../controllers/admin/userController.php';
 
 require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
 
-$controller = new DoctorController($conn);
-$doctors = $controller->index();
+$controllerDoctor = new DoctorController($conn);
+$doctors = $controllerDoctor->getAllDoctors();
 
 
 require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
 
-$controller = new SecretaryController($conn);
-$secretaries = $controller->index();
+$controllerSecretary = new SecretaryController($conn);
+$secretaries = $controllerSecretary->index();
+
+
 
 ?>
 <!DOCTYPE html>
@@ -1033,16 +1035,16 @@ $secretaries = $controller->index();
                         
                         <div class="tab-content" id="doctors-tab">
                             <div class="search-box">
-                                <form method="GET" action="">
+                                <form method="POST" action="">
                                     <input type="text" name="search" class="form-control"
                                         placeholder="Search doctors..."
-                                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                                        value="<?= htmlspecialchars($_POST['search'] ?? '') ?>">
                                     <button type="submit" class="btn btn-primary mt-2">Search</button>
                                 </form>
                             </div>
                             
                             <div class="user-management-grid">
-                                <?php if ($doctors && $doctors->num_row > 0): ?>
+                                <?php if ($doctors && $doctors->num_rows > 0 ): ?>
                                     <?php while ($doctor = $doctors->fetch_assoc()): ?>
                                         <div class="user-card">
                                             <div class="user-avatar-large">
@@ -1102,12 +1104,12 @@ $secretaries = $controller->index();
                                                 <!-- balikan natin ito mamaya -->
                                                 <div class="user-actions">
                                                     <button class="btn btn-sm btn-secondary"
-                                                            onclick="window.location.href='/CareSync-System/views/admin/edit_secretary.php?id=<?= htmlspecialchars($sec['user_id']) ?>'">
+                                                            onclick="window.location.href='/Caresync-System/views/admin/edit_secretary.php?id=<?= htmlspecialchars($sec['secretary_id']) ?>'">
                                                         Edit
                                                     </button>
 
                                                     <button class="btn btn-sm btn-info"
-                                                            onclick="window.location.href='/CareSync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($sec['user_id']) ?>'">
+                                                            onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($sec['secretary_id']) ?>'">
                                                         Schedule
                                                     </button>
                                                 </div>

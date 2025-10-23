@@ -9,7 +9,7 @@ class UserController {
         $this->model = new UserModel($conn);
     }
 
-    public function index($search = '') {
+    public function getAllUsers($search = '') {
         return $this->model->getAllUsers($search);
     }
 
@@ -32,5 +32,5 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
 }
 
 $search = $_GET['search'] ?? '';
-$resultSystemOver = $controller->index($search);
+$resultSystemOver = $controller->getAllUsers($search);
 ?>
