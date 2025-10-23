@@ -31,7 +31,7 @@ $doctors = $controllerDoctor->getAllDoctors();
 require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
 
 $controllerSecretary = new SecretaryController($conn);
-$secretaries = $controllerSecretary->index();
+$secretaries = $controllerSecretary->showSecretaries();
 
 
 
@@ -1104,7 +1104,7 @@ $secretaries = $controllerSecretary->index();
                                                 <!-- balikan natin ito mamaya -->
                                                 <div class="user-actions">
                                                     <button class="btn btn-sm btn-secondary"
-                                                            onclick="window.location.href='/Caresync-System/views/admin/edit_secretary.php?id=<?= htmlspecialchars($sec['secretary_id']) ?>'">
+                                                            onclick="window.location.href='/Caresync-System/views/admin/edit_secretary.php?id=<?= htmlspecialchars($sec['secretary_id']) ?>'"> 
                                                         Edit
                                                     </button>
 

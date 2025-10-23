@@ -1,19 +1,18 @@
 <?php
 class SecretaryModel {
-    private $conn;
+    private $model;
 
     public function __construct($conn) {
-        $this->conn = $conn;
+        $this->model = $conn;
     }
 
-    public function getAllSecretary() {
-        $sql = "SELECT * FROM users WHERE role='secretary' ;";
-        $result = $this->conn->query($sql);
-
-        if (!$result) {
-            die("Invalid query: " . $this->conn->error);
-        }
-
+    public function getAllSecretary(){
+        $sql = "SELECT * 
+                FROM users
+                CROSS JOIN secretaries
+                ON users.id = secretaries.user_id";
+        $stmt = $this->model->query($sql);
+        $result = $stmt;
         return $result;
     }
 }
