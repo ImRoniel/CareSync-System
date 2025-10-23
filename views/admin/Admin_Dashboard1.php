@@ -1042,8 +1042,8 @@ $secretaries = $controller->index();
                             </div>
                             
                             <div class="user-management-grid">
-                                <?php if (!empty($doctors)): ?>
-                                    <?php foreach ($doctors as $doctor): ?>
+                                <?php if ($doctors && $doctors->num_row > 0): ?>
+                                    <?php while ($doctor = $doctors->fetch_assoc()): ?>
                                         <div class="user-card">
                                             <div class="user-avatar-large">
                                                 <?= strtoupper(substr($doctor['doctor_name'], 0, 1)) ?>
@@ -1064,7 +1064,7 @@ $secretaries = $controller->index();
                                                 </button>
                                             </div>
                                         </div>
-                                    <?php endforeach; ?>
+                                    <?php endwhile; ?>
                                 <?php else: ?>
                                     <p class="text-center text-muted mt-3">⚠️ No doctors found.</p>
                                 <?php endif; ?>

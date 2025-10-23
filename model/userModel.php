@@ -25,7 +25,8 @@ class UserModel {
 
     // Delete a user
     public function deleteUser($id) {
-        $stmt = $this->conn->prepare("DELETE FROM users WHERE id = ?");
+        $sql = "DELETE FROM users WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
