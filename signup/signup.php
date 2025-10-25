@@ -655,10 +655,7 @@ $conn->close();
                                 <input type="date" id="employment_date" name="employment_date" value="<?php echo isset($employment_date) ? $employment_date : ''; ?>">
                             </div>
                             
-                            <div class="form-group">
-                                <label for="assigned_doctor_id">Assigned Doctor ID</label>
-                                <input type="number" id="assigned_doctor_id" name="assigned_doctor_id" placeholder="Doctor ID" min="0" value="<?php echo isset($assigned_doctor_id) ? $assigned_doctor_id : ''; ?>">
-                            </div>
+                            
                         </div>
                         
                         <div class="form-group">

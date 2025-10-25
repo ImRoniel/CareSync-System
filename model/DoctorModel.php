@@ -21,7 +21,7 @@ class DoctorModel {
         $sql = "
             SELECT 
                 u.id, u.name, u.email, u.role,
-                d.doctor_id, p.phone, d.address, d.license_no, d.specialization, d.years_experience
+                d.doctor_id, d.phone, d.address, d.license_no, d.specialization, d.years_experience
             FROM users u
             JOIN doctors d ON u.id = d.user_id
             WHERE u.id = ?

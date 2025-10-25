@@ -3,6 +3,7 @@ Volume serial number is 68C5-E9B1
 C:.
 ¦   caresync_db (10).sql
 ¦   CONTRIBUTING.md
+¦   desktop.ini
 ¦   generate_hash.php
 ¦   index.php
 ¦   LICENSE
@@ -13,9 +14,13 @@ C:.
 ¦   +---css
 ¦   ¦       index.css
 ¦   ¦       login.css
+¦   ¦       PatientDashboard.css
 ¦   ¦       
 ¦   +---images
-¦           3.png
+¦   ¦       3.png
+¦   ¦       
+¦   +---js
+¦           PatientDashboard.js
 ¦           
 +---config
 ¦       db_connect.php
@@ -28,6 +33,7 @@ C:.
 ¦   ¦       patientController.php
 ¦   ¦       search_user.php
 ¦   ¦       secretaryController.php
+¦   ¦       UpdateProfileController.php
 ¦   ¦       userController.php
 ¦   ¦       
 ¦   +---appointment
@@ -35,22 +41,21 @@ C:.
 ¦   ¦       book_appointment_action.php
 ¦   ¦       
 ¦   +---auth
-¦   ¦       AuthSession.php
-¦   ¦       logout.php
-¦   ¦       process_login.php
-¦   ¦       process_signup.php
-¦   ¦       registere_user.php
-¦   ¦       session.php
-¦   ¦       signup.php
-¦   ¦       
-¦   +---doctor
-¦   +---patient
-¦   +---secretary
-¦           secretariesController.php
+¦           AuthSession.php
+¦           logout.php
+¦           process_login.php
+¦           process_signup.php
+¦           registere_user.php
+¦           session.php
+¦           signup.php
 ¦           
 +---flowchart
 ¦       .drawio.svg
 ¦       psuedocode
+¦       
++---Learning Fundamental
+¦       php mysql database practice .url
+¦       php oop fundamental practice.url
 ¦       
 +---login
 ¦       forgot_password.php
@@ -59,7 +64,7 @@ C:.
 ¦       
 +---model
 ¦       AdminModel.php
-¦       AppointmentModel.php
+¦       AppointmentsModel.php
 ¦       BillingModel.php
 ¦       DoctorModel.php
 ¦       PatientModel.php

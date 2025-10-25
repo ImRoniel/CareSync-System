@@ -8,3 +8,18 @@
 
 
       
+core process of our system 
+Core processes: Registration, Appointment Booking, Appointment Management, Prescribe Medication → Digitize, Billing. Data stores: Patients, Secretaries, Appointments, Prescriptions, Billing.
+
+patients can 
+Primary goal: book appointments, view status, download prescriptions and bills.
+
+secretary can 
+Primary goal: manage schedules, approve/assign appointments, digitize prescriptions, basic billing.
+
+doctor can 
+Primary goal: see schedule, review patients, prescribe digitally, update appointment status.
+
+admin can
+Primary goal: user & system management, view analytics, fix data issues.
+

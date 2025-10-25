@@ -8,16 +8,23 @@ if (!file_exists($sessionPath)) {
 
 require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
+require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
 
 
-
+if (empty($_SESSION['user_id'])) {
+    header("Location: ../../login/login.php");
+    exit;
+}
+// Redirect if not logged in or wrong role
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'secretary') {
     header("Location: ../../login/login.php");
     exit;
 }
 
+$secretaryId = intval($_SESSION['user_id']); //sanitizing 
+
 $secretaryController = new SecretaryController($conn);
-$secretary = $secretaryController->getSecretaryData($_SESSION['user_id']);
+$secretary = $secretaryController->getSecretaryData($secretaryId);
 
 ?>
 
@@ -699,7 +706,7 @@ $secretary = $secretaryController->getSecretaryData($_SESSION['user_id']);
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo" onclick="showPage('dashboard')">
-                    <img src="../assets/images/3.png"  alt="CareSync Logo" class="logo-image">
+                    <img src="../../assets/images/3.png"  alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </a>
                 
@@ -1469,9 +1476,9 @@ $secretary = $secretaryController->getSecretaryData($_SESSION['user_id']);
                 <div class="user-info">
                     <div class="user-avatar">NH</div>
                     <div>
-                        <h3>Name here</h3>
+                        <h3><?= htmlspecialchars($secretary['name']) ?></h3>
                         <p>Clinic Secretary</p>
-                        <p>email@caresync.com</p>
+                        <p><?= htmlspecialchars($secretary['email']) ?></p>
                     </div>
                 </div>
                 
@@ -1486,34 +1493,50 @@ $secretary = $secretaryController->getSecretaryData($_SESSION['user_id']);
     <div id="edit-profile-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Edit Profile</h2>
-                <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
+            <h2>Edit Profile</h2>
+            <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
             </div>
             <div class="modal-body">
-                <form id="edit-profile-form">
-                    <div class="form-group">
-                        <label for="edit-name">Full Name</label>
-                        <input type="text" id="edit-name" class="form-control" value="Name here" required>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-name">Full Name</label>
+                    <input type="text" id="edit-name" name="name" class="form-control"
+                            value="<?= htmlspecialchars($secretary['name']) ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-email">Email</label>
+                    <input type="email" id="edit-email" name="email" class="form-control"
+                            value="<?= htmlspecialchars($secretary['email']) ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-phone">Phone</label>
+                    <input type="tel" id="edit-phone" name="phone" class="form-control"
+                            value="<?= htmlspecialchars($secretary['phone']) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-address">Address</label>
+                    <input type="text" id="edit-address" name="address" class="form-control"
+                            value="<?= htmlspecialchars($secretary['address'] ?? '') ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-department">Department</label>
+                    <input type="text" id="edit-department" name="department" class="form-control"
+                            value="<?= htmlspecialchars($secretary['department'] ?? '') ?>">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-email">Email</label>
-                        <input type="email" id="edit-email" class="form-control" value="email@caresync.com" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-phone">Phone</label>
-                        <input type="tel" id="edit-phone" class="form-control" value="Phone here">
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+            </form>
             </div>
         </div>
-    </div>
+        </div>
+
 
     <footer>
         <div class="container">
@@ -1599,6 +1622,30 @@ $secretary = $secretaryController->getSecretaryData($_SESSION['user_id']);
                 navLinks.style.boxShadow = 'var(--shadow-md)';
             }
         });
+        document.getElementById("edit-profile-form").addEventListener("submit", function(e) {
+            e.preventDefault(); // Stop normal reload
+
+            const formData = new FormData(this);
+
+            fetch("../../controllers/secretaries/UpdateSecretaryProfile.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                alert("Profile updated successfully!");
+                closeModal('edit-profile-modal');
+                location.reload(); // refresh to show updated info
+                } else {
+                alert("Failed to update: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("Something went wrong. Check console for details.");
+            });
+            });
     </script>
 </body>
 </html>

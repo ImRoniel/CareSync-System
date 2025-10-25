@@ -7,15 +7,22 @@ if (!file_exists($sessionPath)) {
 }
 
 require_once $sessionPath;
+require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
+
+if (empty($_SESSION['user_id'])) {
+    header("Location: ../../login/login.php");
+    exit;
+}
 // Redirect if not logged in or wrong role
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'doctor') {
     header("Location: ../../login/login.php");
     exit;
 }
 
+$doctorId = intval($_SESSION['user_id']); 
 $doctorController = new DoctorController($conn);
-$doctor = $doctorController->getDoctorData($_SESSION['user_id']);
+$doctor = $doctorController->getDoctorData($doctorId);
 ?>
 
 <!DOCTYPE html>
@@ -692,7 +699,7 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo" onclick="showPage('dashboard')">
-                    <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
+                    <img src="../../assets/images/3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </a>
                 
@@ -706,7 +713,7 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
                 
                 <div class="nav-actions">
                     <button class="btn btn-secondary" onclick="showModal('profile-modal')">Profile</button>
-                     <button class="btn btn-primary" onclick="window.location.href='../../controllers/auth/logout.php'">Logout</button>
+                    <button class="btn btn-primary" onclick="window.location.href='../../controllers/auth/logout.php'">Logout</button>
                 </div>
                 
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -733,12 +740,12 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
             <div class="dashboard-header">
                 <div>
                     <h1>Doctor Dashboard</h1>
-                    <p>Welcome back,<?= htmlspecialchars($doctor['name']) ?></p>
+                    <p>Welcome back, <?= htmlspecialchars($doctor['name']) ?></p>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar"><?= strtoupper(substr($doctor['name'], 0, 2)) ?></div>
                     <div>
-                         <p>Dr. <?= htmlspecialchars($doctor['name']) ?></p>
+                        <p><?= htmlspecialchars($doctor['name']) ?></p>
                         <small><?php echo isset($doctor['specialization']) ? htmlspecialchars($doctor['specialization']) : 'N/A'; ?></p></small>
                     </div>
                 </div>
@@ -750,9 +757,7 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>
-                            <?php echo count($appointments); ?>
-                        </h3>
+                        <h3>18</h3>
                         <p>Today's Appointments</p>
                     </div>
                 </div>
@@ -762,7 +767,7 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><?php echo htmlspecialchars($totalPatients); ?></h3>
+                        <h3>142</h3>
                         <p>Total Patients</p>
                     </div>
                 </div>
@@ -772,7 +777,7 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
                         <i class="fas fa-prescription"></i>
                     </div>
                     <div class="stat-info">
-                        <h3><?php echo htmlspecialchars($prescriptionsToday); ?></h3>
+                        <h3>24</h3>
                         <p>Prescriptions Today</p>
                     </div>
                 </div>
@@ -782,7 +787,7 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>$<?php echo number_format($revenueThisWeek, 2); ?></h3>
+                        <h3>$3,240</h3>
                         <p>Revenue This Week</p>
                     </div>
                 </div>
@@ -802,32 +807,61 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
                                     <th>Patient</th>
                                     <th>Time</th>
                                     <th>Type</th>
-                                    
+                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            <!-- this what i need in dashboard  -->
-                            <?php if (empty($appointments)): ?>
                                 <tr>
-                                    <td colspan="4">No appointments today.</td>
+                                    <td>Name here</td>
+                                    <td>9:00 AM</td>
+                                    <td>Consultation</td>
+                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
+                                        <button class="btn btn-sm btn-primary">Start</button>
+                                    </td>
                                 </tr>
-                            <?php else: ?>
-                                
-
-                                <?php foreach ($appointments as $appt): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($appt['patient_name']); ?></td> <!-- Replace with name if available -->
-                                        <td><?php echo date('g:i A', strtotime($appt['appointment_time'])); ?></td>
-                                        <td>Consultation</td> <!-- You can update if you have appointment type info -->
-                                        <td>
-                                            <span class="status-badge status-<?php echo htmlspecialchars($appt['status']); ?>">
-                                                <?php echo ucfirst($appt['status']); ?>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                                <tr>
+                                    <td>Name here</td>
+                                    <td>10:15 AM</td>
+                                    <td>Follow-up</td>
+                                    <td><span class="status-badge status-in-progress">In Progress</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
+                                        <button class="btn btn-sm btn-primary">Complete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Name here</td>
+                                    <td>11:30 AM</td>
+                                    <td>Check-up</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
+                                        <button class="btn btn-sm btn-primary">Start</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Name here</td>
+                                    <td>2:00 PM</td>
+                                    <td>Consultation</td>
+                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
+                                        <button class="btn btn-sm btn-primary">Start</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Name here</td>
+                                    <td>3:45 PM</td>
+                                    <td>Follow-up</td>
+                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
+                                        <button class="btn btn-sm btn-primary">Start</button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -887,64 +921,50 @@ $doctor = $doctorController->getDoctorData($_SESSION['user_id']);
                         </div>
                         
                         <ul class="activity-list">
-                        <?php if (empty($activities)): ?>
                             <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-prescription"></i>
+                                </div>
                                 <div class="activity-content">
-                                    <p>No recent activity yet.</p>
+                                    <h4>New Prescription</h4>
+                                    <p>Prescription created for Name here</p>
+                                    <div class="activity-time">10 minutes ago</div>
                                 </div>
                             </li>
-                        <?php else: ?>
-                            <?php foreach ($activities as $a): ?>
-                                <?php
-                                    // Choose icon and title based on activity type
-                                    switch ($a['activity_type']) {
-                                        case 'prescription':
-                                            $icon = 'fa-prescription';
-                                            $title = 'New Prescription';
-                                            break;
-                                        case 'appointment':
-                                            $icon = 'fa-calendar-plus';
-                                            $title = 'Appointment Scheduled';
-                                            break;
-                                        case 'payment':
-                                            $icon = 'fa-file-invoice';
-                                            $title = 'Payment Received';
-                                            break;
-                                        case 'new_patient':
-                                            $icon = 'fa-user-plus';
-                                            $title = 'New Patient';
-                                            break;
-                                        default:
-                                            $icon = 'fa-info-circle';
-                                            $title = ucfirst($a['activity_type']);
-                                    }
-
-                                    // Time ago formatting
-                                    $timeDiff = time() - strtotime($a['created_at']);
-                                    if ($timeDiff < 60) {
-                                        $timeAgo = $timeDiff . " seconds ago";
-                                    } elseif ($timeDiff < 3600) {
-                                        $timeAgo = floor($timeDiff / 60) . " minutes ago";
-                                    } elseif ($timeDiff < 86400) {
-                                        $timeAgo = floor($timeDiff / 3600) . " hours ago";
-                                    } else {
-                                        $timeAgo = date("M d, Y", strtotime($a['created_at']));
-                                    }
-                                ?>
-                                
-                                <li class="activity-item">
-                                    <div class="activity-icon">
-                                        <i class="fas <?php echo $icon; ?>"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <h4><?php echo $title; ?></h4>
-                                        <p><?php echo htmlspecialchars($a['activity_message']); ?></p>
-                                        <div class="activity-time"><?php echo $timeAgo; ?></div>
-                                    </div>
-                                </li>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </ul>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Appointment Scheduled</h4>
+                                    <p>New appointment with Name here</p>
+                                    <div class="activity-time">1 hour ago</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Payment Received</h4>
+                                    <p>Payment from Name here</p>
+                                    <div class="activity-time">2 hours ago</div>
+                                </div>
+                            </li>
+                            
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>New Patient</h4>
+                                    <p>Name here registered as new patient</p>
+                                    <div class="activity-time">Yesterday</div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

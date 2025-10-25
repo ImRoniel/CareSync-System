@@ -8,16 +8,28 @@ if (!file_exists($sessionPath)) {
 
 require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
-
 require_once __DIR__ . '/../../controllers/admin/patientController.php';
+require_once __DIR__ . '/../../model/PatientModel.php';
+if (empty($_SESSION['user_id'])) {
+    header("Location: ../../login/login.php");
+    exit;
+}
 // Redirect if not logged in or wrong role
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'patient') {
     header("Location: ../../login/login.php");
     exit;
 }
 
+
+$patientId = intval($_SESSION['user_id']); 
+
 $patientController = new PatientController($conn);
-$patient = $patientController->getPatientData($_SESSION['user_id']);
+$patient = $patientController->getPatientData($patientId);
+
+
+require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
+$appointmentController = new AppointmentController($conn);
+$totalAppointments = $appointmentController->getTodayAppointments($patientId);
 
 
 ?>
@@ -29,812 +41,7 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CareSync - Patient Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #2E8949;      
-            --primary-dark: #2E8949;  
-            --primary-light: #AD5057; 
-            --secondary: #CFCFCF;     
-            --accent: #AD5057;        
-            --danger: #AD5057;        
-            
-            --text-dark: #111814;     
-            --text-medium: #2E603D;   
-            --text-light: #CFCFCF;    
-            
-            --bg-white: #FFFFFF;      
-            --bg-light: #f5f7f9;      
-            --bg-gray: #CFCFCF;       
-            
-            --border-light: #CFCFCF;  
-            
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            
-            --radius-md: 6px;
-            --radius-lg: 8px;
-            --radius-xl: 12px;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        }
-        
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-        }
-        
-        h1 { font-size: 2.5rem; }
-        h2 { font-size: 2rem; }
-        h3 { font-size: 1.5rem; }
-        
-        p {
-            margin-bottom: 1.5rem;
-            color: var(--text-medium);
-        }
-        
-        .section-title {
-            margin-bottom: 2rem;
-        }
-        
-        .section-title h2 {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-        
-        .section-title h2:after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 2px;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            gap: 10px;
-            font-size: 1rem;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        header {
-            background-color: var(--bg-white);
-            box-shadow: var(--shadow-sm);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-        }
-        
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 0;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 1.75rem;
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .logo-image {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 32px;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: var(--text-dark);
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        .nav-actions {
-            display: flex;
-            gap: 16px;
-        }
-        
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-dark);
-            cursor: pointer;
-        }
-        
-        .page {
-            display: none;
-            padding: 140px 0 40px;
-        }
-        
-        .page.active {
-            display: block;
-        }
-        
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background-color: var(--bg-white);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: rgba(46, 137, 73, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
-        
-        .stat-info h3 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-            color: var(--primary);
-        }
-        
-        .stat-info p {
-            color: var(--text-medium);
-            font-size: 0.9rem;
-            margin-bottom: 0;
-        }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-        
-        .card {
-            background-color: var(--bg-white);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 20px;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .card-header h2 {
-            font-size: 1.3rem;
-            color: var(--primary);
-        }
-        
-        .table-responsive {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        table th,
-        table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        table th {
-            color: var(--text-medium);
-            font-weight: 600;
-        }
-        
-        table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .status-confirmed {
-            background-color: rgba(46, 137, 73, 0.1);
-            color: var(--primary);
-        }
-        
-        .status-pending {
-            background-color: rgba(173, 80, 87, 0.1);
-            color: var(--danger);
-        }
-        
-        .status-completed {
-            background-color: rgba(46, 96, 61, 0.1);
-            color: var(--text-medium);
-        }
-        
-        .status-processing {
-            background-color: rgba(255, 152, 0, 0.1);
-            color: #FF9800;
-        }
-        
-        .activity-list {
-            list-style: none;
-        }
-        
-        .activity-item {
-            display: flex;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-        
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(46, 137, 73, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            flex-shrink: 0;
-        }
-        
-        .activity-content h4 {
-            margin-bottom: 5px;
-            font-size: 1rem;
-        }
-        
-        .activity-content p {
-            color: var(--text-medium);
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-        
-        .activity-time {
-            color: var(--text-light);
-            font-size: 0.8rem;
-        }
-        
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .action-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(46, 137, 73, 0.05);
-            border-radius: var(--radius-md);
-            padding: 20px 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-        
-        .action-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        
-        .action-btn p {
-            font-size: 0.9rem;
-            color: var(--text-medium);
-            margin-bottom: 0;
-        }
-        
-        .prescription-list {
-            list-style: none;
-        }
-        
-        .prescription-item {
-            padding: 15px;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            margin-bottom: 15px;
-        }
-        
-        .prescription-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        
-        .prescription-doctor {
-            font-weight: 600;
-            color: var(--primary);
-        }
-        
-        .prescription-date {
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-        
-        .prescription-details {
-            color: var(--text-medium);
-        }
-        
-        .health-record-list {
-            list-style: none;
-        }
-        
-        .health-record-item {
-            padding: 15px;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            margin-bottom: 15px;
-        }
-        
-        .record-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        
-        .record-type {
-            font-weight: 600;
-            color: var(--primary);
-        }
-        
-        .record-date {
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-        
-        .record-details {
-            color: var(--text-medium);
-        }
-        
-        footer {
-            background-color: var(--primary-dark);
-            color: var(--text-light);
-            padding: 50px 0 20px;
-            margin-top: 50px;
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            margin-bottom: 30px;
-        }
-        
-        .footer-column h3 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.25rem;
-        }
-        
-        .footer-column ul {
-            list-style: none;
-        }
-        
-        .footer-column ul li {
-            margin-bottom: 12px;
-        }
-        
-        .footer-column ul li a {
-            color: var(--text-light);
-            text-decoration: none;
-            cursor: pointer;
-        }
-        
-        .footer-column p {
-            color: var(--text-light);
-        }
-        
-        .copyright p {
-            color: var(--text-light);
-        }
-        
-        .social-links {
-            display: flex;
-            gap: 16px;
-            margin-top: 20px;
-        }
-        
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        
-        .copyright {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-light);
-            font-size: 0.875rem;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        
-        .modal-content {
-            background-color: var(--bg-white);
-            margin: 5% auto;
-            padding: 0;
-            border-radius: var(--radius-lg);
-            width: 90%;
-            max-width: 600px;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .modal-header h2 {
-            margin: 0;
-        }
-        
-        .close {
-            color: var(--text-light);
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .modal-body {
-            padding: 20px;
-        }
-        
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 0.875rem;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(46, 137, 73, 0.1);
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-top: 30px;
-        }
-        
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .mobile-nav {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: var(--bg-white);
-            box-shadow: var(--shadow-md);
-            flex-direction: column;
-            padding: 20px;
-            gap: 15px;
-        }
-        
-        .mobile-nav.active {
-            display: flex;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 0;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-
-        .modal-header h2 {
-            margin: 0;
-            color: #333;
-        }
-
-        .close {
-            color: #CFCFCF;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #000;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background-color: #2e8949;
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #8e979eff;
-            color: white;
-        }
-                @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .header-content {
-                padding: 15px 0;
-            }
-            
-            .nav-links, .nav-actions {
-                display: none;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-            }
-            
-            .page {
-                padding: 120px 0 30px;
-            }
-            
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .quick-actions {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.75rem; }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="../../assets/css/PatientDashboard.css"> <!-- Link to your CSS file -->
 </head>
 <body>
     <header>
@@ -898,7 +105,7 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                     <div class="stat-info">
-                        <h3><?= $stats['upcomingAppointments'] ?></h3>
+                        <h3><?= htmlspecialchars($totalAppointments) ?></h3>
                         <p>Upcoming Appointments</p>
                     </div>
                 </div>
@@ -906,7 +113,7 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-prescription"></i></div>
                     <div class="stat-info">
-                        <h3><?= $stats['activePrescriptions'] ?></h3>
+                        <h3></h3>
                         <p>Active Prescriptions</p>
                     </div>
                 </div>
@@ -914,7 +121,7 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
                     <div class="stat-info">
-                        <h3><?= $stats['pendingBills'] ?></h3>
+                        <h3></h3>
                         <p>Pending Bills</p>
                     </div>
                 </div>
@@ -922,7 +129,7 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
                     <div class="stat-info">
-                        <h3><?= $stats['healthRecords'] ?></h3>
+                        <h3></h3>
                         <p>Health Records</p>
                     </div>
                 </div>
@@ -1724,11 +931,11 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
             </div>
             <div class="modal-body">
                 <div class="user-info">
-                    <div class="user-avatar">NH</div>
+                    <div class="user-avatar"><?= strtoupper(substr($patient['name'], 0, 2)) ?></div>
                     <div>
-                        <h3>Name here</h3>
+                        <h3><?= htmlspecialchars($patient['name']) ?></h3>
                         <p>Patient</p>
-                        <p>email@example.com</p>
+                        <p><?= htmlspecialchars($patient['email']) ?></p>
                     </div>
                 </div>
                 
@@ -1747,42 +954,40 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
                 <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
             </div>
             <div class="modal-body">
-                <form id="edit-profile-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit-first-name">First Name</label>
-                            <input type="text" id="edit-first-name" class="form-control" value="Name" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="edit-last-name">Last Name</label>
-                            <input type="text" id="edit-last-name" class="form-control" value="Here" required>
-                        </div>
+                <form method="POST" action="">
+                    <div class="form-group">
+                        <label for="edit-name">Full Name</label>
+                        <input type="text" id="edit-name" name="name" class="form-control"
+                            value="<?= htmlspecialchars($patient['name']) ?>" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="edit-email">Email</label>
-                        <input type="email" id="edit-email" class="form-control" value="email@example.com" required>
+                        <input type="email" id="edit-email" name="email" class="form-control"
+                            value="<?= htmlspecialchars($patient['email']) ?>" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="edit-phone">Phone</label>
-                        <input type="tel" id="edit-phone" class="form-control" value="Phone Here">
+                        <input type="tel" id="edit-phone" name="phone" class="form-control"
+                            value="<?= htmlspecialchars($patient['phone']) ?>">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="edit-address">Address</label>
-                        <textarea id="edit-address" class="form-control" rows="3">Address Here</textarea>
+                        <input type="text" id="edit-address" name="address" class="form-control"
+                            value="<?= htmlspecialchars($patient['address']) ?>">
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" name="save_changes" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 
     <footer>
         <div class="container">
@@ -1825,107 +1030,7 @@ $patient = $patientController->getPatientData($_SESSION['user_id']);
         </div>
     </footer>
 
-    <script>
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
-        
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileNav = document.getElementById('mobileNav');
-        
-        mobileMenuBtn.addEventListener('click', function() {
-            mobileNav.classList.toggle('active');
-        });
-        
-        function hideMobileNav() {
-            mobileNav.classList.remove('active');
-        }
-        
-        document.getElementById('book-appointment-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Appointment request submitted successfully!');
-            closeModal('book-appointment-modal');
-            this.reset();
-        });
-        
-        document.getElementById('reschedule-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Appointment rescheduled successfully!');
-            closeModal('reschedule-modal');
-        });
-        
-        document.getElementById('request-refill-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Prescription refill request submitted!');
-            closeModal('request-refill-modal');
-        });
-        
-        document.getElementById('request-records-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Medical records request submitted successfully!');
-            closeModal('request-records-modal');
-            this.reset();
-        });
-        
-        document.getElementById('payment-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Payment processed successfully!');
-            closeModal('payment-modal');
-        });
-        
-        document.getElementById('edit-profile-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Profile updated successfully!');
-            closeModal('edit-profile-modal');
-        });
-                // Modal functions
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modals = document.getElementsByClassName('modal');
-            for (let modal of modals) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                }
-            }
-        }
-
-        // Form validation
-        document.getElementById('book-appointment-form')?.addEventListener('submit', function(e) {
-            const appointmentDate = document.getElementById('appointment-date').value;
-            const appointmentTime = document.getElementById('appointment-time').value;
-            const selectedDateTime = new Date(appointmentDate + ' ' + appointmentTime);
-            
-            if (selectedDateTime < new Date()) {
-                e.preventDefault();
-                alert('Cannot book appointment in the past. Please select a future date and time.');
-                return false;
-            }
-        });
-    </script>
+    <script src="../../assets/js/PatientDashboard.js"></script>
+                            
 </body>
 </html>
