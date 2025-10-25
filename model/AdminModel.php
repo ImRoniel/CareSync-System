@@ -21,7 +21,7 @@ class AdminModel {
     public function getTotalSecretaries() {
         $result = $this->conn->query("SELECT COUNT(*) AS total FROM users WHERE role = 'secretary'");
         return $result->fetch_assoc()['total'] ?? 0;
-    }
+    }   
 
     public function getTotalPatients() {
         $result = $this->conn->query("SELECT COUNT(*) AS total FROM users WHERE role = 'patient'");

@@ -4,8 +4,8 @@ require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
 
 // Load controller and get available doctors
-$controller = new AppointmentController($conn);
-$doctors = $controller->getAvailableDoctors();
+// $controller = new AppointmentController($conn);
+// $doctors = $controller->getAvailableDoctors();
 
 // Redirect if not logged in
 if (!isset($_SESSION['patient_id'])) {

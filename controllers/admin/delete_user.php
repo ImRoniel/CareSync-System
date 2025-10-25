@@ -16,7 +16,7 @@ $stmt->bind_param("i", $id);
 
 if ($stmt->execute()) {
     // Redirect to admin dashboard after delete
-    header("Location: /Caresync-System/dashboard/admin_dashboard.php?msg=deleted");
+    header("Location: /Caresync-System/views/admin/admin_dashboard1.php?msg=deleted");
     exit;
 } else {
     die("Error deleting user: " . $stmt->error);

@@ -7,7 +7,15 @@ if (!file_exists($sessionPath)) {
 }
 
 require_once $sessionPath;
+require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
+// Redirect if not logged in or wrong role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'doctor') {
+    header("Location: ../../login/login.php");
+    exit;
+}
 
+$doctorController = new DoctorController($conn);
+$doctor = $doctorController->getDoctorData($_SESSION['user_id']);
 ?>
 
 <!DOCTYPE html>
@@ -725,13 +733,13 @@ require_once $sessionPath;
             <div class="dashboard-header">
                 <div>
                     <h1>Doctor Dashboard</h1>
-                    <p>Welcome back,<?php echo htmlspecialchars($user['name']); ?></p>
+                    <p>Welcome back,<?= htmlspecialchars($doctor['name']) ?></p>
                 </div>
                 <div class="user-info">
-                    <div class="user-avatar">MC</div>
+                    <div class="user-avatar"><?= strtoupper(substr($doctor['name'], 0, 2)) ?></div>
                     <div>
-                         <p>Dr. <?php echo htmlspecialchars($user['name']); ?></p>
-                        <small><?php echo isset($user['specialization']) ? htmlspecialchars($user['specialization']) : 'N/A'; ?></p></small>
+                         <p>Dr. <?= htmlspecialchars($doctor['name']) ?></p>
+                        <small><?php echo isset($doctor['specialization']) ? htmlspecialchars($doctor['specialization']) : 'N/A'; ?></p></small>
                     </div>
                 </div>
             </div>

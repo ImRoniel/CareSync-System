@@ -9,51 +9,15 @@ if (!file_exists($sessionPath)) {
 require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
 
-// require_once __DIR__ . '/../model/patientDashboard/DoctorModel.php';
-// require_once __DIR__ . '/../controllers/patientDashboard/PatientDataController.php';
+require_once __DIR__ . '/../../controllers/admin/patientController.php';
+// Redirect if not logged in or wrong role
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'patient') {
+    header("Location: ../../login/login.php");
+    exit;
+}
 
-
-// $appointmentController = new AppointmentController($conn);
-// $doctors = $appointmentController->getAvailableDoctors(); // code for getting all doctor
-
-
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_appointment'])) {
-//     $patient_id = $_SESSION['patient_id']; // Set during patient login
-//     $doctor_id = intval($_POST['doctor_id']);
-//     $appointment_date = $_POST['appointment_date'];
-//     $appointment_time = $_POST['appointment_time'];
-//     $reason = $_POST['reason'] ?? '';
-
-//     $result = $appointmentController->bookAppointment($patient_id, $doctor_id, $appointment_date, $appointment_time, $reason);
-    
-//     if ($result['success']) {
-//         echo '<div class="alert alert-success">' . $result['message'] . '</div>';
-//     } else {
-//         echo '<div class="alert alert-danger">' . $result['message'] . '</div>';
-//     }
-// }
-// //FOR UPCOMING APPOINTMENT CALLING METHOD
-// // Example: get upcoming appointments for the logged-in patient
-// // $patient_id = $_SESSION['patient_id'] ?? 0;
-// // $appointments = $appointmentController->showUpcomingAppointments($patient_id);
-
-// $stats = $stats ?? [
-//     'upcomingAppointments' => 0,
-//     'activePrescriptions' => 0,
-//     'pendingBills' => 0,
-//     'healthRecords' => 0,
-// ];
-
-// //for prescription data
-// $prescriptions = $prescriptions ?? [];
-
-
-// //or billing data
-// $bills = $bills ?? [];
-
-// $patientController = new PatientController($conn);
-// $patients = $patientController->index();
-
+$patientController = new PatientController($conn);
+$patient = $patientController->getPatientData($_SESSION['user_id']);
 
 
 ?>
@@ -877,7 +841,7 @@ require_once __DIR__ . '/../../config/db_connect.php';
         <div class="container">
             <div class="header-content">
                 <a href="#" class="logo" onclick="showPage('dashboard')">
-                    <img src="../assets/images/3.png" alt="CareSync Logo" class="logo-image">
+                    <img src="../../assets/images/3.png" alt="CareSync Logo" class="logo-image">
                     <span>CareSync</span>
                 </a>
                 
@@ -918,24 +882,17 @@ require_once __DIR__ . '/../../config/db_connect.php';
             <div class="dashboard-header">
                 <div>
                     <h1>Patient Dashboard</h1>
-                    <p>
-                        Welcome back, 
-                        <strong>
-                            <?= htmlspecialchars($$patients['name'] ?? 'Guest') ?>
-                        </strong>
-                    </p>
+                    <p>Welcome back, <?= htmlspecialchars($patient['name']) ?></p>
                 </div>
-
                 <div class="user-info">
-                    <div class="user-avatar">
-                        <?= strtoupper(substr($patients['name'] ?? 'N/A', 0, 2)) ?>
-                    </div>
+                    <div class="user-avatar"><?= strtoupper(substr($patient['name'], 0, 2)) ?></div>
                     <div>
-                        <p><?= htmlspecialchars($patient['name'] ?? 'Name not found') ?></p>
-                        <small>Patient ID:  <?= htmlspecialchars($_SESSION['user_id'] ?? 'N/A') ?></small>
+                        <p><?= htmlspecialchars($patient['name']) ?></p>
+                        <small>Patient ID: <?= htmlspecialchars($patient['patient_id']) ?></small>
                     </div>
                 </div>
             </div>
+
             
             <div class="stats-grid">
                 <div class="stat-card">

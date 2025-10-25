@@ -11,12 +11,13 @@ require_once __DIR__ . '/../../config/db_connect.php';
 
 
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: /Caresync-System/login/login.php");
-    exit();
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'secretary') {
+    header("Location: ../../login/login.php");
+    exit;
 }
 
-$userId = $_SESSION['user_id']; // pulled from session.php
+$secretaryController = new SecretaryController($conn);
+$secretary = $secretaryController->getSecretaryData($_SESSION['user_id']);
 
 ?>
 
@@ -727,7 +728,7 @@ $userId = $_SESSION['user_id']; // pulled from session.php
             <div class="dashboard-header">
                 <div>
                     <h1>Secretary</h1>
-                    <p>Welcome back, <strong><?= htmlspecialchars($secretary['name']) ?></strong></p>
+                    <p>Welcome back, <?= htmlspecialchars($secretary['name']) ?></p>
                 </div>
                 <div class="user-info">
                      <div class="user-avatar" id="userAvatar">

@@ -13,6 +13,12 @@ class DoctorController {
     public function showDoctors() {
         return $this->model->getAllDoctors();
     }
+
+
+    //this for showing the data of the doctor that currentlly login 
+    public function getDoctorData($user_id) {
+        return $this->model->getDoctorByUserId($user_id);
+    }
 }
 
 ?>

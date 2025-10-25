@@ -3,16 +3,14 @@ require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../model/secretaryModel.php';
 
 class SecretaryController {
-    private $conn;
+    private $model;
 
     public function __construct($conn) {
-        $this->conn = new SecretaryModel($conn);
+        $this->model = new SecretaryModel($conn);
     }
 
-    public function showSecretaries() {
-        // Get all secretaries from the model
-        $secretaries = $this->conn->getAllSecretary();
-        return $secretaries;
+    public function getSecretaryData($user_id) {
+        return $this->model->getSecretaryByUserId($user_id);
     }
 }
 

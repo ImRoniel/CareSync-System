@@ -7,24 +7,14 @@ class UserModel {
     }
 
     // Get all users (with optional search filter)
-    public function getAllUsers($search = '') {
+    public function getAllUsers() {
         $sql = "SELECT id, name, email, role, created_at FROM users";
-        if (!empty($search)) {
-            $sql .= " WHERE name LIKE ? OR email LIKE ? OR role LIKE ?";
-            $stmt = $this->conn->prepare($sql);
-            $like = "%" . $search . "%";
-            $stmt->bind_param("sss", $like, $like, $like);
-        } else {
-            $stmt = $this->conn->prepare($sql);
-        }
-
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $stmt = $this->conn->query($sql);
+        $result = $stmt;
         return $result;
     }
 
-    // Delete a user
-    public function deleteUser($id) {
+      public function deleteUserById($id) {
         $sql = "DELETE FROM users WHERE id = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -34,8 +24,6 @@ class UserModel {
     // public function searchSecretary(){
     //     $sql = "SELECT * FROM ";
     // }
-    public function changeRoleUser(){
-        $sql = "SELECT u";
-    }
+    
 }
 ?>

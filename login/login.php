@@ -4,7 +4,7 @@
 
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    session_start();        
 }
 
 // Include DB connection
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
 
-        // ✅ Static admin login (bypass database)
+        //  Static admin login (bypass database)
         if ($email === 'admin@gmail.com' && $password === 'admin') {
             $_SESSION['user_id'] = 0; // no DB record, just static admin
             $_SESSION['user_name'] = 'Administrator';
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        // ✅ Otherwise, check in database
+        //  Otherwise, check in database
         $check_table = $conn->query("SHOW TABLES LIKE 'users'");
         if ($check_table->num_rows == 0) {
             $errors[] = "Users table doesn't exist.";
@@ -89,16 +89,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Redirect based on role
                         switch ($user_role) {
                             case 'doctor':
-                                header("Location: ../dashboard/Doctor_Dashboard1.php");
+                                header("Location: ../views/doctor/Doctor_Dashboard1.php");
                                 exit();
                             case 'patient':
-                                header("Location: ../dashboard/Patient_Dashboard1.php");
+                                header("Location: ../views/patient/Patient_Dashboard1.php");
                                 exit();
                             case 'secretary':
-                                header("Location: ../dashboard/Secretary_Dashboard1.php");
+                                header("Location: ../views/secretary/Secretary_Dashboard1.php");
                                 exit();
                             case 'admin':
-                                header("Location: ../dashboard/Admin_Dashboard1.php");
+                                header("Location: ../views/admin/Admin_Dashboard1.php");
                                 exit();
                             default:
                                 header("Location: ../views/admin/default.php");

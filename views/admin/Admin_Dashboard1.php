@@ -21,6 +21,8 @@ extract($data);
 
 //user controller, fetching data from contoller
 require_once __DIR__ . '/../../controllers/admin/userController.php';
+$controllerUsers = new UserController($conn);
+$resultSystemOver = $controllerUsers->showAllUsers();
 
 require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
 
@@ -33,6 +35,17 @@ require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
 $controllerSecretary = new SecretaryController($conn);
 $secretaries = $controllerSecretary->showSecretaries();
 
+
+require_once __DIR__ . '/../../controllers/admin/patientController.php';
+$controllerPatients = new PatientController($conn);
+$resultPatientSystemOver = $controllerPatients->showAllPatients();
+
+require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
+$controllerAppointments = new AppointmentController($conn);
+
+
+$appointmentController = new AppointmentController($conn);
+$totalAppointments = $appointmentController->getTodayAppointments();
 
 
 ?>
@@ -909,12 +922,12 @@ $secretaries = $controllerSecretary->showSecretaries();
             <div class="dashboard-header">
                 <div>
                     <h1>Admin Dashboard</h1>
-                    <p>Welcome back, RONIEL C. CARBON</p>
+                    <p>Welcome back, Roniel C. Carbon</p>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar">SA</div>
                     <div>
-                        <p>RONIEL C. CARBON</p>
+                        <p>Roniel C. Carbon</p>
                         <small>Administrator Account</small>
                     </div>
                 </div>
@@ -956,7 +969,7 @@ $secretaries = $controllerSecretary->showSecretaries();
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                     <div class="stat-info">
-                        <h3><?= $appointments ?></h3>
+                        <h3><?=  $totalAppointments ?></h3>
                         <p>Appointments Today</p>
                     </div>
                 </div>
@@ -981,13 +994,7 @@ $secretaries = $controllerSecretary->showSecretaries();
                         
                         <div class="tab-content active" id="users-tab">
                             <div class="search-box">
-                                <form class="search-box" method="GET" action="/../Caresync-System/controllers/admin/userController.php">
-                                <input type="hidden" name="action" value="list">
-                                <input type="text" name="search" class="form-control" 
-                                    placeholder="Search users..." 
-                                    value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                                <button type="submit" class="btn btn-primary ">Search</button>
-                                </form>
+                                
                             </div>
                             
                             <div class="table-responsive">
@@ -1034,14 +1041,6 @@ $secretaries = $controllerSecretary->showSecretaries();
                         </div>
                         
                         <div class="tab-content" id="doctors-tab">
-                            <div class="search-box">
-                                <form method="POST" action="">
-                                    <input type="text" name="search" class="form-control"
-                                        placeholder="Search doctors..."
-                                        value="<?= htmlspecialchars($_POST['search'] ?? '') ?>">
-                                    <button type="submit" class="btn btn-primary mt-2">Search</button>
-                                </form>
-                            </div>
                             
                             <div class="user-management-grid">
                                 <?php if ($doctors && $doctors->num_rows > 0 ): ?>
@@ -1077,15 +1076,6 @@ $secretaries = $controllerSecretary->showSecretaries();
                         </div>
                         
                         <div class="tab-content" id="secretaries-tab">
-                            <div class="search-box">
-                                <form class="search-box" method="GET" action="">
-                                    <input type="text" name="search" class="form-control"
-                                        placeholder="Search secretaries..."
-                                        value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
-                                    <button type="submit" class="btn btn-primary">Search</button>
-                                </form>
-                            </div>
-                            
                             <div class="user-management-grid">
                                 <?php if($secretaries && $secretaries->num_rows > 0):  ?>
                                     <?php while($sec = $secretaries->fetch_assoc()): ?> 
@@ -1122,11 +1112,6 @@ $secretaries = $controllerSecretary->showSecretaries();
                         </div>
                         
                         <div class="tab-content" id="patients-tab">
-                            <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search patients...">
-                                <button class="btn btn-primary">Search</button>
-                            </div>
-                            
                             <div class="table-responsive">
                                 <table>
                                     <thead>
@@ -1145,7 +1130,7 @@ $secretaries = $controllerSecretary->showSecretaries();
                                             <?php while($row = $resultPatientSystemOver->fetch_assoc()):?>
                                         
                                                 <tr>
-                                                    <td><?= htmlspecialchars($row['id']); ?></td>
+                                                    <td><?= htmlspecialchars($row['patient_id']); ?></td>
                                                     <td><?= htmlspecialchars($row['name']); ?></td>
                                                     <td><?= htmlspecialchars($row['email']); ?></td>
                                                     <td><?= htmlspecialchars($row['doctor_name'] ?? 'No doctor') ?></td>
@@ -1165,11 +1150,6 @@ $secretaries = $controllerSecretary->showSecretaries();
                         </div>
                         
                         <div class="tab-content" id="appointments-tab">
-                            <div class="search-box">
-                                <input type="text" class="form-control" placeholder="Search appointments...">
-                                <button class="btn btn-primary">Search</button>
-                            </div>
-                            
                             <div class="table-responsive">
                                 <table>
                                     <thead>

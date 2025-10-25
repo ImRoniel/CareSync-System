@@ -9,28 +9,28 @@ class UserController {
         $this->model = new UserModel($conn);
     }
 
-    public function getAllUsers($search = '') {
-        return $this->model->getAllUsers($search);
+    public function showAllUsers() {
+        return $this->model->getAllUsers();
     }
 
-    public function delete($id) {
-        if ($this->model->deleteUser($id)) {
-            header("Location: ../../views/admin/user_list.php?msg=deleted");
-            exit();
+   
+    // ✅ Delete user action
+    public function deleteUser($id) {
+        if ($this->model->deleteUserById($id)) {
+            header("Location: /CareSync-System/views/admin/Admin_Dashboard1.php?message=User deleted successfully");
+            exit;
         } else {
-            echo "Error deleting user.";
+            echo "❌ Error deleting user.";
         }
     }
 }
 
-// ---------- ROUTING LOGIC -------------
+// ✅ Run controller logic (outside class)
 $controller = new UserController($conn);
 
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-    $controller->delete($_GET['id']);
-    exit;
+    $controller->deleteUser(intval($_GET['id']));
 }
 
-$search = $_GET['search'] ?? '';
-$resultSystemOver = $controller->getAllUsers($search);
+
 ?>
