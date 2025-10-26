@@ -31,14 +31,14 @@ $doctors = $controllerDoctor->showDoctors();
 
 
 require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
-
+                
 $controllerSecretary = new SecretaryController($conn);
-$secretaries = $controllerSecretary->showSecretaries();
+$secretaries = $controllerSecretary->ShowSecretary();
 
 
 require_once __DIR__ . '/../../controllers/admin/patientController.php';
 $controllerPatients = new PatientController($conn);
-$resultPatientSystemOver = $controllerPatients->showAllPatients();
+$resultPatientSystemOver = $controllerPatients->ShowPatient();
 
 require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
 $controllerAppointments = new AppointmentController($conn);

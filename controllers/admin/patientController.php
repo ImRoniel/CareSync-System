@@ -9,6 +9,10 @@ class PatientController{
         $this->model = new PatientModel($conn);
     }
 
+    public function ShowPatient(){
+        return $this->model->getAllPatient();
+    }
+
     public function getPatientData($user_id) {
         return $this->model->getPatientByUserId($user_id);
     }

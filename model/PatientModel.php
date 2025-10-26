@@ -6,6 +6,16 @@ class PatientModel{
         $this->conn = $conn;
     }
 
+    public function getAllPatient() {
+        $sql = "SELECT * 
+                FROM users
+                CROSS JOIN patients
+                ON users.id = patients.user_id";
+            $stmt = $this->conn->query($sql);
+        $result = $stmt;
+        return $result;
+    }
+
     //show the patient data 
     public function getPatientByUserId($user_id) {
         $sql = "

@@ -6,6 +6,16 @@ class SecretaryModel {
         $this->conn = $conn;
     }
 
+    public function getAllSecretary() {
+        $sql = "SELECT * 
+                FROM users
+                CROSS JOIN secretaries
+                ON users.id = secretaries.user_id";
+            $stmt = $this->conn->query($sql);
+        $result = $stmt;
+        return $result;
+    }
+
     public function getSecretaryByUserId($user_id) {
         $sql = "
             SELECT 

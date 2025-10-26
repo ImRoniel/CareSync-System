@@ -9,6 +9,10 @@ class SecretaryController {
         $this->model = new SecretaryModel($conn);
     }
 
+    public function ShowSecretary(){
+        return $this->model->getAllSecretary();
+
+    }
     public function getSecretaryData($user_id) {
         return $this->model->getSecretaryByUserId($user_id);
     }
