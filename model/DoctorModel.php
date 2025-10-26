@@ -34,5 +34,23 @@ class DoctorModel {
 
         return $result->fetch_assoc(); // Return one patient record
     } 
+
+    //a method from appointment
+    //purpose: get all doctor that is active
+    public function getAllDoctorsActive(){
+         $sql = "SELECT doctor_id, name, specialization, email, phone FROM doctors WHERE status = 'active'";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    //a method from appoimtmet but for admin use only 
+    // purrpose: could access doctor 
+     public function getAllDoctorsForAdmin() {
+        $sql = "SELECT doctor_id, name, specialization, email, phone, status FROM doctors";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 ?>

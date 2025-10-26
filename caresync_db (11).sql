@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 19, 2025 at 02:11 PM
+-- Generation Time: Oct 26, 2025 at 07:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,9 +52,22 @@ CREATE TABLE `appointments` (
   `appointment_date` date NOT NULL,
   `appointment_time` time NOT NULL,
   `status` enum('pending','approved','completed','cancelled') DEFAULT 'pending',
+  `reason` text DEFAULT NULL,
+  `diagnosis` text DEFAULT NULL,
+  `notes` text DEFAULT NULL,
   `queue_number` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `appointments`
+--
+
+INSERT INTO `appointments` (`appointment_id`, `patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `status`, `reason`, `diagnosis`, `notes`, `queue_number`, `created_at`, `updated_at`) VALUES
+(1, 5, 6, '2025-10-06', '00:00:00', 'approved', 'hindi pumapasok', 'wala pa ', NULL, 12, '2025-10-21 03:16:13', '2025-10-21 03:16:13'),
+(2, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:17:45', '2025-10-21 03:17:45'),
+(6, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:18:00', '2025-10-21 03:18:00');
 
 -- --------------------------------------------------------
 
@@ -67,9 +80,19 @@ CREATE TABLE `billing` (
   `appointment_id` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
   `doctor_id` int(11) NOT NULL,
+  `consultation_fee` decimal(10,2) DEFAULT 0.00,
+  `medication_fee` decimal(10,2) DEFAULT 0.00,
+  `procedure_fee` decimal(10,2) DEFAULT 0.00,
+  `other_fee` decimal(10,2) DEFAULT 0.00,
   `total_amount` decimal(10,2) NOT NULL,
-  `payment_status` enum('unpaid','paid','pending') DEFAULT 'unpaid',
-  `issued_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `insurance_cover` decimal(10,2) DEFAULT 0.00,
+  `patient_balance` decimal(10,2) DEFAULT 0.00,
+  `payment_status` enum('Pending','Paid','Partial','Cancelled') DEFAULT 'Pending',
+  `payment_method` enum('Cash','Card','Insurance','Online') DEFAULT 'Cash',
+  `payment_date` date DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `issued_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `due_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -86,7 +109,35 @@ CREATE TABLE `doctors` (
   `license_no` varchar(50) NOT NULL,
   `specialization` varchar(100) DEFAULT NULL,
   `years_experience` int(11) DEFAULT NULL,
-  `clinic_room` varchar(50) DEFAULT NULL
+  `clinic_room` varchar(50) DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `doctors`
+--
+
+INSERT INTO `doctors` (`doctor_id`, `user_id`, `phone`, `address`, `license_no`, `specialization`, `years_experience`, `clinic_room`, `status`) VALUES
+(6, 89, '09473924571', 'purok 1 san fabian pangasinan', '2231568', 'heart', 2, '2', 'active'),
+(9, 92, '12122122', 'bobonot', '1212121212', 'eye', 1, '4', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `medical_records`
+--
+
+CREATE TABLE `medical_records` (
+  `record_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `doctor_id` int(11) NOT NULL,
+  `appointment_id` int(11) DEFAULT NULL,
+  `symptoms` text DEFAULT NULL,
+  `diagnosis` text DEFAULT NULL,
+  `treatment_plan` text DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `record_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -144,8 +195,8 @@ CREATE TABLE `patients` (
 
 INSERT INTO `patients` (`patient_id`, `user_id`, `phone`, `address`, `age`, `gender`, `blood_type`, `emergency_contact_name`, `emergency_contact_phone`, `medical_history`, `doctor_name`, `assign_doctor_id`) VALUES
 (5, 13, '09816263139', 'bobonot dasol pangasinan', 19, 'Female', 'O', 'sheena banqulies', '09684352458', 'highblood', NULL, NULL),
-(6, 14, '096588315045', 'talospatang, malasiqui, pangasinan', 19, 'Female', 'B', '0965883150456', '09658831504568889', '', NULL, NULL),
-(7, 15, '09307701803', 'sapa pequena, burgos pangasinan', 19, 'Male', 'B', 'sheena banqulies', '09509947329', 'poor eyesight', NULL, NULL);
+(7, 15, '09307701803', 'sapa pequena, burgos pangasinan', 19, 'Male', 'B', 'sheena banqulies', '09509947329', 'poor eyesight', NULL, NULL),
+(34, 93, '12121212121', 'tae', 12, 'Female', 'A', 'itsrawbereli', '232323232232', 'heart', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -158,9 +209,16 @@ CREATE TABLE `prescriptions` (
   `appointment_id` int(11) NOT NULL,
   `doctor_id` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
+  `medicine_name` varchar(255) NOT NULL,
+  `dosage` varchar(100) NOT NULL,
+  `frequency` varchar(100) NOT NULL,
+  `duration` varchar(100) NOT NULL,
+  `instructions` text DEFAULT NULL,
+  `status` enum('Active','Completed','Cancelled') DEFAULT 'Active',
   `diagnosis` text DEFAULT NULL,
   `prescription_text` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -197,6 +255,15 @@ CREATE TABLE `secretaries` (
   `assigned_doctor_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `secretaries`
+--
+
+INSERT INTO `secretaries` (`secretary_id`, `user_id`, `phone`, `address`, `department`, `employment_date`, `assigned_doctor_id`) VALUES
+(5, 13, '09307701803', 'sapa pequena burgos pangasinan', 'cite', '2025-10-06', 6),
+(10, 13, '09307701803', 'sapa pequena burgos pangasinan ', 'cea', '2025-10-06', 6),
+(11, 91, '12121212121', 'sapa pequena', 'cahs', '2025-10-25', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -218,9 +285,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `is_active`, `created_at`) VALUES
-(13, 'angelica blanco', 'blanco@gmail.com', '$2y$10$1NjTMMOiJpf56GZGf8OB2.zJDx5.wicffAY.LhIg80ucMHlZdHLzu', 'doctor', 1, '2025-10-12 14:56:37'),
-(14, 'Nicole Faith', 'nica.barboco.up@phinmaed.com', '$2y$10$1IJig7BdFra74BOaTXJ6DOaXLQbD7m9QYiYkXyS4s.DFhH.BvkjYu', 'secretary', 1, '2025-10-12 15:26:35'),
-(15, 'roniel c carbon', 'roniel@gmail.com', '$2y$10$Fu8zpirYZtzVxlvEoPFsUeEWBYhWDP0m3XoL0oPSdRAGxx92TXo9O', 'patient', 1, '2025-10-12 15:57:03');
+(13, 'rico blanco', 'blanco@gmail.com', '$2y$10$OqU6NbZtuRqV491aEj5DiuBdmnzmFa5baKj3juXGOsa6JHoe7PHmS', 'patient', 1, '2025-10-12 14:56:37'),
+(15, 'roniel c carbon', 'roniel@gmail.com', '$2y$10$RIqvkGzjR3YMVXBy4PtwaOLm.Jiv8A6yEQPQO7xa.1n1dNJtQBTvy', 'secretary', 1, '2025-10-12 15:57:03'),
+(89, 'roniel', 'r@gmal.com', '$2y$10$cOtefgB8i8hmvt4vjbdoR.Jo3fkgcUjZ2YWns5.S0bL4kTm8SVGvO', 'doctor', 1, '2025-10-19 16:14:20'),
+(91, 'name test roniel', 'test@gmail.com', '$2y$10$00./lztadZWQeJrWs1wNEOpkaHdf3eMFKb8YwjGxzSulsY58pRqBu', 'secretary', 1, '2025-10-25 17:38:48'),
+(92, 'test doctor', 'testdoc@gmail.com', '$2y$10$KO6rVpfFwNXgXepABs2gyuDFaJF5XQws1tkfjmEuUY1bTxhbeMRXa', 'doctor', 1, '2025-10-25 17:44:38'),
+(93, 'patient test', 'patienttest@gmail.com', '$2y$10$uNDxR/aVF3mmw2e1Led2JOJq45AP4ttAaCRUvi5HLlia.bdfAwS1W', 'patient', 1, '2025-10-25 18:23:08');
 
 -- --------------------------------------------------------
 
@@ -269,6 +339,15 @@ ALTER TABLE `billing`
 ALTER TABLE `doctors`
   ADD PRIMARY KEY (`doctor_id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `medical_records`
+--
+ALTER TABLE `medical_records`
+  ADD PRIMARY KEY (`record_id`),
+  ADD KEY `patient_id` (`patient_id`),
+  ADD KEY `doctor_id` (`doctor_id`),
+  ADD KEY `appointment_id` (`appointment_id`);
 
 --
 -- Indexes for table `notifications`
@@ -330,7 +409,7 @@ ALTER TABLE `activity_logs`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `billing`
@@ -342,7 +421,13 @@ ALTER TABLE `billing`
 -- AUTO_INCREMENT for table `doctors`
 --
 ALTER TABLE `doctors`
-  MODIFY `doctor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `doctor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `medical_records`
+--
+ALTER TABLE `medical_records`
+  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `notifications`
@@ -354,13 +439,13 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `prescriptions`
@@ -372,13 +457,13 @@ ALTER TABLE `prescriptions`
 -- AUTO_INCREMENT for table `secretaries`
 --
 ALTER TABLE `secretaries`
-  MODIFY `secretary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `secretary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
 
 --
 -- Constraints for dumped tables
@@ -414,6 +499,14 @@ ALTER TABLE `billing`
 --
 ALTER TABLE `doctors`
   ADD CONSTRAINT `doctors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `medical_records`
+--
+ALTER TABLE `medical_records`
+  ADD CONSTRAINT `medical_records_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `medical_records_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `medical_records_ibfk_3` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `notifications`

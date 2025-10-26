@@ -10,6 +10,7 @@ require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../controllers/admin/patientController.php';
 require_once __DIR__ . '/../../model/PatientModel.php';
+
 if (empty($_SESSION['user_id'])) {
     header("Location: ../../login/login.php");
     exit;
@@ -25,12 +26,6 @@ $patientId = intval($_SESSION['user_id']);
 
 $patientController = new PatientController($conn);
 $patient = $patientController->getPatientData($patientId);
-
-
-require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
-$appointmentController = new AppointmentController($conn);
-$totalAppointments = $appointmentController->getTodayAppointments($patientId);
-
 
 ?>
 
@@ -301,7 +296,8 @@ $totalAppointments = $appointmentController->getTodayAppointments($patientId);
         <div class="container">
             <div class="dashboard-header">
                 <h1>My Appointments</h1>
-                <button class="btn btn-primary" onclick="window.location.href='../views/patient/book_appointment.php'">Book Appointment</button>
+              <button class="btn btn-primary" onclick="window.location.href='/CareSync-System/views/patient/book_appointment.php'">Book Appointment</button>
+
             </div>
             
             <div class="card">

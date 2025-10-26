@@ -1,23 +1,38 @@
 <?php
-require_once __DIR__ . '/../auth/session.php';
-require_once __DIR__ . '/../../config/db_connect.php';
-require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
+// controllers/appointment/book_appointment_action.php
 
+// Include your session management FIRST
+require_once __DIR__ . '/../auth/session.php';
+
+require_once __DIR__ . '/../../config/db_connect.php';
+require_once __DIR__ . '/AppointmentController.php';
+
+// Additional role check (since session.php doesn't check roles specifically)
+if ($_SESSION['user_role'] !== 'patient') {
+    $_SESSION['message'] = "Access denied. Patient role required to book appointments.";
+    $_SESSION['message_type'] = 'error';
+    header("Location: /CareSync-System/book_appointment.php");
+    exit;
+}
+
+// Create controller instance
 $controller = new AppointmentController($conn);
 
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $patient_id = $_POST['patient_id'];
-    $doctor_id = $_POST['doctor_id'];
-    $appointment_date = $_POST['appointment_date'];
-    $appointment_time = $_POST['appointment_time'];
-    $reason = $_POST['reason'] ?? '';
-
-    $result = $controller->bookAppointment($patient_id, $doctor_id, $appointment_date, $appointment_time, $reason);
-
-    $_SESSION['appointment_feedback'] = $result['message'];
-    header('Location: ../../dashboard/Patient_DashBoard1.php');
+    $result = $controller->bookAppointment($_POST);
+    
+    // Set session message
+    $_SESSION['message'] = $result['message'];
+    $_SESSION['message_type'] = $result['success'] ? 'success' : 'error';
+    
+    // Redirect back to booking page
+    header("Location: /CareSync-System/book_appointment.php");
     exit;
 } else {
-    echo "Invalid request.";
+    $_SESSION['message'] = "Invalid request method";
+    $_SESSION['message_type'] = 'error';
+    header("Location: /CareSync-System/book_appointment.php");
+    exit;
 }
 ?>
