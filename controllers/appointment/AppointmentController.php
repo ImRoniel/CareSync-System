@@ -1,5 +1,5 @@
 <?php
-// require_once __DIR__ . '/../../config/db_connect.php';
+require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../model/AppointmentsModel.php';
 
 
@@ -7,8 +7,11 @@ class AppointmentController {
      private $model;
     
     public function __construct($conn) {
-        $this->model = new AppointmentsModel($conn);
+        $this->model = new appointmentsModel($conn);
     }
+     public function getTodayAppointments() {
+        return $this->model->getTodayAppointmentsCount();
+     }
     
     /**
      * Show the appointment booking form - CLEAN VERSION
@@ -109,6 +112,15 @@ class AppointmentController {
     private function sanitizeTime($time) {
         $timestamp = strtotime($time);
         return $timestamp !== false ? date('H:i:s', $timestamp) : '09:00:00';
+    }
+
+    //a controller for the patient count appointment 
+    public function getUpcomingAppointmentsCountController($patientId) {
+        return $this->model->getUpcomingAppointmentsCount($patientId);
+    }
+
+    public function getTotalAppointments(){
+        return $this->model->getTotalAppointments();
     }
     
 }

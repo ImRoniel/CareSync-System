@@ -7,10 +7,17 @@ class SecretaryModel {
     }
 
     public function getAllSecretary() {
-        $sql = "SELECT * 
-                FROM users
-                CROSS JOIN secretaries
-                ON users.id = secretaries.user_id";
+        $sql = "SELECT 
+                secretaries.*, 
+                users.*, 
+                du.name AS doctor_name
+            FROM users
+            CROSS JOIN secretaries
+                ON users.id = secretaries.user_id
+            LEFT JOIN doctors AS d
+                ON secretaries.assigned_doctor_id = d.doctor_id
+            LEFT JOIN users AS du
+                ON d.user_id = du.id";
             $stmt = $this->conn->query($sql);
         $result = $stmt;
         return $result;
@@ -56,6 +63,8 @@ class SecretaryModel {
     $stmt2->bind_param("sssi", $phone, $address, $department, $user_id);
     return $stmt2->execute(); // returns true or false
     }
+
+    
 
 }
 ?>

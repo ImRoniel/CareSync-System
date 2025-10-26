@@ -461,8 +461,9 @@ $totalAppointments = $appointmentController->getTodayAppointments();
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
+            text-align: center;
         }
-        
+
         .action-btn {
             display: flex;
             flex-direction: column;
@@ -473,6 +474,9 @@ $totalAppointments = $appointmentController->getTodayAppointments();
             padding: 20px 10px;
             text-align: center;
             cursor: pointer;
+            width: 100%; /* Ensure full width of grid cell */
+            height: 100%; /* Ensure full height of grid cell */
+            box-sizing: border-box; /* Include padding in width/height calculation */
         }
         
         .action-icon {
@@ -890,7 +894,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                 <nav class="nav-links">
                     <a onclick="showPage('dashboard')">Dashboard</a>
                     <a onclick="showPage('users')">Users</a>
-                    <a onclick="showPage('reports')">Reports</a>
+                    <!-- <a onclick="showPage('reports')">Reports</a> -->
                     <a onclick="showPage('settings')">Settings</a>
                 </nav>
                 
@@ -967,10 +971,12 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
                     <div class="stat-info">
-                        <h3><?=  $totalAppointments ?></h3>
-                        <p>Appointments Today</p>
+                        <h3>$3,240</h3>
+                        <p>Revenue This Week</p>
                     </div>
                 </div>
             </div>
@@ -981,7 +987,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                     <div class="card">
                         <div class="card-header">
                             <h2>System Overview</h2>
-                            <button class="btn btn-secondary" onclick="showModal('reports-modal')">Generate Report</button>
+                            <!-- f -->
                         </div>
                         
                         <div class="tabs">
@@ -1053,6 +1059,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                                 <h3>Dr. <?= htmlspecialchars($doctor['name']) ?></h3>
                                                 <p><?= htmlspecialchars($doctor['specialization'] ?? 'No specialization') ?></p>
                                                 <p><?= htmlspecialchars($doctor['email']) ?></p>
+                                                <p><span class="status-badge status-active">Active</span></p>
                                             </div>
                                             <div class="user-actions">
                                                 <button class="btn btn-sm btn-secondary"
@@ -1088,7 +1095,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                                     <h3><?= htmlspecialchars($sec['name']) ?></h3>
                                                     <p><?= htmlspecialchars($sec['department'] ?? 'No Department') ?></p>
                                                     <p><?= htmlspecialchars($sec['email']) ?></p>
-                                                    
+                                                    <p><span class="status-badge status-active"><?= htmlspecialchars($sec['doctor_name'] ?? 'No doctor assigned') ?></span></p>
                                                 </div>
 
                                                 <!-- balikan natin ito mamaya -->
@@ -1121,7 +1128,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                             <th>Contact</th>
                                             <th>Doctor</th>
                                             <th>Last Visit</th>
-                                            <th>Status</th>
+                                            <!-- <th>Status</th> -->
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -1158,7 +1165,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                             <th>Patient</th>
                                             <th>Doctor</th>
                                             <th>Date & Time</th>
-                                            <th>Type</th>
+                                            <!-- <th>Type</th> -->
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
@@ -1169,7 +1176,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
                                             <td>Date Here - Time Here</td>
-                                            <td>Type Here</td>
+                                            <!-- <td>Type Here</td> -->
                                             <td><span class="status-badge status-active">Confirmed</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-secondary">Reschedule</button>
@@ -1181,7 +1188,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
                                             <td>Date Here - Time Here</td>
-                                            <td>Type Here</td>
+                                            <!-- <td>Type Here</td> -->
                                             <td><span class="status-badge status-pending">Pending</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-primary">Confirm</button>
@@ -1193,7 +1200,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                             <td>Name Here</td>
                                             <td>Dr. Name Here</td>
                                             <td>Date Here - Time Here</td>
-                                            <td>Type Here</td>
+                                            <!-- <td>Type Here</td>  -->
                                             <td><span class="status-badge status-active">Confirmed</span></td>
                                             <td>
                                                 <button class="btn btn-sm btn-secondary">Reschedule</button>
@@ -1205,140 +1212,9 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Clinic Analytics</h2>
-                            <button class="btn btn-secondary">View Details</button>
-                        </div>
-                        
-                        <div class="chart-container">
-                            <p>Monthly Appointment Trends Chart</p>
-                        </div>
-                        
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <h3>1,245</h3>
-                                    <p>Monthly Appointments</p>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-user-injured"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <h3>89%</h3>
-                                    <p>Patient Satisfaction</p>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-card">
-                                <div class="stat-icon">
-                                    <i class="fas fa-clock"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <h3>12min</h3>
-                                    <p>Avg. Wait Time</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="right-column">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Quick Actions</h2>
-                        </div>
-                        
-                        <div class="quick-actions">
-                            <div class="action-btn" onclick="showModal('add-user-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <p>Add User</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('appointment-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <p>New Appointment</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('reports-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-chart-bar"></i>
-                                </div>
-                                <p>Generate Reports</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('settings-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-cogs"></i>
-                                </div>
-                                <p>Settings</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Recent Activity</h2>
-                        </div>
-                        
-                        <ul class="activity-list">
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Secretary Added</h4>
-                                    <p>Name Here added to system</p>
-                                    <div class="activity-time">Time Here</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-md"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Doctor Schedule Updated</h4>
-                                    <p>Dr. Name Here schedule modified</p>
-                                    <div class="activity-time">Time Here</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-tie"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Secretary Assigned</h4>
-                                    <p>Name Here assigned to Dr. Name Here</p>
-                                    <div class="activity-time">Time Here</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Appointment Completed</h4>
-                                    <p>Patient Name Here with Dr. Name Here</p>
-                                    <div class="activity-time">Time Here</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    
                     <div class="card">
                         <div class="card-header">
                             <h2>Upcoming Appointments</h2>
@@ -1378,7 +1254,7 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                 </div>
                             </li>
                         </ul>
-                    </div>
+                    </div>                    
                 </div>
             </div>
         </div>
@@ -1394,164 +1270,50 @@ $totalAppointments = $appointmentController->getTodayAppointments();
             <div class="card">
                 <div class="card-header">
                     <h2>All Users</h2>
-                    <div class="search-box">
-                        <input type="text" class="form-control" placeholder="Search users...">
-                        <button class="btn btn-primary">Search</button>
-                    </div>
+                    
                 </div>
                 
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th>Last Login</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Dr. Name here</td>
-                                <td>email@caresync.com</td>
-                                <td>Doctor</td>
-                                <td><span class="status-badge status-active">Active</span></td>
-                                <td>Today, 08:45 AM</td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
-                                    <button class="btn btn-sm btn-danger">Deactivate</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Name here</td>
-                                <td>email@caresync.com</td>
-                                <td>Secretary</td>
-                                <td><span class="status-badge status-active">Active</span></td>
-                                <td>Today, 07:15 AM</td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
-                                    <button class="btn btn-sm btn-danger">Deactivate</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Dr. Name here</td>
-                                <td>email@caresync.com</td>
-                                <td>Doctor</td>
-                                <td><span class="status-badge status-pending">Pending</span></td>
-                                <td>Never</td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
-                                    <button class="btn btn-sm btn-primary">Approve</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Name here</td>
-                                <td>email@caresync.com</td>
-                                <td>Secretary</td>
-                                <td><span class="status-badge status-active">Active</span></td>
-                                <td>Yesterday, 03:30 PM</td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
-                                    <button class="btn btn-sm btn-danger">Deactivate</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Name here</td>
-                                <td>email@caresync.com</td>
-                                <td>Administrator</td>
-                                <td><span class="status-badge status-active">Active</span></td>
-                                <td>Today, 09:20 AM</td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary" onclick="showModal('edit-user-modal')">Edit</button>
-                                    <button class="btn btn-sm btn-danger">Deactivate</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
+               <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <!-- <th>Status</th> -->
+                                            <th>Last Login</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if($resultSystemOver->num_rows > 0): ?>
+                                            <?php while ($row = $resultSystemOver->fetch_assoc()): ?>
+                                                <tr>
+                                                    <td><?= htmlspecialchars($row['name']); ?></td>
+                                                    <td><?= htmlspecialchars($row['email']); ?></td>
+                                                    <td><?= htmlspecialchars($row['role']); ?></td>
+                                                    <!-- <td><span class="status-badge status-active">Active</span></td> -->
+                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
+                                                            Edit
+                                                        </button>
 
-    <section id="reports" class="page">
-        <div class="container">
-            <div class="dashboard-header">
-                <h1>Reports & Analytics</h1>
-                <button class="btn btn-primary" onclick="showModal('reports-modal')">Generate Report</button>
-            </div>
-            
-            <div class="dashboard-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Appointment Reports</h2>
-                    </div>
-                    <div class="chart-container">
-                        <p>Appointment Statistics Chart</p>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h2>User Activity Reports</h2>
-                    </div>
-                    <div class="chart-container">
-                        <p>User Activity Chart</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h2>Report History</h2>
-                </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Report Name</th>
-                                <th>Generated By</th>
-                                <th>Date Generated</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Monthly Appointment Summary - October 2023</td>
-                                <td>System Administrator</td>
-                                <td>Nov 1, 2023</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary">Download</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>User Activity Report - Last 30 Days</td>
-                                <td>System Administrator</td>
-                                <td>Oct 28, 2023</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary">Download</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Patient Demographics Analysis</td>
-                                <td>System Administrator</td>
-                                <td>Oct 15, 2023</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary">Download</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Financial Report - Q3 2023</td>
-                                <td>System Administrator</td>
-                                <td>Oct 5, 2023</td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary">Download</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                                        <button class="btn btn-sm btn-danger"
+                                                                 onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='/Caresync-System/controllers/admin/delete_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
+                                                            Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endwhile; ?> 
+                                        <?php else: ?>     
+                                            <tr>    
+                                                <td colspan="6" style="text-align: center;">No users found</td>
+                                            </tr>  
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
             </div>
         </div>
     </section>

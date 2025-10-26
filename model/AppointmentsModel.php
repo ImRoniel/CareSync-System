@@ -16,6 +16,9 @@ class appointmentsModel{
         }
         return 0;
     }
+    public function getTodayAppointmentsCountPatient(){
+
+    }
 
     public function getAppointmentsToday() {
         $today = date('Y-m-d');
@@ -149,6 +152,71 @@ class appointmentsModel{
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_assoc();
+    }
+
+    
+    // count the certain appointment for the login patient only MODEL
+    public function getUpcomingAppointmentsCount($patientId) {
+        error_log("DEBUG: Model called with patient_id: " . $patientId);
+        
+        $sql = "SELECT COUNT(*) as upcoming_count 
+                FROM appointments 
+                WHERE patient_id = ? 
+                AND (appointment_date > CURDATE() 
+                    OR (appointment_date = CURDATE() AND appointment_time > CURTIME()))
+                AND status IN ('pending', 'approved')";
+        
+        error_log("DEBUG: SQL Query: " . $sql);
+        
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            error_log("Prepare failed: " . $this->conn->error);
+            return 0;
+        }
+
+        $stmt->bind_param("i", $patientId);
+        
+        if (!$stmt->execute()) {
+            error_log("Execute failed: " . $stmt->error);
+            return 0;
+        }
+        
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        
+        error_log("DEBUG: Query result: " . print_r($row, true));
+        error_log("DEBUG: Final count: " . ($row['upcoming_count'] ?? 0));
+        
+        return $row['upcoming_count'] ?? 0;
+    }
+
+    //appointment statistic for a specififc user
+    public function getAppointmentStats($patientId) {
+        $sql = "SELECT 
+                COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_count,
+                COUNT(CASE WHEN status = 'approved' THEN 1 END) as approved_count,
+                COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_count,
+                COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_count
+                FROM appointments 
+                WHERE patient_id = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return ['pending_count' => 0, 'approved_count' => 0, 'completed_count' => 0, 'cancelled_count' => 0];
+        }
+        
+        $stmt->bind_param("i", $patientId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    //a method for querying the total appointment in a table
+    public function getTotalAppointments() {
+        $sql = "SELECT COUNT(*) FROM appointments";
+        $stmt = $this->conn->query($sql);
+        $result = $stmt;
+        return $result;
     }
 }
 ?>

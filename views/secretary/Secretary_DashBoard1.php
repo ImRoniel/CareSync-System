@@ -9,7 +9,7 @@ if (!file_exists($sessionPath)) {
 require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '../../../controllers/admin/secretaryController.php';
-
+require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
 
 if (empty($_SESSION['user_id'])) {
     header("Location: ../../login/login.php");
@@ -23,8 +23,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'secretary') {
 
 $secretaryId = intval($_SESSION['user_id']); //sanitizing 
 
+
 $secretaryController = new SecretaryController($conn);
 $secretary = $secretaryController->getSecretaryData($secretaryId);
+
+$appointmentController = new AppointmentController($conn);
+$totalAppointment = $appointmentController->getTotalAppointments();
 
 ?>
 
@@ -279,7 +283,7 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
         
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
         
@@ -568,6 +572,7 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
         }
         
         .modal-content {
+
             background-color: var(--bg-white);
             margin: 5% auto;
             padding: 0;
@@ -754,7 +759,7 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
-                        <h3 id="total-appointments">42</h3>
+                        <h3 id="total-appointments">48</h3>
                         <p>Total Appointments</p>
                     </div>
                 </div>
@@ -778,58 +783,10 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
                         <p>Prescriptions to Process</p>
                     </div>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="call-count">23</h3>
-                        <p>Calls Today</p>
-                    </div>
-                </div>
             </div>
             
             <div class="dashboard-grid">
                 <div class="left-column">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Patient Queue</h2>
-                            <button class="btn btn-secondary" onclick="showModal('queue-modal')">Manage Queue</button>
-                        </div>
-                        
-                        <ul class="patient-queue" id="patient-queue">
-                            <li class="queue-item">
-                                <div class="queue-info">
-                                    <h4>Name here</h4>
-                                    <p class="queue-time">Arrived: 8:45 AM</p>
-                                </div>
-                                <div class="queue-status status-waiting">Waiting</div>
-                            </li>
-                            <li class="queue-item">
-                                <div class="queue-info">
-                                    <h4>Name here</h4>
-                                    <p class="queue-time">Arrived: 9:20 AM</p>
-                                </div>
-                                <div class="queue-status status-waiting">Waiting</div>
-                            </li>
-                            <li class="queue-item">
-                                <div class="queue-info">
-                                    <h4>Name here</h4>
-                                    <p class="queue-time">Arrived: 9:35 AM</p>
-                                </div>
-                                <div class="queue-status status-confirmed">With Doctor</div>
-                            </li>
-                            <li class="queue-item">
-                                <div class="queue-info">
-                                    <h4>Name here</h4>
-                                    <p class="queue-time">Arrived: 9:50 AM</p>
-                                </div>
-                                <div class="queue-status status-pending">Check-in</div>
-                            </li>
-                        </ul>
-                    </div>
-                    
                     <div class="card">
                         <div class="card-header">
                             <h2>Appointment Requests</h2>
@@ -868,141 +825,16 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
                         </table>
                     </div>
                 </div>
-                
-                <div class="right-column">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Quick Actions</h2>
-                        </div>
-                        
-                        <div class="quick-actions">
-                            <div class="action-btn" onclick="showModal('schedule-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <p>Schedule Appointment</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('register-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <p>Register Patient</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('prescription-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-file-prescription"></i>
-                                </div>
-                                <p>Process Prescription</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('call-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <p>Call Patient</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Prescription Requests</h2>
-                        </div>
-                        
-                        <ul class="prescription-requests" id="prescription-requests">
-                            <li class="prescription-request-item">
-                                <div class="request-header">
-                                    <span class="request-patient">Name here</span>
-                                    <span class="request-date">Today, 9:15 AM</span>
-                                </div>
-                                <div class="request-details">
-                                    <p><strong>Medication:</strong> Medication here</p>
-                                    <p><strong>Reason:</strong> Reason here</p>
-                                </div>
-                                <div class="form-actions">
-                                    <button class="btn btn-primary" onclick="showModal('prescription-modal')">Process</button>
-                                </div>
-                            </li>
-                            <li class="prescription-request-item">
-                                <div class="request-header">
-                                    <span class="request-patient">Name here</span>
-                                    <span class="request-date">Yesterday, 2:30 PM</span>
-                                </div>
-                                <div class="request-details">
-                                    <p><strong>Medication:</strong> Medication here</p>
-                                    <p><strong>Reason:</strong> Reason here</p>
-                                </div>
-                                <div class="form-actions">
-                                    <button class="btn btn-primary" onclick="showModal('prescription-modal')">Process</button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Recent Activity</h2>
-                        </div>
-                        
-                        <ul class="activity-list">
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Patient Registered</h4>
-                                    <p>Name here added to system</p>
-                                    <div class="activity-time">30 minutes ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Appointment Confirmed</h4>
-                                    <p>Name here - Date here</p>
-                                    <div class="activity-time">1 hour ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-file-prescription"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Prescription Processed</h4>
-                                    <p>For Name here</p>
-                                    <div class="activity-time">2 hours ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Patient Called</h4>
-                                    <p>Reminder for Name here</p>
-                                    <div class="activity-time">3 hours ago</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
 
     <section id="appointments" class="page">
         <div class="container">
-            <div class="dashboard-header">
+            <!-- <div class="dashboard-header">
                 <h1>Appointments</h1>
                 <button class="btn btn-primary" onclick="showModal('schedule-modal')">New Appointment</button>
-            </div>
+            </div> -->
             
             <div class="card">
                 <div class="card-header">
@@ -1047,18 +879,9 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
 
     <section id="patients" class="page">
         <div class="container">
-            <div class="dashboard-header">
-                <h1>Patients</h1>
-                <button class="btn btn-primary" onclick="showModal('register-modal')">Add Patient</button>
-            </div>
-            
             <div class="card">
                 <div class="card-header">
                     <h2>Patient List</h2>
-                    <div class="search-box">
-                        <input type="text" class="form-control" placeholder="Search patients...">
-                        <button class="btn btn-primary">Search</button>
-                    </div>
                 </div>
                 <table class="appointments-table">
                     <thead>
@@ -1097,11 +920,6 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
 
     <section id="queue" class="page">
         <div class="container">
-            <div class="dashboard-header">
-                <h1>Patient Queue</h1>
-                <button class="btn btn-primary" onclick="showModal('add-queue-modal')">Add to Queue</button>
-            </div>
-            
             <div class="card">
                 <div class="card-header">
                     <h2>Current Queue</h2>
@@ -1490,7 +1308,7 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
         </div>
     </div>
 
-    <div id="edit-profile-modal" class="modal">
+     <div id="edit-profile-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
             <h2>Edit Profile</h2>

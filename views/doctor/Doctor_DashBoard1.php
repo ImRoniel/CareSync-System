@@ -286,6 +286,7 @@ $doctor = $doctorController->getDoctorData($doctorId);
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
         
@@ -708,7 +709,7 @@ $doctor = $doctorController->getDoctorData($doctorId);
                     <a onclick="showPage('schedule')">Schedule</a>
                     <a onclick="showPage('patients')">Patients</a>
                     <a onclick="showPage('prescriptions')">Prescriptions</a>
-                    <a onclick="showPage('reports')">Reports</a>
+                    <!-- <a onclick="showPage('reports')">Reports</a> -->
                 </nav>
                 
                 <div class="nav-actions">
@@ -779,16 +780,6 @@ $doctor = $doctorController->getDoctorData($doctorId);
                     <div class="stat-info">
                         <h3>24</h3>
                         <p>Prescriptions Today</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>$3,240</h3>
-                        <p>Revenue This Week</p>
                     </div>
                 </div>
             </div>
@@ -866,7 +857,7 @@ $doctor = $doctorController->getDoctorData($doctorId);
                         </table>
                     </div>
                     
-                    <div class="card">
+                    <!-- <div class="card">
                         <div class="card-header">
                             <h2>Patient Statistics</h2>
                             <button class="btn btn-secondary" onclick="showPage('reports')">View Report</button>
@@ -875,98 +866,10 @@ $doctor = $doctorController->getDoctorData($doctorId);
                         <div class="chart-container">
                             <p>Patient Visit Trends Chart</p>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 
-                <div class="right-column">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Quick Actions</h2>
-                        </div>
-                        
-                        <div class="quick-actions">
-                            <div class="action-btn" onclick="showModal('add-availability-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <p>Add Availability</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('create-prescription-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-prescription"></i>
-                                </div>
-                                <p>Create Prescription</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('update-records-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-file-medical"></i>
-                                </div>
-                                <p>Update Records</p>
-                            </div>
-                            
-                            <div class="action-btn" onclick="showModal('generate-report-modal')">
-                                <div class="action-icon">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
-                                <p>Generate Report</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Recent Activity</h2>
-                        </div>
-                        
-                        <ul class="activity-list">
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-prescription"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Prescription</h4>
-                                    <p>Prescription created for Name here</p>
-                                    <div class="activity-time">10 minutes ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-calendar-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Appointment Scheduled</h4>
-                                    <p>New appointment with Name here</p>
-                                    <div class="activity-time">1 hour ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-file-invoice"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Payment Received</h4>
-                                    <p>Payment from Name here</p>
-                                    <div class="activity-time">2 hours ago</div>
-                                </div>
-                            </li>
-                            
-                            <li class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>New Patient</h4>
-                                    <p>Name here registered as new patient</p>
-                                    <div class="activity-time">Yesterday</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </section>
@@ -1339,7 +1242,7 @@ $doctor = $doctorController->getDoctorData($doctorId);
                         <select id="report-type" class="form-control" required>
                             <option value="">Select Report Type</option>
                             <option value="appointments">Appointments Report</option>
-                            <option value="patients">Patient Statistics</option>
+                            <!-- <option value="patients">Patient Statistics</option> -->
                             <option value="prescriptions">Prescription Analysis</option>
                             <option value="revenue">Revenue Report</option>
                             <option value="performance">Performance Metrics</option>
