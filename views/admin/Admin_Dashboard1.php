@@ -48,6 +48,36 @@ if (isset($_SESSION['error_message'])) {
 }
 
 
+// Handle patient editing
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_patient'])) {
+    $patientId = $_POST['patient_id'] ?? null;
+    
+    if ($patientId) {
+        $patientController = new PatientController($conn);
+        $result = $patientController->updatePatient($patientId, $_POST);
+        
+        if ($result['success']) {
+            $_SESSION['success_message'] = $result['message'];
+        } else {
+            $_SESSION['error_message'] = $result['message'];
+        }
+        
+        // Redirect back to dashboard
+        header('Location: Admin_Dashboard1.php');
+        exit();
+    }
+}
+
+// Handle success/error messages from session
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    $error_message = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
+}
 
 
 $controllerData = new AdminController($conn);
@@ -1190,7 +1220,8 @@ $appointments = $appointmentsController->getAppointments();
                                                     <td><?= htmlspecialchars($row['created_at']); ?></td>
                                                     <td>
                                                         <!-- we need to put a validation for this button viwe -->
-                                                        <button class="btn btn-sm btn-secondary" onclick="viewPatient('Name Here')">View</button> 
+                                                        <a href="edit_patient.php?id=<?php echo htmlspecialchars($row['patient_id']); ?>" 
+                                                            class="btn btn-sm btn-secondary">Edit</a>
                                                         <!-- we need to put a validatio for this button  -->
                                                         <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
                                                     </td>

@@ -83,5 +83,49 @@ class PatientModel{
         return $stmt2->execute();
     }
 
+    /**
+     * Get patient by ID with user information
+     */
+    public function getPatientById($patientId) {
+        $sql = "SELECT patients.*, users.name, users.email, users.role 
+                FROM patients 
+                JOIN users ON patients.user_id = users.id 
+                WHERE patient_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $patientId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $patient = $result->fetch_assoc();
+        $stmt->close();
+        
+        return $patient;
+    }
+
+    /**
+     * Update patient information
+     */
+    public function updatePatient($patientId, $phone, $address, $age, $gender, $bloodType, $emergencyContactName, $emergencyContactPhone, $medicalHistory) {
+        $sql = "UPDATE patients SET 
+                phone = ?, 
+                address = ?, 
+                age = ?, 
+                gender = ?, 
+                blood_type = ?, 
+                emergency_contact_name = ?, 
+                emergency_contact_phone = ?, 
+                medical_history = ? 
+                WHERE patient_id = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssisssssi", $phone, $address, $age, $gender, $bloodType, $emergencyContactName, $emergencyContactPhone, $medicalHistory, $patientId);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+        $stmt->close();
+        return false;
+    }
+
 }   
 ?>
