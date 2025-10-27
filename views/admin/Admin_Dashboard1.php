@@ -41,12 +41,21 @@ $controllerPatients = new PatientController($conn);
 $resultPatientSystemOver = $controllerPatients->ShowPatient();
 
 require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
-$controllerAppointments = new AppointmentController($conn);
+$appointmentsController = new AppointmentController($conn);
+$totalAppointments = $appointmentsController->getTodayAppointments();
 
+// Handle appointment actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $result = $appointmentsController->handleAppointmentAction();
+    if ($result['success']) {
+        echo '<div class="alert alert-success">' . htmlspecialchars($result['message']) . '</div>';
+    } else {
+        echo '<div class="alert alert-danger">' . htmlspecialchars($result['message']) . '</div>';
+    }
+}
 
-$appointmentController = new AppointmentController($conn);
-$totalAppointments = $appointmentController->getTodayAppointments();
-
+// Get all appointments
+$appointments = $appointmentsController->getAppointments();
 
 ?>
 <!DOCTYPE html>
@@ -1066,10 +1075,10 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                                         onclick="window.location.href='/Caresync-System/views/admin/edit_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
                                                     Edit
                                                 </button>
-                                                <button class="btn btn-sm btn-info"
+                                                <!-- <button class="btn btn-sm btn-info"
                                                         onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($doctor['doctor_id']) ?>'">
                                                     Schedule
-                                                </button>
+                                                </button> -->
                                             </div>
                                         </div>
                                     <?php endwhile; ?>
@@ -1105,10 +1114,10 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                                         Edit
                                                     </button>
 
-                                                    <button class="btn btn-sm btn-info"
+                                                    <!-- <button class="btn btn-sm btn-info"
                                                             onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($sec['secretary_id']) ?>'">
                                                         Schedule
-                                                    </button>
+                                                    </button> -->
                                                 </div>
                                         </div>
                                     <?php endwhile; ?>
@@ -1171,42 +1180,28 @@ $totalAppointments = $appointmentController->getTodayAppointments();
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>ID Here</td>
-                                            <td>Name Here</td>
-                                            <td>Dr. Name Here</td>
-                                            <td>Date Here - Time Here</td>
-                                            <!-- <td>Type Here</td> -->
-                                            <td><span class="status-badge status-active">Confirmed</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-secondary">Reschedule</button>
-                                                <button class="btn btn-sm btn-danger">Cancel</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>ID Here</td>
-                                            <td>Name Here</td>
-                                            <td>Dr. Name Here</td>
-                                            <td>Date Here - Time Here</td>
-                                            <!-- <td>Type Here</td> -->
-                                            <td><span class="status-badge status-pending">Pending</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary">Confirm</button>
-                                                <button class="btn btn-sm btn-danger">Cancel</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>ID Here</td>
-                                            <td>Name Here</td>
-                                            <td>Dr. Name Here</td>
-                                            <td>Date Here - Time Here</td>
-                                            <!-- <td>Type Here</td>  -->
-                                            <td><span class="status-badge status-active">Confirmed</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-secondary">Reschedule</button>
-                                                <button class="btn btn-sm btn-danger">Cancel</button>
-                                            </td>
-                                        </tr>
+                                        <?php if (empty($appointments)): ?>
+                                            <tr>
+                                                <td colspan="6" class="text-center">No appointments found</td>
+                                            </tr>
+                                        <?php else: ?>
+                                            <?php foreach ($appointments as $appointment): ?>
+                                                <tr>
+                                                    <td>#<?php echo htmlspecialchars($appointment['appointment_id']); ?></td>
+                                                    <td><?php echo htmlspecialchars($appointment['patient_name']); ?></td>
+                                                    <td>Dr. <?php echo htmlspecialchars($appointment['doctor_name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($appointment['appointment_date']); ?> - <?php echo htmlspecialchars($appointment['appointment_time']); ?></td>
+                                                    <td>
+                                                        <span class="status-badge status-active"><?php echo htmlspecialchars($appointment['status']) ?> </span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="Reschedule_Appointment.php?appointment_id=<?php echo htmlspecialchars($appointment['appointment_id']); ?>" 
+                                                            class="btn btn-sm btn-secondary">Reschedule</a>
+                                                        <button class="btn btn-sm btn-danger">Cancel</button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>

@@ -2,14 +2,14 @@
 // Connect to database
 require_once "../../config/db_connect.php";
 
-// ✅ Check if doctor ID is provided
+//  Check if doctor ID is provided
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     die("Invalid request. No doctor ID provided.");
 }
 
 $doctor_id = intval($_GET['id']);
 
-// ✅ Fetch doctor information
+//  Fetch doctor information
 $doctorSql = "
     SELECT u.name AS doctor_name, u.email, d.specialization
     FROM doctors d
@@ -27,11 +27,11 @@ if (!$doctor) {
     die("Doctor not found.");
 }
 
-// ✅ Fetch appointments for this doctor
+// Fetch appointments for this doctor
 $apptSql = "
     SELECT 
         a.appointment_id,
-        a.patient_name,
+        a.patient_id,
         a.appointment_date,
         a.status
     FROM appointments a

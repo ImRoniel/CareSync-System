@@ -9,6 +9,7 @@ class AppointmentController {
     public function __construct($conn) {
         $this->model = new appointmentsModel($conn);
     }
+    
      public function getTodayAppointments() {
         return $this->model->getTodayAppointmentsCount();
      }
@@ -123,6 +124,171 @@ class AppointmentController {
         return $this->model->getTotalAppointments();
     }
     
+    /**
+     * Get all appointments for admin dashboard
+     */
+    public function getAppointments() {
+        return $this->model->getAllAppointments();
+    }
+    
+    /**
+     * Handle appointment actions (confirm, cancel, reschedule, complete)
+     */
+    public function handleAppointmentAction() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+            $appointmentId = $_POST['appointment_id'] ?? 0;
+            
+            if (!$appointmentId) {
+                return ['success' => false, 'message' => 'Invalid appointment ID'];
+            }
+            
+            // Verify appointment exists
+            $appointment = $this->model->getAppointmentById($appointmentId);
+            if (!$appointment) {
+                return ['success' => false, 'message' => 'Appointment not found'];
+            }
+            
+            switch ($action) {
+                case 'confirm':
+                    $result = $this->model->confirmAppointment($appointmentId);
+                    $message = $result ? 'Appointment confirmed successfully' : 'Failed to confirm appointment';
+                    break;
+                    
+                case 'cancel':
+                    $result = $this->model->cancelAppointment($appointmentId);
+                    $message = $result ? 'Appointment cancelled successfully' : 'Failed to cancel appointment';
+                    break;
+                    
+                case 'complete':
+                    $result = $this->model->completeAppointment($appointmentId);
+                    $message = $result ? 'Appointment marked as completed' : 'Failed to complete appointment';
+                    break;
+                    
+                case 'reschedule':
+                    $newDate = $_POST['new_date'] ?? '';
+                    $newTime = $_POST['new_time'] ?? '';
+                    
+                    if (!$newDate || !$newTime) {
+                        return ['success' => false, 'message' => 'Date and time are required for rescheduling'];
+                    }
+                    
+                    $result = $this->model->rescheduleAppointment($appointmentId, $newDate, $newTime);
+                    $message = $result ? 'Appointment rescheduled successfully' : 'Failed to reschedule appointment';
+                    break;
+                    
+                default:
+                    return ['success' => false, 'message' => 'Invalid action'];
+            }
+            
+            return [
+                'success' => $result,
+                'message' => $message
+            ];
+        }
+        
+        return ['success' => false, 'message' => 'Invalid request method'];
+    }
+    
+    /**
+     * Get appointment status badge class
+     */
+    public function getStatusBadgeClass($status) {
+        switch ($status) {
+            case 'approved':
+                return 'status-badge status-active';
+            case 'pending':
+                return 'status-badge status-pending';
+            case 'completed':
+                return 'status-badge status-completed';
+            case 'cancelled':
+                return 'status-badge status-cancelled';
+            default:
+                return 'status-badge status-pending';
+        }
+    }
+    
+    /**
+     * Get status display text
+     */
+    public function getStatusDisplayText($status) {
+        switch ($status) {
+            case 'approved':
+                return 'Confirmed';
+            case 'pending':
+                return 'Pending';
+            case 'completed':
+                return 'Completed';
+            case 'cancelled':
+                return 'Cancelled';
+            default:
+                return 'Pending';
+        }
+    }
+    
+    /**
+     * Get action buttons based on status
+     */
+    public function getActionButtons($appointmentId, $status) {
+        $buttons = '';
+        
+        switch ($status) {
+            case 'pending':
+                $buttons = '
+                    <button class="btn btn-sm btn-primary" onclick="confirmAppointment(' . $appointmentId . ')">Confirm</button>
+                    <button class="btn btn-sm btn-danger" onclick="cancelAppointment(' . $appointmentId . ')">Cancel</button>
+                ';
+                break;
+                
+            case 'approved':
+                $buttons = '
+                    <button class="btn btn-sm btn-secondary" onclick="showRescheduleModal(' . $appointmentId . ')">Reschedule</button>
+                    <button class="btn btn-sm btn-success" onclick="completeAppointment(' . $appointmentId . ')">Complete</button>
+                    <button class="btn btn-sm btn-danger" onclick="cancelAppointment(' . $appointmentId . ')">Cancel</button>
+                ';
+                break;
+                
+            case 'completed':
+                $buttons = '
+                    <span class="text-muted">Completed</span>
+                ';
+                break;
+                
+            case 'cancelled':
+                $buttons = '
+                    <span class="text-muted">Cancelled</span>
+                ';
+                break;
+        }
+        
+        return $buttons;
+    }
+
+    public function showRescheduleForm($appointmentId) {
+        $appointment = $this->model->getAppointmentById($appointmentId);
+        
+        if (!$appointment) {
+            header('Location: Admin_Dashboard1.php?error=Appointment not found');
+            exit();
+        }
+        
+        return $appointment;
+    }
+    public function rescheduleAppointment($appointmentId, $newDate, $newTime) {
+        if (empty($appointmentId) || empty($newDate) || empty($newTime)) {
+            return ['success' => false, 'message' => 'All fields are required'];
+        }
+        
+        $result = $this->model->rescheduleAppointment($appointmentId, $newDate, $newTime);
+        
+        if ($result) {
+            return ['success' => true, 'message' => 'Appointment rescheduled successfully'];
+        } else {
+            return ['success' => false, 'message' => 'Failed to reschedule appointment'];
+        }
+    }
+
 }
+
 ?>
 

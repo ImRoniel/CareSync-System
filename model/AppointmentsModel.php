@@ -218,5 +218,123 @@ class appointmentsModel{
         $result = $stmt;
         return $result;
     }
+
+   public function getAllAppointments() {
+        $query = "
+            SELECT 
+                a.appointment_id,
+                p.patient_id,
+                CONCAT(u_p.name) as patient_name,
+                d.doctor_id,
+                CONCAT(u_d.name) as doctor_name,
+                a.appointment_date,
+                a.appointment_time,
+                a.status,
+                a.reason,
+                a.queue_number,
+                a.created_at
+            FROM appointments a
+            LEFT JOIN patients p ON p.patient_id = a.patient_id
+            LEFT JOIN users u_p ON u_p.id = p.user_id
+            LEFT JOIN doctors d ON d.doctor_id = a.doctor_id
+            LEFT JOIN users u_d ON u_d.id = d.user_id
+            ORDER BY a.appointment_date DESC, a.appointment_time DESC
+        ";
+        
+        $result = $this->conn->query($query);
+        
+        $appointments = [];
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $appointments[] = $row;
+            }
+        }
+        
+        return $appointments;
+    }
+    
+    /**
+     * Update appointment status
+     */
+    public function updateAppointmentStatus($appointmentId, $status) {
+        $validStatuses = ['pending', 'approved', 'completed', 'cancelled'];
+        if (!in_array($status, $validStatuses)) {
+            return false;
+        }
+        
+        $stmt = $this->conn->prepare("UPDATE appointments SET status = ?, updated_at = NOW() WHERE appointment_id = ?");
+        $stmt->bind_param("si", $status, $appointmentId);
+        $result = $stmt->execute();
+        $stmt->close();
+        
+        return $result;
+    }
+    
+    /**
+     * Cancel appointment
+     */
+    public function cancelAppointment($appointmentId) {
+        return $this->updateAppointmentStatus($appointmentId, 'cancelled');
+    }
+    
+    /**
+     * Confirm/Approve appointment
+     */
+    public function confirmAppointment($appointmentId) {
+        return $this->updateAppointmentStatus($appointmentId, 'approved');
+    }
+    
+    /**
+     * Complete appointment
+     */
+    public function completeAppointment($appointmentId) {
+        return $this->updateAppointmentStatus($appointmentId, 'completed');
+    }
+    
+    public function rescheduleAppointment($appointmentId, $newDate, $newTime) {
+    $stmt = $this->conn->prepare("
+        UPDATE appointments 
+        SET appointment_date = ?, appointment_time = ?, status = 'pending', updated_at = NOW() 
+        WHERE appointment_id = ?
+    ");
+    $stmt->bind_param("ssi", $newDate, $newTime, $appointmentId);
+    
+    if ($stmt->execute()) {
+        $stmt->close();
+        return true;
+    }
+    $stmt->close();
+    return false;
+}
+    
+    /**
+     * Get appointment by ID
+     */
+    public function getAppointmentById($appointmentId) {
+        $stmt = $this->conn->prepare("
+            SELECT 
+                a.*,
+                p.patient_id,
+                CONCAT(u_p.name) as patient_name,
+                d.doctor_id,
+                CONCAT(u_d.name) as doctor_name
+            FROM appointments a
+            LEFT JOIN patients p ON p.patient_id = a.patient_id
+            LEFT JOIN users u_p ON u_p.id = p.user_id
+            LEFT JOIN doctors d ON d.doctor_id = a.doctor_id
+            LEFT JOIN users u_d ON u_d.id = d.user_id
+            WHERE a.appointment_id = ?
+        ");
+        $stmt->bind_param("i", $appointmentId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $appointment = $result->fetch_assoc();
+        $stmt->close();
+        
+        return $appointment;
+    }
+
+    
+
 }
 ?>

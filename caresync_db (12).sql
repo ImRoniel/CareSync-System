@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 26, 2025 at 07:05 AM
+-- Generation Time: Oct 27, 2025 at 04:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -65,9 +65,10 @@ CREATE TABLE `appointments` (
 --
 
 INSERT INTO `appointments` (`appointment_id`, `patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `status`, `reason`, `diagnosis`, `notes`, `queue_number`, `created_at`, `updated_at`) VALUES
-(1, 5, 6, '2025-10-06', '00:00:00', 'approved', 'hindi pumapasok', 'wala pa ', NULL, 12, '2025-10-21 03:16:13', '2025-10-21 03:16:13'),
 (2, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:17:45', '2025-10-21 03:17:45'),
-(6, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:18:00', '2025-10-21 03:18:00');
+(6, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:18:00', '2025-10-21 03:18:00'),
+(12, 35, 6, '2025-10-30', '08:16:00', 'pending', 'sadfsadfasfasdfasdfasdfasdfsdfasdfasdfasf', NULL, NULL, 1, '2025-10-26 11:11:21', '2025-10-26 11:11:21'),
+(13, 35, 6, '2025-10-30', '09:15:00', 'pending', 'asdfadsfa', NULL, NULL, 2, '2025-10-26 11:14:28', '2025-10-26 11:14:28');
 
 -- --------------------------------------------------------
 
@@ -104,6 +105,7 @@ CREATE TABLE `billing` (
 CREATE TABLE `doctors` (
   `doctor_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `assigned_secretary_id` int(11) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
   `license_no` varchar(50) NOT NULL,
@@ -117,9 +119,9 @@ CREATE TABLE `doctors` (
 -- Dumping data for table `doctors`
 --
 
-INSERT INTO `doctors` (`doctor_id`, `user_id`, `phone`, `address`, `license_no`, `specialization`, `years_experience`, `clinic_room`, `status`) VALUES
-(6, 89, '09473924571', 'purok 1 san fabian pangasinan', '2231568', 'heart', 2, '2', 'active'),
-(9, 92, '12122122', 'bobonot', '1212121212', 'eye', 1, '4', 'active');
+INSERT INTO `doctors` (`doctor_id`, `user_id`, `assigned_secretary_id`, `phone`, `address`, `license_no`, `specialization`, `years_experience`, `clinic_room`, `status`) VALUES
+(6, 89, NULL, '09473924571', 'purok 1 san fabian pangasinan', '2231568', 'heart', 2, '2', 'active'),
+(9, 92, NULL, '12122122', 'bobonot', '1212121212', 'eye', 1, '4', 'active');
 
 -- --------------------------------------------------------
 
@@ -194,9 +196,9 @@ CREATE TABLE `patients` (
 --
 
 INSERT INTO `patients` (`patient_id`, `user_id`, `phone`, `address`, `age`, `gender`, `blood_type`, `emergency_contact_name`, `emergency_contact_phone`, `medical_history`, `doctor_name`, `assign_doctor_id`) VALUES
-(5, 13, '09816263139', 'bobonot dasol pangasinan', 19, 'Female', 'O', 'sheena banqulies', '09684352458', 'highblood', NULL, NULL),
 (7, 15, '09307701803', 'sapa pequena, burgos pangasinan', 19, 'Male', 'B', 'sheena banqulies', '09509947329', 'poor eyesight', NULL, NULL),
-(34, 93, '12121212121', 'tae', 12, 'Female', 'A', 'itsrawbereli', '232323232232', 'heart', NULL, NULL);
+(34, 93, '12121212121', 'tae', 12, 'Female', 'A', 'itsrawbereli', '232323232232', 'heart', NULL, NULL),
+(35, 94, '09307701803', 'manila philiphines', 19, 'Male', 'AB', 'rose', '09897634533', 'hand fracture', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -260,9 +262,8 @@ CREATE TABLE `secretaries` (
 --
 
 INSERT INTO `secretaries` (`secretary_id`, `user_id`, `phone`, `address`, `department`, `employment_date`, `assigned_doctor_id`) VALUES
-(5, 13, '09307701803', 'sapa pequena burgos pangasinan', 'cite', '2025-10-06', 6),
-(10, 13, '09307701803', 'sapa pequena burgos pangasinan ', 'cea', '2025-10-06', 6),
-(11, 91, '12121212121', 'sapa pequena', 'cahs', '2025-10-25', NULL);
+(11, 91, '12121212121', 'sapa pequena', 'cahs', '2025-10-25', 6),
+(12, 95, '0923432143', 'dashol', 'xite', '2025-09-30', 9);
 
 -- --------------------------------------------------------
 
@@ -285,12 +286,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `is_active`, `created_at`) VALUES
-(13, 'rico blanco', 'blanco@gmail.com', '$2y$10$OqU6NbZtuRqV491aEj5DiuBdmnzmFa5baKj3juXGOsa6JHoe7PHmS', 'patient', 1, '2025-10-12 14:56:37'),
-(15, 'roniel c carbon', 'roniel@gmail.com', '$2y$10$RIqvkGzjR3YMVXBy4PtwaOLm.Jiv8A6yEQPQO7xa.1n1dNJtQBTvy', 'secretary', 1, '2025-10-12 15:57:03'),
+(15, 'roniel c carbon', 'roniel@gmail.com', '$2y$10$IP9GqVpED957DCfjkRlod.NDFaL0JBrebvSP7s0v0jW6gg4ZWltnq', 'secretary', 1, '2025-10-12 15:57:03'),
 (89, 'roniel', 'r@gmal.com', '$2y$10$cOtefgB8i8hmvt4vjbdoR.Jo3fkgcUjZ2YWns5.S0bL4kTm8SVGvO', 'doctor', 1, '2025-10-19 16:14:20'),
-(91, 'name test roniel', 'test@gmail.com', '$2y$10$00./lztadZWQeJrWs1wNEOpkaHdf3eMFKb8YwjGxzSulsY58pRqBu', 'secretary', 1, '2025-10-25 17:38:48'),
-(92, 'test doctor', 'testdoc@gmail.com', '$2y$10$KO6rVpfFwNXgXepABs2gyuDFaJF5XQws1tkfjmEuUY1bTxhbeMRXa', 'doctor', 1, '2025-10-25 17:44:38'),
-(93, 'patient test', 'patienttest@gmail.com', '$2y$10$uNDxR/aVF3mmw2e1Led2JOJq45AP4ttAaCRUvi5HLlia.bdfAwS1W', 'patient', 1, '2025-10-25 18:23:08');
+(91, 'name test roniel tate', 'test@gmail.com', '$2y$10$00./lztadZWQeJrWs1wNEOpkaHdf3eMFKb8YwjGxzSulsY58pRqBu', 'secretary', 1, '2025-10-25 17:38:48'),
+(92, 'test doctor', 'testdoc@gmail.com', '$2y$10$aPllfJaiWiTLfQ4EivG4Oef6GNTdrVw3dKV88KCk3Lro6.mtApOTK', 'doctor', 1, '2025-10-25 17:44:38'),
+(93, 'patient test', 'patienttest@gmail.com', '$2y$10$/86WLK5Kujn1dW1edPy8wuWhl1PUtCJnBgM1.yxFLCg4vqi42qAJq', 'patient', 1, '2025-10-25 18:23:08'),
+(94, 'testpatient', 'testPatient@gmail.com', '$2y$10$YvnU99NkMhjn7j6kshy34.ZHICw0s3AI8T2V2RVKdSqHynHjSKfZ2', 'patient', 1, '2025-10-26 10:24:01'),
+(95, 'test secretary tae ', 'testSecretary@gmail.com', '$2y$10$ltl/pyKPvUfFYr46CfF6.uagl8pRX8R67QIL2YGLFfVXy2UT9HZZS', 'secretary', 1, '2025-10-26 12:32:12');
 
 -- --------------------------------------------------------
 
@@ -409,7 +411,7 @@ ALTER TABLE `activity_logs`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `billing`
@@ -439,13 +441,13 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `prescriptions`
@@ -457,13 +459,13 @@ ALTER TABLE `prescriptions`
 -- AUTO_INCREMENT for table `secretaries`
 --
 ALTER TABLE `secretaries`
-  MODIFY `secretary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `secretary_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
 
 --
 -- Constraints for dumped tables
