@@ -15,6 +15,30 @@ require_once __DIR__ . '/../../controllers/admin/AdminController.php';
 require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
 
 
+// Create Admin Controller
+$adminController = new AdminController($conn);
+
+// Get all admins
+$admins = $adminController->getAllAdmins();
+
+// Handle admin editing if needed
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_admin'])) {
+    $adminId = $_POST['admin_id'] ?? null;
+    
+    if ($adminId) {
+        $result = $adminController->updateAdmin($adminId, $_POST);
+        
+        if ($result['success']) {
+            $_SESSION['success_message'] = $result['message'];
+        } else {
+            $_SESSION['error_message'] = $result['message'];
+        }
+        
+        // Redirect back to dashboard
+        header('Location: Admin_Dashboard1.php');
+        exit();
+    }
+}
 
 // Handle appointment cancellation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_appointment'])) {
@@ -889,6 +913,21 @@ $appointments = $appointmentsController->getAppointments();
         .mobile-nav.active {
             display: flex;
         }
+        .status-super-admin {
+            background: rgba(139, 69, 19, 0.1);
+            color: #8B4513;
+            border: 1px solid #8B4513;
+        }
+
+        .admin-avatar {
+            background: #AD5057 !important;
+        }
+
+        .status-moderator {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6B7280;
+            border: 1px solid #6B7280;
+        }
         
         @media (max-width: 1024px) {
             .dashboard-grid {
@@ -1068,16 +1107,19 @@ $appointments = $appointmentsController->getAppointments();
                         
                         <div class="tabs">
                             <div class="tab active" data-tab="users">Users</div>
+                            <div class="tab" data-tab="admins">Admins</div>
                             <div class="tab" data-tab="doctors">Doctors</div>
                             <div class="tab" data-tab="secretaries">Secretaries</div>
                             <div class="tab" data-tab="patients">Patients</div>
                             <div class="tab" data-tab="appointments">Appointments</div>
                         </div>
+
                         
                         <div class="tab-content active" id="users-tab">
                             <div class="search-box">
                                 
                             </div>
+
                             
                             <div class="table-responsive">
                                 <table>
@@ -1117,6 +1159,85 @@ $appointments = $appointmentsController->getAppointments();
                                                 <td colspan="6" style="text-align: center;">No users found</td>
                                             </tr>  
                                         <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="admins-tab">
+                            <div class="user-management-grid">
+                                <?php if (!empty($admins)): ?>
+                                    <?php foreach ($admins as $admin): ?>
+                                        <div class="user-card">
+                                            <div class="user-avatar-large admin-avatar">
+                                                <?= strtoupper(substr($admin['name'], 0, 1)) ?>
+                                            </div>
+                                            <div class="user-details">
+                                                <h3><?= htmlspecialchars($admin['name']) ?></h3>
+                                                <p><?= htmlspecialchars($admin['department'] ?? 'No Department') ?></p>
+                                                <p><?= htmlspecialchars($admin['email']) ?></p>
+                                                <p>
+                                                    <span class="status-badge 
+                                                        <?php 
+                                                        switch($admin['access_level']) {
+                                                            case 'super_admin': echo 'status-super-admin'; break;
+                                                            case 'admin': echo 'status-active'; break;
+                                                            case 'moderator': echo 'status-pending'; break;
+                                                            default: echo 'status-active';
+                                                        }
+                                                        ?>">
+                                                        <?= htmlspecialchars(ucfirst(str_replace('_', ' ', $admin['access_level']))) ?>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div class="user-actions">
+                                                <button class="btn btn-sm btn-secondary"
+                                                        onclick="window.location.href='/Caresync-System/views/admin/edit_admin.php?id=<?= htmlspecialchars($admin['admin_id']) ?>'">
+                                                    Edit
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p class="text-center text-muted mt-3">⚠️ No administrators found.</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                                            
+                        <div class="tab-content" id="patients-tab">
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Patient ID</th>
+                                            <th>Name</th>
+                                            <th>Contact</th>
+                                            <th>Doctor</th>
+                                            <th>Last Visit</th>
+                                            <!-- <th>Status</th> -->
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if($resultPatientSystemOver->num_rows > 0): ?>
+                                            <?php while($row = $resultPatientSystemOver->fetch_assoc()):?>
+                                        
+                                                <tr>
+                                                    <td><?= htmlspecialchars($row['patient_id']); ?></td>
+                                                    <td><?= htmlspecialchars($row['name']); ?></td>
+                                                    <td><?= htmlspecialchars($row['email']); ?></td>
+                                                    <td><?= htmlspecialchars($row['doctor_name'] ?? 'No doctor') ?></td>
+                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
+                                                    <td>
+                                                        <!-- we need to put a validation for this button viwe -->
+                                                        <a href="edit_patient.php?id=<?php echo htmlspecialchars($row['patient_id']); ?>" 
+                                                            class="btn btn-sm btn-secondary">Edit</a>
+                                                        <!-- we need to put a validatio for this button  -->
+                                                        <!-- <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button> -->
+                                                    </td>
+                                                </tr>
+                                            <?php endwhile ?>  
+                                        <?php endif ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -1183,7 +1304,7 @@ $appointments = $appointmentsController->getAppointments();
 
                                                     <!-- <button class="btn btn-sm btn-info"
                                                             onclick="window.location.href='/Caresync-System/views/admin/schedule_doctor.php?id=<?= htmlspecialchars($sec['secretary_id']) ?>'">
-                                                        Schedule
+                                                           Schedule
                                                     </button> -->
                                                 </div>
                                         </div>
@@ -1193,45 +1314,8 @@ $appointments = $appointmentsController->getAppointments();
                                 <?php endif; ?>
                             </div>
                         </div>
-                        
-                        <div class="tab-content" id="patients-tab">
-                            <div class="table-responsive">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Patient ID</th>
-                                            <th>Name</th>
-                                            <th>Contact</th>
-                                            <th>Doctor</th>
-                                            <th>Last Visit</th>
-                                            <!-- <th>Status</th> -->
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if($resultPatientSystemOver->num_rows > 0): ?>
-                                            <?php while($row = $resultPatientSystemOver->fetch_assoc()):?>
-                                        
-                                                <tr>
-                                                    <td><?= htmlspecialchars($row['patient_id']); ?></td>
-                                                    <td><?= htmlspecialchars($row['name']); ?></td>
-                                                    <td><?= htmlspecialchars($row['email']); ?></td>
-                                                    <td><?= htmlspecialchars($row['doctor_name'] ?? 'No doctor') ?></td>
-                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
-                                                    <td>
-                                                        <!-- we need to put a validation for this button viwe -->
-                                                        <a href="edit_patient.php?id=<?php echo htmlspecialchars($row['patient_id']); ?>" 
-                                                            class="btn btn-sm btn-secondary">Edit</a>
-                                                        <!-- we need to put a validatio for this button  -->
-                                                        <button class="btn btn-sm btn-info" onclick="viewRecords('Name Here')">Records</button>
-                                                    </td>
-                                                </tr>
-                                            <?php endwhile ?>  
-                                        <?php endif ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+
+                        <!-- you can put the admin here -->
                         
                         <div class="tab-content" id="appointments-tab">
                             <div class="table-responsive">

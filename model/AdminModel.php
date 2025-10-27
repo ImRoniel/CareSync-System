@@ -58,13 +58,20 @@ class AdminModel {
     }
     
     /**
-     * Get all admins
+     * Get all admins with user information
      */
     public function getAllAdmins() {
-        $sql = "SELECT admins.*, users.name, users.email, users.role, users.created_at 
+        $sql = "SELECT 
+                    admins.*, 
+                    users.id as user_id,
+                    users.name, 
+                    users.email, 
+                    users.role, 
+                    users.created_at
                 FROM admins 
                 JOIN users ON admins.user_id = users.id 
                 ORDER BY users.created_at DESC";
+        
         $result = $this->conn->query($sql);
         $admins = [];
         
@@ -78,19 +85,43 @@ class AdminModel {
     }
     
     /**
+     * Get admin by ID
+     */
+    public function getAdminById($adminId) {
+        $sql = "SELECT 
+                    admins.*, 
+                    users.id as user_id,
+                    users.name, 
+                    users.email, 
+                    users.role
+                FROM admins 
+                JOIN users ON admins.user_id = users.id 
+                WHERE admins.admin_id = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $adminId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $admin = $result->fetch_assoc();
+        $stmt->close();
+        
+        return $admin;
+    }
+    
+    /**
      * Update admin information
      */
-    public function updateAdmin($userId, $phone, $address, $department, $employment_date, $access_level) {
+    public function updateAdmin($adminId, $phone, $address, $department, $employment_date, $access_level) {
         $sql = "UPDATE admins SET 
                 phone = ?, 
                 address = ?, 
                 department = ?, 
                 employment_date = ?, 
                 access_level = ? 
-                WHERE user_id = ?";
+                WHERE admin_id = ?";
         
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sssssi", $phone, $address, $department, $employment_date, $access_level, $userId);
+        $stmt->bind_param("sssssi", $phone, $address, $department, $employment_date, $access_level, $adminId);
         
         if ($stmt->execute()) {
             $stmt->close();

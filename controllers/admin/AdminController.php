@@ -18,5 +18,46 @@ class AdminController {
             'appointments'     => $this->model->getAppointmentsToday()
         ];
     }
+
+
+    /**
+     * Get all admins
+     */
+    public function getAllAdmins() {
+        return $this->model->getAllAdmins();
+    }
+    
+    /**
+     * Get admin by ID
+     */
+    public function getAdminById($adminId) {
+        return $this->model->getAdminById($adminId);
+    }
+    
+    /**
+     * Update admin information
+     */
+    public function updateAdmin($adminId, $postData) {
+        // Validate required fields
+        if (empty($adminId)) {
+            return ['success' => false, 'message' => 'Admin ID is required'];
+        }
+        
+        // Sanitize data
+        $phone = htmlspecialchars(trim($postData['phone'] ?? ''));
+        $address = htmlspecialchars(trim($postData['address'] ?? ''));
+        $department = htmlspecialchars(trim($postData['department'] ?? ''));
+        $employment_date = htmlspecialchars(trim($postData['employment_date'] ?? ''));
+        $access_level = htmlspecialchars(trim($postData['access_level'] ?? 'admin'));
+        
+        // Update admin
+        $result = $this->model->updateAdmin($adminId, $phone, $address, $department, $employment_date, $access_level);
+        
+        if ($result) {
+            return ['success' => true, 'message' => 'Admin updated successfully'];
+        } else {
+            return ['success' => false, 'message' => 'Failed to update admin'];
+        }
+    }
 }
 ?>
