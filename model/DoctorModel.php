@@ -19,12 +19,27 @@ class DoctorModel {
 
     public function getDoctorByUserId($user_id) {
         $sql = "
-            SELECT 
-                u.id, u.name, u.email, u.role,
-                d.doctor_id, d.phone, d.address, d.license_no, d.specialization, d.years_experience
+           SELECT 
+                u.id, 
+                u.name, 
+                u.email, 
+                u.role,
+                d.doctor_id, 
+                d.phone, 
+                d.address, 
+                d.license_no, 
+                d.specialization, 
+                d.years_experience, 
+                d.assigned_secretary_id,
+                su.name AS secretary_name
             FROM users u
-            JOIN doctors d ON u.id = d.user_id
-            WHERE u.id = ?
+            JOIN doctors d 
+                ON u.id = d.user_id
+            LEFT JOIN secretaries s 
+                ON d.assigned_secretary_id = s.secretary_id
+            LEFT JOIN users su 
+                ON s.user_id = su.id
+            WHERE u.id = ?;
         ";
 
         $stmt = $this->conn->prepare($sql);

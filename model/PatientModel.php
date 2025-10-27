@@ -48,17 +48,13 @@ class PatientModel{
         return $appointment;
     }
 
-    
-
     //show the patient data 
     public function getPatientByUserId($user_id) {
         $sql = "
-            SELECT 
-                u.id, u.name, u.email, u.role,
-                p.patient_id, p.phone, p.address, p.age, p.gender, p.blood_type
-            FROM users u
-            JOIN patients p ON u.id = p.user_id
-            WHERE u.id = ?
+            SELECT patients.*, users.name, users.email, users.role 
+                FROM patients 
+                JOIN users ON patients.user_id = users.id 
+                WHERE patient_id = ?
         ";
 
         $stmt = $this->conn->prepare($sql);

@@ -1967,6 +1967,32 @@ $appointments = $appointmentsController->getAppointments();
             alert('Profile updated successfully!');
             closeModal('edit-profile-modal');
         });
+
+        // Profile form handling for Admin
+        document.getElementById("edit-profile-form").addEventListener("submit", function(e) {
+            e.preventDefault(); // Stop normal reload
+
+            const formData = new FormData(this);
+
+            fetch("../../controllers/admin/UpdateAdminProfile.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Profile updated successfully!");
+                    closeModal('edit-profile-modal');
+                    location.reload(); // refresh to show updated info
+                } else {
+                    alert("Failed to update: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("Something went wrong. Check console for details.");
+            });
+        });
     </script>
 </body>
 </html>

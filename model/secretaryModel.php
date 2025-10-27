@@ -25,11 +25,14 @@ class SecretaryModel {
 
     public function getSecretaryByUserId($user_id) {
         $sql = "
-            SELECT 
+             SELECT 
                 u.id, u.name, u.email, u.role,
-                s.secretary_id, s.phone, s.address, s.department, s.employment_date, s.assigned_doctor_id
+                s.secretary_id, s.phone, s.address, s.department, s.employment_date, s.assigned_doctor_id,
+                du.name AS doctor_name
             FROM users u
             JOIN secretaries s ON u.id = s.user_id
+            LEFT JOIN doctors d ON s.assigned_doctor_id = d.doctor_id
+            LEFT JOIN users du ON d.user_id = du.id
             WHERE u.id = ?
         ";
 

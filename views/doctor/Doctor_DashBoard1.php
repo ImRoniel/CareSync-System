@@ -742,6 +742,7 @@ $doctor = $doctorController->getDoctorData($doctorId);
                 <div>
                     <h1>Doctor Dashboard</h1>
                     <p>Welcome back, <?= htmlspecialchars($doctor['name']) ?></p>
+                    <p>Assigned Secretary: <?= htmlspecialchars($doctor['secretary_name']) ?></p>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar"><?= strtoupper(substr($doctor['name'], 0, 2)) ?></div>

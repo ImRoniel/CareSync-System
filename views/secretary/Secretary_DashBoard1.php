@@ -741,7 +741,9 @@ $totalAppointment = $appointmentController->getTotalAppointments();
                 <div>
                     <h1>Secretary</h1>
                     <p>Welcome back, <?= htmlspecialchars($secretary['name']) ?></p>
+                    <p> Assigned Doctor: <?= htmlspecialchars($secretary['doctor_name']) ?></p>
                 </div>
+                
                 <div class="user-info">
                      <div class="user-avatar" id="userAvatar">
                             <?= strtoupper(substr($secretary['name'], 0, 2)) ?>
