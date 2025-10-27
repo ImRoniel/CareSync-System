@@ -93,9 +93,11 @@ class PatientModel{
         $result = $stmt->get_result();
         $patient = $result->fetch_assoc();
         $stmt->close();
-        
-        return $patient;
+
+        //  empty array if no result found
+        return $patient ?? [];
     }
+
 
     /**
      * Update patient information
@@ -122,6 +124,25 @@ class PatientModel{
         $stmt->close();
         return false;
     }
+
+
+    public function getPatientByUserId2($user_id) {
+        $sql = "
+            SELECT 
+                u.id, u.name, u.email, u.role,
+                p.patient_id, p.phone, p.address, p.age, p.gender, p.blood_type, p.emergency_contact_name, p.emergency_contact_phone, p.medical_history
+            FROM users u 
+            JOIN patients p ON u.id = p.user_id
+            WHERE u.id = ?";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+
 
 }   
 ?>

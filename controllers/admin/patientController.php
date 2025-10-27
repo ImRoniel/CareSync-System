@@ -14,7 +14,7 @@ class PatientController{
     }
 
     public function getPatientData($user_id) {
-        return $this->model->getPatientByUserId($user_id);
+        return $this->model->getPatientById($user_id);
     }
 
     /**
@@ -66,6 +66,10 @@ class PatientController{
         } else {
             return ['success' => false, 'message' => 'Failed to update patient'];
         }
+    }
+
+    public function getPatientById2($patientId){
+        return $this->model->getPatientByUserId2($patientId);
     }
 }
 ?>

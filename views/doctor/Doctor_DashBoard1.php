@@ -849,7 +849,7 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
                                                 <button class="btn btn-sm btn-primary" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'completed')">Complete</button>
                                                 <button class="btn btn-sm btn-warning" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">Details</button>
                                             <?php else: ?>
-                                                <button class="btn btn-sm btn-secondary" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">View</button>
+                                             
                                             <?php endif; ?>
                                         </td>
                                     </tr>

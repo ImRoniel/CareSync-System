@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 27, 2025 at 04:07 AM
+-- Generation Time: Oct 27, 2025 at 07:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -42,6 +42,30 @@ CREATE TABLE `activity_logs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `admin_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `employment_date` date DEFAULT NULL,
+  `access_level` enum('super_admin','admin','moderator') DEFAULT 'admin'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admins`
+--
+
+INSERT INTO `admins` (`admin_id`, `user_id`, `phone`, `address`, `department`, `employment_date`, `access_level`) VALUES
+(2, 97, NULL, NULL, NULL, NULL, 'admin'),
+(3, 98, '09307701803', 'sapa pequena burgos pangasinan', 'engineering department', '2018-06-13', 'super_admin');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `appointments`
 --
 
@@ -65,10 +89,10 @@ CREATE TABLE `appointments` (
 --
 
 INSERT INTO `appointments` (`appointment_id`, `patient_id`, `doctor_id`, `appointment_date`, `appointment_time`, `status`, `reason`, `diagnosis`, `notes`, `queue_number`, `created_at`, `updated_at`) VALUES
-(2, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:17:45', '2025-10-21 03:17:45'),
+(2, 7, 6, '2025-10-01', '64:27:47', 'cancelled', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:17:45', '2025-10-27 10:29:37'),
 (6, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:18:00', '2025-10-21 03:18:00'),
-(12, 35, 6, '2025-10-30', '08:16:00', 'pending', 'sadfsadfasfasdfasdfasdfasdfsdfasdfasdfasf', NULL, NULL, 1, '2025-10-26 11:11:21', '2025-10-26 11:11:21'),
-(13, 35, 6, '2025-10-30', '09:15:00', 'pending', 'asdfadsfa', NULL, NULL, 2, '2025-10-26 11:14:28', '2025-10-26 11:14:28');
+(12, 35, 6, '2025-10-30', '08:16:00', 'cancelled', 'sadfsadfasfasdfasdfasdfasdfsdfasdfasdfasf', NULL, NULL, 1, '2025-10-26 11:11:21', '2025-10-27 04:56:23'),
+(13, 35, 6, '2025-10-31', '10:00:00', 'pending', 'asdfadsfa', NULL, NULL, 2, '2025-10-26 11:14:28', '2025-10-27 04:40:09');
 
 -- --------------------------------------------------------
 
@@ -120,8 +144,8 @@ CREATE TABLE `doctors` (
 --
 
 INSERT INTO `doctors` (`doctor_id`, `user_id`, `assigned_secretary_id`, `phone`, `address`, `license_no`, `specialization`, `years_experience`, `clinic_room`, `status`) VALUES
-(6, 89, NULL, '09473924571', 'purok 1 san fabian pangasinan', '2231568', 'heart', 2, '2', 'active'),
-(9, 92, NULL, '12122122', 'bobonot', '1212121212', 'eye', 1, '4', 'active');
+(6, 89, 12, '09473924571', 'purok 1 san fabian pangasinan', '2231568', 'heart', 2, '2', 'active'),
+(9, 92, 11, '12122122', 'bobonot', '1212121212', 'eye', 1, '4', 'active');
 
 -- --------------------------------------------------------
 
@@ -187,7 +211,6 @@ CREATE TABLE `patients` (
   `emergency_contact_name` varchar(100) DEFAULT NULL,
   `emergency_contact_phone` varchar(20) DEFAULT NULL,
   `medical_history` text DEFAULT NULL,
-  `doctor_name` varchar(100) DEFAULT NULL,
   `assign_doctor_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -195,10 +218,11 @@ CREATE TABLE `patients` (
 -- Dumping data for table `patients`
 --
 
-INSERT INTO `patients` (`patient_id`, `user_id`, `phone`, `address`, `age`, `gender`, `blood_type`, `emergency_contact_name`, `emergency_contact_phone`, `medical_history`, `doctor_name`, `assign_doctor_id`) VALUES
-(7, 15, '09307701803', 'sapa pequena, burgos pangasinan', 19, 'Male', 'B', 'sheena banqulies', '09509947329', 'poor eyesight', NULL, NULL),
-(34, 93, '12121212121', 'tae', 12, 'Female', 'A', 'itsrawbereli', '232323232232', 'heart', NULL, NULL),
-(35, 94, '09307701803', 'manila philiphines', 19, 'Male', 'AB', 'rose', '09897634533', 'hand fracture', NULL, NULL);
+INSERT INTO `patients` (`patient_id`, `user_id`, `phone`, `address`, `age`, `gender`, `blood_type`, `emergency_contact_name`, `emergency_contact_phone`, `medical_history`, `assign_doctor_id`) VALUES
+(7, 15, '09307701803', 'sapa pequena, burgos pangasinan', 19, 'Male', 'B', 'sheena banqulies', '09509947329', 'poor eyesight', NULL),
+(34, 93, '12121212121', 'tae', 12, 'Female', 'A', 'itsrawbereli', '232323232232', 'heart', NULL),
+(35, 94, '09307701803', 'manila philiphines', 19, 'Male', 'AB', 'rose', '09897634533', 'hand fracture', NULL),
+(36, 97, '12121212121', 'allabon pangasinan', 119, 'Female', 'B', 'edralin', '23232323232', 'highblodd', NULL);
 
 -- --------------------------------------------------------
 
@@ -276,7 +300,7 @@ CREATE TABLE `users` (
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('patient','doctor','secretary') NOT NULL,
+  `role` enum('patient','doctor','secretary','admin') NOT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -287,12 +311,14 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `is_active`, `created_at`) VALUES
 (15, 'roniel c carbon', 'roniel@gmail.com', '$2y$10$IP9GqVpED957DCfjkRlod.NDFaL0JBrebvSP7s0v0jW6gg4ZWltnq', 'secretary', 1, '2025-10-12 15:57:03'),
-(89, 'roniel', 'r@gmal.com', '$2y$10$cOtefgB8i8hmvt4vjbdoR.Jo3fkgcUjZ2YWns5.S0bL4kTm8SVGvO', 'doctor', 1, '2025-10-19 16:14:20'),
-(91, 'name test roniel tate', 'test@gmail.com', '$2y$10$00./lztadZWQeJrWs1wNEOpkaHdf3eMFKb8YwjGxzSulsY58pRqBu', 'secretary', 1, '2025-10-25 17:38:48'),
-(92, 'test doctor', 'testdoc@gmail.com', '$2y$10$aPllfJaiWiTLfQ4EivG4Oef6GNTdrVw3dKV88KCk3Lro6.mtApOTK', 'doctor', 1, '2025-10-25 17:44:38'),
-(93, 'patient test', 'patienttest@gmail.com', '$2y$10$/86WLK5Kujn1dW1edPy8wuWhl1PUtCJnBgM1.yxFLCg4vqi42qAJq', 'patient', 1, '2025-10-25 18:23:08'),
+(89, 'roniel', 'r@gmal.com', '$2y$10$bpiNP2ARi0P87FfFplHF2OBE5LJbjopjLgrviswTC4EhmcCUWSEzm', 'doctor', 1, '2025-10-19 16:14:20'),
+(91, 'name test ', 'test@gmail.com', '$2y$10$MUUa16QgZTO/QhmU73u4QOfipT4ylpL1gxkgMMPNnrkB8vAtIiJf6', 'secretary', 1, '2025-10-25 17:38:48'),
+(92, 'test doctor', 'testdoc@gmail.com', '$2y$10$dMrBXDStpTHkuGxKmwdixeYJwkM7pcDls6hgyxpwydRxY1grOu0gm', 'doctor', 1, '2025-10-25 17:44:38'),
+(93, 'patient test', 'patienttest@gmail.com', '$2y$10$Y7jg/v3.F7JmrM3n7zUtHOg6yxuR95lbY8sTSgsgvQ2ghDX9VQQq6', 'patient', 1, '2025-10-25 18:23:08'),
 (94, 'testpatient', 'testPatient@gmail.com', '$2y$10$YvnU99NkMhjn7j6kshy34.ZHICw0s3AI8T2V2RVKdSqHynHjSKfZ2', 'patient', 1, '2025-10-26 10:24:01'),
-(95, 'test secretary tae ', 'testSecretary@gmail.com', '$2y$10$ltl/pyKPvUfFYr46CfF6.uagl8pRX8R67QIL2YGLFfVXy2UT9HZZS', 'secretary', 1, '2025-10-26 12:32:12');
+(95, 'test secretary ', 'testSecretary@gmail.com', '$2y$10$QmI/xY.pC.kx4LHeTgCUwuwzTjakBMi59RGXIxMf8iGfhIxZ1ndyG', 'secretary', 1, '2025-10-26 12:32:12'),
+(97, 'mamang', 'mamang@gmail.com', '$2y$10$gdQDRctiYPLZf6/6ewWYKuwezgygHVai60.JrrBN.gr0u2kUNuCxW', 'admin', 1, '2025-10-27 06:57:44'),
+(98, 'roniel c carbon', 'roniel3@gmail.com', '$2y$10$1NGLRDll54yGlB9nMa67vu0MKelhzDrTAO7k5PoC0QQQQm6ZRBeXK', 'admin', 1, '2025-10-27 10:12:11');
 
 -- --------------------------------------------------------
 
@@ -319,6 +345,13 @@ ALTER TABLE `activity_logs`
   ADD KEY `activity_logs_ibfk_5` (`appointment_id`);
 
 --
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`admin_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `appointments`
 --
 ALTER TABLE `appointments`
@@ -340,7 +373,8 @@ ALTER TABLE `billing`
 --
 ALTER TABLE `doctors`
   ADD PRIMARY KEY (`doctor_id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `assigned_secretary_id` (`assigned_secretary_id`);
 
 --
 -- Indexes for table `medical_records`
@@ -408,6 +442,12 @@ ALTER TABLE `activity_logs`
   MODIFY `activity_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
@@ -441,13 +481,13 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `prescriptions`
@@ -465,7 +505,7 @@ ALTER TABLE `secretaries`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
 
 --
 -- Constraints for dumped tables
@@ -480,6 +520,12 @@ ALTER TABLE `activity_logs`
   ADD CONSTRAINT `activity_logs_ibfk_3` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `activity_logs_ibfk_4` FOREIGN KEY (`secretary_id`) REFERENCES `secretaries` (`secretary_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `activity_logs_ibfk_5` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `admins`
+--
+ALTER TABLE `admins`
+  ADD CONSTRAINT `admins_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `appointments`
@@ -500,7 +546,8 @@ ALTER TABLE `billing`
 -- Constraints for table `doctors`
 --
 ALTER TABLE `doctors`
-  ADD CONSTRAINT `doctors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `doctors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `doctors_ibfk_2` FOREIGN KEY (`assigned_secretary_id`) REFERENCES `secretaries` (`secretary_id`);
 
 --
 -- Constraints for table `medical_records`
