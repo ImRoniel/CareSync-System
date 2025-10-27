@@ -9,7 +9,7 @@ if (!file_exists($sessionPath)) {
 require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
-
+require_once '../../controllers/appointment/AppointmentController.php';
 if (empty($_SESSION['user_id'])) {
     header("Location: ../../login/login.php");
     exit;
@@ -23,6 +23,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'doctor') {
 $doctorId = intval($_SESSION['user_id']); 
 $doctorController = new DoctorController($conn);
 $doctor = $doctorController->getDoctorData($doctorId);
+
+
+
+$appointmentController = new AppointmentController($conn);
+$appointmentsData = $appointmentController->getDoctorAppointments();
+$todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointments'] : [];
 ?>
 
 <!DOCTYPE html>
@@ -344,6 +350,7 @@ $doctor = $doctorController->getDoctorData($doctorId);
             font-size: 0.8rem;
             font-weight: 600;
         }
+        
         
         .status-confirmed {
             background-color: rgba(46, 137, 73, 0.1);
@@ -789,71 +796,65 @@ $doctor = $doctorController->getDoctorData($doctorId);
                 <div class="left-column">
                     <div class="card">
                         <div class="card-header">
-                            <h2>Today's Appointments</h2>
-                            <button class="btn btn-secondary" onclick="showPage('schedule')">View Schedule</button>
+                            <h2>My Appointments</h2>
+                            <div class="filter-options">
+                                <select id="appointment-filter" onchange="filterAppointments()">
+                                    <option value="all">All Appointments</option>
+                                    <option value="today">Today Only</option>
+                                    <option value="upcoming">Upcoming</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                                <button class="btn btn-secondary" onclick="showPage('schedule')">View Schedule</button>
+                            </div>
                         </div>
                         
                         <table class="appointments-table">
                             <thead>
                                 <tr>
                                     <th>Patient</th>
+                                    <th>Date</th>
                                     <th>Time</th>
-                                    <th>Type</th>
+                                    <!-- <th>Type</th> -->
                                     <th>Status</th>
+                                    <th>Queue #</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>9:00 AM</td>
-                                    <td>Consultation</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
-                                        <button class="btn btn-sm btn-primary">Start</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>10:15 AM</td>
-                                    <td>Follow-up</td>
-                                    <td><span class="status-badge status-in-progress">In Progress</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
-                                        <button class="btn btn-sm btn-primary">Complete</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>11:30 AM</td>
-                                    <td>Check-up</td>
-                                    <td><span class="status-badge status-pending">Pending</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
-                                        <button class="btn btn-sm btn-primary">Start</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>2:00 PM</td>
-                                    <td>Consultation</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
-                                        <button class="btn btn-sm btn-primary">Start</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>3:45 PM</td>
-                                    <td>Follow-up</td>
-                                    <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="showModal('appointment-details-modal')">Details</button>
-                                        <button class="btn btn-sm btn-primary">Start</button>
-                                    </td>
-                                </tr>
+                            <tbody id="appointments-tbody">
+                                <?php if (empty($todaysAppointments)): ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center">No appointments found</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($todaysAppointments as $appointment): ?>
+                                    <tr data-appointment-id="<?php echo $appointment['appointment_id']; ?>" 
+                                        data-date="<?php echo $appointment['appointment_date']; ?>"
+                                        data-status="<?php echo $appointment['status']; ?>">
+                                        <td><?php echo htmlspecialchars($appointment['patient_name']); ?></td>
+                                        <td><?php echo date('M j, Y', strtotime($appointment['appointment_date'])); ?></td>
+                                        <td><?php echo date('g:i A', strtotime($appointment['appointment_time'])); ?></td>
+                       
+                                        <td>
+                                            <span class="status-badge status-<?php echo $appointment['status']; ?>">
+                                                <?php echo ucfirst($appointment['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td><?php echo $appointment['queue_number'] ?: 'N/A'; ?></td>
+                                        <td>
+                                            <?php if ($appointment['status'] === 'pending'): ?>
+                                                <button class="btn btn-sm btn-success" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'approved')">Approve</button>
+                                                <button class="btn btn-sm btn-danger" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'cancelled')">Cancel</button>
+                                            <?php elseif ($appointment['status'] === 'approved'): ?>
+                                                <button class="btn btn-sm btn-primary" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'completed')">Complete</button>
+                                                <button class="btn btn-sm btn-warning" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">Details</button>
+                                            <?php else: ?>
+                                                <button class="btn btn-sm btn-secondary" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">View</button>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -1442,6 +1443,38 @@ $doctor = $doctorController->getDoctorData($doctorId);
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
+        // JavaScript for filtering
+        function filterAppointments() {
+            const filter = document.getElementById('appointment-filter').value;
+            const rows = document.querySelectorAll('#appointments-tbody tr');
+            const today = new Date().toISOString().split('T')[0];
+            
+            rows.forEach(row => {
+                const date = row.getAttribute('data-date');
+                const status = row.getAttribute('data-status');
+                let show = true;
+                
+                switch (filter) {
+                    case 'today':
+                        show = date === today;
+                        break;
+                    case 'upcoming':
+                        show = date >= today && status !== 'completed' && status !== 'cancelled';
+                        break;
+                    case 'pending':
+                        show = status === 'pending';
+                        break;
+                    case 'completed':
+                        show = status === 'completed';
+                        break;
+                    // 'all' shows everything
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        setInterval(refreshAppointments, 30000);
+
         
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {

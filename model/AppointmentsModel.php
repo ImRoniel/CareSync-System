@@ -348,6 +348,61 @@ class appointmentsModel{
     }
 
 
+    public function getDoctorAppointments($doctorId) {
+        $sql = "SELECT 
+                    a.appointment_id,
+                    a.patient_id,
+                    a.doctor_id,
+                    a.appointment_date,
+                    a.appointment_time,
+                    a.status,
+                    a.reason,
+                    a.queue_number,
+                    p.patient_id,
+                    u.name as patient_name,
+                    d.doctor_id,
+                    du.name as doctor_name
+                FROM appointments a
+                JOIN patients p ON a.patient_id = p.patient_id
+                JOIN users u ON p.user_id = u.id
+                JOIN doctors d ON a.doctor_id = d.doctor_id
+                JOIN users du ON d.user_id = du.id
+                WHERE a.doctor_id = ?
+                ORDER BY a.appointment_date DESC, a.appointment_time DESC";
+        
+        $stmt = $this->conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("i", $doctorId);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            $appointments = [];
+            while ($row = $result->fetch_assoc()) {
+                $appointments[] = $row;
+            }
+            
+            $stmt->close();
+            return $appointments;
+        } else {
+            throw new Exception("Failed to prepare statement: " . $this->conn->error);
+        }
+    }
+
+    // Optional: If you still want today's appointments separately
+    public function getTodaysDoctorAppointments($doctorId) {
+        $today = date('Y-m-d');
+        $sql = "SELECT ... (same as above) ...
+                WHERE a.doctor_id = ? AND a.appointment_date = ?
+                ORDER BY a.appointment_time ASC";
+        
+        return $this->conn->fetchAll($sql, [$doctorId, $today]);
+    }
+
+    public function updateAppointmentStatusDoctor($appointmentId, $status) {
+        $sql = "UPDATE appointments SET status = ?, updated_at = NOW() WHERE appointment_id = ?";
+        return $this->conn->execute($sql, [$status, $appointmentId]);
+    }
+
     
 
 }

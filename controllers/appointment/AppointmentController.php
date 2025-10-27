@@ -5,9 +5,13 @@ require_once __DIR__ . '/../../model/AppointmentsModel.php';
 
 class AppointmentController {
      private $model;
+     private $appointmentsModel;
+    private $doctorModel;
     
     public function __construct($conn) {
         $this->model = new appointmentsModel($conn);
+        $this->appointmentsModel = new AppointmentsModel($conn);
+        $this->doctorModel = new DoctorModel($conn);
     }
     
      public function getTodayAppointments() {
@@ -316,7 +320,87 @@ class AppointmentController {
         }
     }
 
+
+    public function getDoctorAppointments() {
+        try {
+
+            include_once __DIR__ . '/../../controllers/auth/session.php';
+            
+            $userId = $_SESSION['user_id'] ?? null;
+            
+            if (!$userId) {
+                return ['success' => false, 'message' => 'User not authenticated'];
+            }
+
+            $doctor = $this->doctorModel->getDoctorByUserId($userId);
+            if (!$doctor) {
+                return ['success' => false, 'message' => 'Doctor not found'];
+            }
+
+            $appointments = $this->appointmentsModel->getDoctorAppointments($doctor['doctor_id']);
+            
+            return [
+                'success' => true,
+                'appointments' => $appointments
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error fetching appointments: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function updateAppointmentStatus() {
+        try {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $appointmentId = $input['appointment_id'] ?? null;
+            $status = $input['status'] ?? null;
+
+            if (!$appointmentId || !$status) {
+                return ['success' => false, 'message' => 'Missing required fields'];
+            }
+
+            $validStatuses = ['pending', 'approved', 'completed', 'cancelled'];
+            if (!in_array($status, $validStatuses)) {
+                return ['success' => false, 'message' => 'Invalid status'];
+            }
+
+            $result = $this->appointmentsModel->updateAppointmentStatus($appointmentId, $status);
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Appointment status updated successfully'];
+            } else {
+                return ['success' => false, 'message' => 'Failed to update appointment status'];
+            }
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error updating appointment: ' . $e->getMessage()
+            ];
+        }
+    }
+
 }
+
+// Handle AJAX requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {
+    $controller = new AppointmentController($conn);
+    header('Content-Type: application/json');
+    
+    switch ($_GET['action']) {
+        case 'get_todays_appointments':
+            echo json_encode($controller->getDoctorAppointments());
+            break;
+        case 'update_status':
+            echo json_encode($controller->updateAppointmentStatus());
+            break;
+        default:
+            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+    }
+    exit;
+}
+
 
 ?>
 
