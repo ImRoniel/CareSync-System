@@ -14,6 +14,9 @@ if (!file_exists($config_path)) {
 }
 require_once $config_path;
 
+require_once __DIR__ . '/../controllers/auth/AuthController.php';
+$authController = new AuthController($conn);
+
 // Initialize variables
 $errors = [];
 $email = '';
@@ -85,7 +88,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['user_email'] = $user_email;
                         $_SESSION['user_role'] = $user_role;
                         $_SESSION['logged_in'] = true;
-
+                    
+                    // For admin users, get additional admin data
+                        if ($user_role === 'admin') {
+                            $admin_data = $authController->getAdminData($user_id);
+                            if ($admin_data) {
+                                $_SESSION['admin_data'] = $admin_data;
+                            }
+                        }
                         // Redirect based on role
                         switch ($user_role) {
                             case 'doctor':

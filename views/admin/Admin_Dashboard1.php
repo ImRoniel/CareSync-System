@@ -14,7 +14,31 @@ require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../controllers/admin/AdminController.php';
 require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
 
+// Add Auth Controller for current user management
+require_once __DIR__ . '/../../controllers/auth/AuthController.php';
+$authController = new AuthController($conn);
 
+// Validate session and get current user
+$authController->validateSession();
+$currentUser = $authController->getCurrentUser();
+
+// If not admin, redirect to appropriate dashboard
+if ($currentUser['role'] !== 'admin') {
+    switch ($currentUser['role']) {
+        case 'doctor':
+            header("Location: ../doctor/Doctor_Dashboard1.php");
+            exit();
+        case 'patient':
+            header("Location: ../patient/Patient_Dashboard1.php");
+            exit();
+        case 'secretary':
+            header("Location: ../secretary/Secretary_Dashboard1.php");
+            exit();
+        default:
+            header("Location: ../login/login.php");
+            exit();
+    }
+}
 // Create Admin Controller
 $adminController = new AdminController($conn);
 
@@ -1041,13 +1065,42 @@ $appointments = $appointmentsController->getAppointments();
             <div class="dashboard-header">
                 <div>
                     <h1>Admin Dashboard</h1>
-                    <p>Welcome back, Roniel C. Carbon</p>
+                    <p>Welcome back, <?php echo htmlspecialchars($currentUser['name']); ?></p>
+                    <?php if ($authController->isStaticAdmin()): ?>
+                        <small class="text-muted">System Administrator Account</small>
+                    <?php endif; ?>
                 </div>
                 <div class="user-info">
-                    <div class="user-avatar">SA</div>
+                    <div class="user-avatar <?php echo $authController->isStaticAdmin() ? 'static-admin-avatar' : 'admin-avatar'; ?>">
+                        <?php 
+                        // Get initials from name
+                        $nameParts = explode(' ', $currentUser['name']);
+                        $initials = '';
+                        foreach ($nameParts as $part) {
+                            $initials .= strtoupper(substr($part, 0, 1));
+                            if (strlen($initials) >= 2) break;
+                        }
+                        echo $initials ?: 'A';
+                        ?>
+                    </div>
                     <div>
-                        <p>Roniel C. Carbon</p>
-                        <small>Administrator Account</small>
+                        <p><?php echo htmlspecialchars($currentUser['name']); ?></p>
+                        <small>
+                            <?php 
+                            if ($authController->isStaticAdmin()) {
+                                echo 'System Administrator (Super Admin)';
+                            } else {
+                                $access_level = $currentUser['access_level'] ?? 'admin';
+                                echo 'Administrator' . ($access_level === 'super_admin' ? ' (Super Admin)' : '');
+                            }
+                            ?>
+                        </small>
+                        <?php if (isset($currentUser['department']) && $currentUser['department'] !== 'No Department'): ?>
+                        <br><small class="text-muted"><?php echo htmlspecialchars($currentUser['department']); ?></small>
+                    <?php endif; ?>
+                    <?php if ($authController->isStaticAdmin()): ?>
+                        <br><small class="text-warning">Static System Account</small>
+                    <?php endif; ?>
                     </div>
                 </div>
             </div>
