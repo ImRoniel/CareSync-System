@@ -969,7 +969,7 @@ $appointments = $appointmentsController->getAppointments();
                 
                 <nav class="nav-links">
                     <a onclick="showPage('dashboard')">Dashboard</a>
-                    <a onclick="showPage('users')">Users</a>
+                    <!-- <a onclick="showPage('users')">Users</a> -->
                     <!-- <a onclick="showPage('reports')">Reports</a> -->
                     <a onclick="showPage('settings')">Settings</a>
                 </nav>
@@ -1063,7 +1063,7 @@ $appointments = $appointmentsController->getAppointments();
                     <div class="card">
                         <div class="card-header">
                             <h2>System Overview</h2>
-                            <!-- f -->
+                            <button class="btn btn-primary" onclick="window.location.href='addUser/role_selection.php'">Add New User</button>
                         </div>
                         
                         <div class="tabs">
@@ -1345,65 +1345,6 @@ $appointments = $appointmentsController->getAppointments();
             </div>
         </div>
     </section>
-
-    <section id="users" class="page">
-        <div class="container">
-            <div class="dashboard-header">
-                <h1>User Management</h1>
-                <button class="btn btn-primary" onclick="showModal('add-user-modal')">Add New User</button>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h2>All Users</h2>
-                    
-                </div>
-                
-               <div class="table-responsive">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Role</th>
-                                            <!-- <th>Status</th> -->
-                                            <th>Last Login</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if($resultSystemOver->num_rows > 0): ?>
-                                            <?php while ($row = $resultSystemOver->fetch_assoc()): ?>
-                                                <tr>
-                                                    <td><?= htmlspecialchars($row['name']); ?></td>
-                                                    <td><?= htmlspecialchars($row['email']); ?></td>
-                                                    <td><?= htmlspecialchars($row['role']); ?></td>
-                                                    <!-- <td><span class="status-badge status-active">Active</span></td> -->
-                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
-                                                            Edit
-                                                        </button>
-
-                                                        <button class="btn btn-sm btn-danger"
-                                                                 onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='/Caresync-System/controllers/admin/delete_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
-                                                            Delete
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <?php endwhile; ?> 
-                                        <?php else: ?>     
-                                            <tr>    
-                                                <td colspan="6" style="text-align: center;">No users found</td>
-                                            </tr>  
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-            </div>
-        </div>
-    </section>
-
     <section id="settings" class="page">
         <div class="container">
             <div class="dashboard-header">

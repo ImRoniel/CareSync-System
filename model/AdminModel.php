@@ -36,5 +36,68 @@ class AdminModel {
         $result = $stmt->get_result();
         return $result->fetch_assoc()['total'] ?? 0;
     }
+
+
+    
+    /**
+     * Get admin by user ID
+     */
+    public function getAdminByUserId($userId) {
+        $sql = "SELECT admins.*, users.name, users.email, users.role 
+                FROM admins 
+                JOIN users ON admins.user_id = users.id 
+                WHERE admins.user_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $admin = $result->fetch_assoc();
+        $stmt->close();
+        
+        return $admin;
+    }
+    
+    /**
+     * Get all admins
+     */
+    public function getAllAdmins() {
+        $sql = "SELECT admins.*, users.name, users.email, users.role, users.created_at 
+                FROM admins 
+                JOIN users ON admins.user_id = users.id 
+                ORDER BY users.created_at DESC";
+        $result = $this->conn->query($sql);
+        $admins = [];
+        
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $admins[] = $row;
+            }
+        }
+        
+        return $admins;
+    }
+    
+    /**
+     * Update admin information
+     */
+    public function updateAdmin($userId, $phone, $address, $department, $employment_date, $access_level) {
+        $sql = "UPDATE admins SET 
+                phone = ?, 
+                address = ?, 
+                department = ?, 
+                employment_date = ?, 
+                access_level = ? 
+                WHERE user_id = ?";
+        
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("sssssi", $phone, $address, $department, $employment_date, $access_level, $userId);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+        $stmt->close();
+        return false;
+    }
 }
 ?>

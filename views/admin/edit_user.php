@@ -21,7 +21,7 @@ if (!$user) {
     die("User not found.");
 }
 
-//  3. Handle update
+// 3. Handle update
 if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
     $stmt->bind_param("sssi", $name, $email, $role, $id);
 
     if ($stmt->execute()) {
-        // . Role synchronization logic
+        // Role synchronization logic
         if ($role === 'doctor') {
             // If user is a doctor, ensure they exist in doctors table
             $check = $conn->prepare("SELECT * FROM doctors WHERE user_id = ?");
@@ -49,21 +49,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
             }
             $check->close();
 
+            // Remove from other role tables
+            $delete_admin = $conn->prepare("DELETE FROM admins WHERE user_id = ?");
+            $delete_admin->bind_param("i", $id);
+            $delete_admin->execute();
+            $delete_admin->close();
+
         } elseif ($role === 'secretary') {
-            // If user becomes a secretary, remove from doctors table if exists
-            $delete = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
-            $delete->bind_param("i", $id);
-            $delete->execute();
-            $delete->close();
+            // If user becomes a secretary, remove from other role tables
+            $delete_doctor = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
+            $delete_doctor->bind_param("i", $id);
+            $delete_doctor->execute();
+            $delete_doctor->close();
+
+            $delete_admin = $conn->prepare("DELETE FROM admins WHERE user_id = ?");
+            $delete_admin->bind_param("i", $id);
+            $delete_admin->execute();
+            $delete_admin->close();
+
         } elseif ($role === 'patient') {
-            // If user becomes a patient, also remove from doctors table
-            $delete = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
-            $delete->bind_param("i", $id);
-            $delete->execute();
-            $delete->close();
+            // If user becomes a patient, remove from other role tables
+            $delete_doctor = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
+            $delete_doctor->bind_param("i", $id);
+            $delete_doctor->execute();
+            $delete_doctor->close();
+
+            $delete_admin = $conn->prepare("DELETE FROM admins WHERE user_id = ?");
+            $delete_admin->bind_param("i", $id);
+            $delete_admin->execute();
+            $delete_admin->close();
+
+        } elseif ($role === 'admin') {
+            // If user becomes an admin, ensure they exist in admins table
+            $check = $conn->prepare("SELECT * FROM admins WHERE user_id = ?");
+            $check->bind_param("i", $id);
+            $check->execute();
+            $result = $check->get_result();
+
+            if ($result->num_rows === 0) {
+                $insert = $conn->prepare("INSERT INTO admins (user_id, access_level) VALUES (?, 'admin')");
+                $insert->bind_param("i", $id);
+                $insert->execute();
+                $insert->close();
+            }
+            $check->close();
+
+            // Remove from other role tables
+            $delete_doctor = $conn->prepare("DELETE FROM doctors WHERE user_id = ?");
+            $delete_doctor->bind_param("i", $id);
+            $delete_doctor->execute();
+            $delete_doctor->close();
         }
 
-        // . Redirect back to dashboard
+        // Redirect back to dashboard
         header("Location: /Caresync-System/views/admin/Admin_Dashboard1.php?message=User updated successfully");
         exit;
     } else {
@@ -72,8 +110,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
     $stmt->close();
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -96,6 +132,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
             --border: #e2e8f0;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --radius: 12px;
+            --admin-color: #AD5057;
+            --admin-light: rgba(173, 80, 87, 0.1);
         }
         
         * {
@@ -307,8 +345,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
             font-size: 13px;
             font-weight: 500;
             margin-top: 8px;
-            background: var(--primary-light);
+        }
+        
+        .role-patient {
+            background: rgba(46, 137, 73, 0.1);
             color: var(--primary-dark);
+        }
+        
+        .role-doctor {
+            background: rgba(59, 130, 246, 0.1);
+            color: rgb(30, 64, 175);
+        }
+        
+        .role-secretary {
+            background: rgba(139, 92, 246, 0.1);
+            color: rgb(76, 29, 149);
+        }
+        
+        .role-admin {
+            background: var(--admin-light);
+            color: var(--admin-color);
         }
         
         .form-select option {
@@ -320,7 +376,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: var(--primary);
             color: white;
             display: flex;
             align-items: center;
@@ -330,6 +385,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
             margin: 0 auto 20px;
             border: 4px solid white;
             box-shadow: var(--shadow);
+        }
+        
+        .avatar-patient {
+            background: var(--primary);
+        }
+        
+        .avatar-doctor {
+            background: rgb(59, 130, 246);
+        }
+        
+        .avatar-secretary {
+            background: rgb(139, 92, 246);
+        }
+        
+        .avatar-admin {
+            background: var(--admin-color);
+        }
+        
+        .role-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
         }
         
         @media (max-width: 576px) {
@@ -383,7 +464,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
                 </div>
             <?php endif; ?>
             
-            <div class="user-avatar">
+            <div class="user-avatar <?php echo 'avatar-' . $user['role']; ?>">
                 <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
             </div>
             
@@ -422,12 +503,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
                             <option value="secretary" <?php echo $user['role'] == 'secretary' ? 'selected' : ''; ?>>
                                 Secretary
                             </option>
+                            <option value="admin" <?php echo $user['role'] == 'admin' ? 'selected' : ''; ?>>
+                                Administrator
+                            </option>
                         </select>
                     </div>
-                    <div class="role-indicator">
+                    <div class="role-indicator <?php echo 'role-' . $user['role']; ?>">
                         <i class="fas fa-info-circle"></i>
                         Current role: <?php echo ucfirst($user['role']); ?>
                     </div>
+                    
+                    <?php if ($user['role'] == 'admin'): ?>
+                    <div class="role-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Warning:</strong> Changing this user from admin role will remove their administrator privileges.
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="form-actions">
@@ -449,6 +540,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
         document.addEventListener('DOMContentLoaded', function() {
             const formElements = document.querySelectorAll('.form-input, .form-select');
             const saveBtn = document.querySelector('.save-btn');
+            const roleSelect = document.getElementById('role');
             
             formElements.forEach(element => {
                 element.addEventListener('focus', function() {
@@ -465,6 +557,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //post is form in an array
             form.addEventListener('submit', function() {
                 saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                 saveBtn.disabled = true;
+            });
+            
+            // Show warning when changing from admin role
+            roleSelect.addEventListener('change', function() {
+                const currentRole = '<?php echo $user['role']; ?>';
+                if (currentRole === 'admin' && this.value !== 'admin') {
+                    if (!confirm('Warning: Changing this user from admin role will remove their administrator privileges. Are you sure you want to continue?')) {
+                        this.value = 'admin';
+                    }
+                }
             });
         });
     </script>

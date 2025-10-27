@@ -2,7 +2,7 @@ Folder PATH listing for volume OS
 Volume serial number is 68C5-E9B1
 C:.
 ¦   book_appointment.php
-¦   caresync_db (11).sql
+¦   caresync_db (12).sql
 ¦   CONTRIBUTING.md
 ¦   desktop.ini
 ¦   generate_hash.php
@@ -61,6 +61,7 @@ C:.
 ¦       .drawio.svg
 ¦       appointment-erd
 ¦       appointment_erd.drawnio
+¦       importantcss.txt
 ¦       psuedocode
 ¦       
 +---Learning Fundamental
@@ -93,14 +94,20 @@ C:.
 ¦           
 +---views
     +---admin
-    ¦       Admin_Dashboard1.php
-    ¦       doctor_list.php
-    ¦       edit_doctor.php
-    ¦       edit_secretary.php
-    ¦       edit_user.php
-    ¦       schedule_doctor.php
-    ¦       user_list.php
-    ¦       
+    ¦   ¦   Admin_Dashboard1.php
+    ¦   ¦   doctor_list.php
+    ¦   ¦   edit_doctor.php
+    ¦   ¦   edit_patient.php
+    ¦   ¦   edit_secretary.php
+    ¦   ¦   edit_user.php
+    ¦   ¦   Reschedule_Appointment.php
+    ¦   ¦   schedule_doctor.php
+    ¦   ¦   user_list.php
+    ¦   ¦   
+    ¦   +---addUser
+    ¦           role_selection.php
+    ¦           sign_up.php
+    ¦           
     +---doctor
     ¦       Doctor_DashBoard1.php
     ¦       prescribe_medication.php
