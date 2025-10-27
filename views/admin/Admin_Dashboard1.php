@@ -12,6 +12,43 @@ require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
 //for fetching the data from the dashboard
 require_once __DIR__ . '/../../controllers/admin/AdminController.php';
+require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
+
+
+
+// Handle appointment cancellation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_appointment'])) {
+    $appointmentId = $_POST['appointment_id'] ?? null;
+    
+    if ($appointmentId) {
+        $controller = new AppointmentController($conn);
+        $result = $controller->cancelAppointment($appointmentId);
+        
+        if ($result['success']) {
+            $_SESSION['success_message'] = $result['message'];
+        } else {
+            $_SESSION['error_message'] = $result['message'];
+        }
+        
+        // Redirect back to dashboard
+        header('Location: Admin_Dashboard1.php');
+        exit();
+    }
+}
+
+// Handle success/error messages from session
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    $error_message = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
+}
+
+
+
 
 $controllerData = new AdminController($conn);
 $data = $controllerData->index();
@@ -40,7 +77,7 @@ require_once __DIR__ . '/../../controllers/admin/patientController.php';
 $controllerPatients = new PatientController($conn);
 $resultPatientSystemOver = $controllerPatients->ShowPatient();
 
-require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
+
 $appointmentsController = new AppointmentController($conn);
 $totalAppointments = $appointmentsController->getTodayAppointments();
 
@@ -1192,12 +1229,35 @@ $appointments = $appointmentsController->getAppointments();
                                                     <td>Dr. <?php echo htmlspecialchars($appointment['doctor_name']); ?></td>
                                                     <td><?php echo htmlspecialchars($appointment['appointment_date']); ?> - <?php echo htmlspecialchars($appointment['appointment_time']); ?></td>
                                                     <td>
-                                                        <span class="status-badge status-active"><?php echo htmlspecialchars($appointment['status']) ?> </span>
+                                                        <span class="status-badge 
+                                                            <?php 
+                                                            switch($appointment['status']) {
+                                                                case 'approved': echo 'status-active'; break;
+                                                                case 'pending': echo 'status-pending'; break;
+                                                                case 'completed': echo 'status-completed'; break;
+                                                                case 'cancelled': echo 'status-cancelled'; break;
+                                                                default: echo 'status-pending';
+                                                            }
+                                                            ?>">
+                                                            <?php echo htmlspecialchars($appointment['status']); ?>
+                                                        </span>
                                                     </td>
                                                     <td>
                                                         <a href="Reschedule_Appointment.php?appointment_id=<?php echo htmlspecialchars($appointment['appointment_id']); ?>" 
-                                                            class="btn btn-sm btn-secondary">Reschedule</a>
-                                                        <button class="btn btn-sm btn-danger">Cancel</button>
+                                                        class="btn btn-sm btn-secondary">Reschedule</a>
+                                                        
+                                                        <!-- Cancel Button with Confirmation -->
+                                                        <?php if ($appointment['status'] !== 'cancelled' && $appointment['status'] !== 'completed'): ?>
+                                                            <form method="POST" action="Admin_Dashboard1.php" style="display: inline;" 
+                                                                onsubmit="return confirm('Are you sure you want to cancel this appointment?')">
+                                                                <input type="hidden" name="appointment_id" value="<?php echo htmlspecialchars($appointment['appointment_id']); ?>">
+                                                                <button type="submit" name="cancel_appointment" class="btn btn-sm btn-danger">
+                                                                    Cancel
+                                                                </button>
+                                                            </form>
+                                                        <?php else: ?>
+                                                            <button class="btn btn-sm btn-danger" disabled>Cancel</button>
+                                                        <?php endif; ?>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>

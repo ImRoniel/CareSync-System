@@ -271,13 +271,6 @@ class appointmentsModel{
     }
     
     /**
-     * Cancel appointment
-     */
-    public function cancelAppointment($appointmentId) {
-        return $this->updateAppointmentStatus($appointmentId, 'cancelled');
-    }
-    
-    /**
      * Confirm/Approve appointment
      */
     public function confirmAppointment($appointmentId) {
@@ -333,6 +326,27 @@ class appointmentsModel{
         
         return $appointment;
     }
+
+
+        /**
+     * Cancel an appointment
+     */
+    public function cancelAppointment($appointmentId) {
+        $stmt = $this->conn->prepare("
+            UPDATE appointments 
+            SET status = 'cancelled', updated_at = NOW() 
+            WHERE appointment_id = ?
+        ");
+        $stmt->bind_param("i", $appointmentId);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        }
+        $stmt->close();
+        return false;
+    }
+
 
     
 

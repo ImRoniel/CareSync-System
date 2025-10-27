@@ -288,6 +288,34 @@ class AppointmentController {
         }
     }
 
+    /**
+ * Cancel appointment
+ */
+    public function cancelAppointment($appointmentId) {
+        if (empty($appointmentId)) {
+            return ['success' => false, 'message' => 'Appointment ID is required'];
+        }
+        
+        // Verify appointment exists
+        $appointment = $this->model->getAppointmentById($appointmentId);
+        if (!$appointment) {
+            return ['success' => false, 'message' => 'Appointment not found'];
+        }
+        
+        // Check if already cancelled
+        if ($appointment['status'] === 'cancelled') {
+            return ['success' => false, 'message' => 'Appointment is already cancelled'];
+        }
+        
+        $result = $this->model->cancelAppointment($appointmentId);
+        
+        if ($result) {
+            return ['success' => true, 'message' => 'Appointment cancelled successfully'];
+        } else {
+            return ['success' => false, 'message' => 'Failed to cancel appointment'];
+        }
+    }
+
 }
 
 ?>
