@@ -30,6 +30,13 @@ $secretary = $secretaryController->getSecretaryData($secretaryId);
 $appointmentController = new AppointmentController($conn);
 $totalAppointment = $appointmentController->getTotalAppointments();
 
+$appointmentRequests = $secretaryController->getAppointmentsForSecretary($secretaryId);
+// Safe default if null
+if (!is_array($appointmentRequests)) {
+    $appointmentRequests = [];
+}
+
+
 ?>
 
 
@@ -793,7 +800,7 @@ $totalAppointment = $appointmentController->getTotalAppointments();
                     <div class="card">
                         <div class="card-header">
                             <h2>Appointment Requests</h2>
-                            <button class="btn btn-secondary" onclick="showModal('appointments-modal')">View All</button>
+                            <button class="btn btn-secondary" onclick="showPage('appointments')">Digitize Prescription</button>
                         </div>
                         
                         <table class="appointments-table">
@@ -801,29 +808,44 @@ $totalAppointment = $appointmentController->getTotalAppointments();
                                 <tr>
                                     <th>Patient</th>
                                     <th>Preferred Date</th>
-                                    <th>Doctor</th>
+                                    <!-- <th>Doctor</th>     -->
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>Oct 18, 2023</td>
-                                    <td>Dr. Name here</td>
-                                    <td><span class="status-badge status-pending">Review</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>Oct 20, 2023</td>
-                                    <td>Dr. Name here</td>
-                                    <td><span class="status-badge status-pending">Review</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Name here</td>
-                                    <td>Oct 22, 2023</td>
-                                    <td>Dr. Name here</td>
-                                    <td><span class="status-badge status-pending">Review</span></td>
-                                </tr>
+                                <?php if (empty($appointmentRequests)): ?>
+                                    <tr>
+                                        <td colspan="4">No appointment requests.</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($appointmentRequests as $AppointmentRequest): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($AppointmentRequest['name'] ?? '') ?></td>
+                                            <td>
+                                                <?php
+                                                    $date = $AppointmentRequest['appointment_date'] ?? '';
+                                                    echo $date ? htmlspecialchars(date('M j, Y', strtotime($date))) : '';
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                    $status = strtolower($AppointmentRequest['status'] ?? '');
+                                                    $badgeClass = 'status-pending';
+                                                    if ($status === 'approved' || $status === 'confirmed') $badgeClass = 'status-confirmed';
+                                                    elseif ($status === 'completed') $badgeClass = 'status-waiting';
+                                                ?>
+                                                <span class="status-badge <?= $badgeClass ?>">
+                                                    <?= htmlspecialchars($AppointmentRequest['status'] ? ucfirst($AppointmentRequest['status']) : 'Review') ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" data-appointment-id="<?= intval($AppointmentRequest['appointment_id'] ?? 0) ?>">Check in</button>
+                                                <button class="btn btn-sm btn-danger" data-appointment-id="<?= intval($AppointmentRequest['appointment_id'] ?? 0) ?>">Reject</button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -841,14 +863,13 @@ $totalAppointment = $appointmentController->getTotalAppointments();
             
             <div class="card">
                 <div class="card-header">
-                    <h2>Today's Appointments</h2>
+                    <h2>Digitize Prescription</h2>
                 </div>
                 <table class="appointments-table">
                     <thead>
                         <tr>
                             <th>Time</th>
                             <th>Patient</th>
-                            <th>Doctor</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -1031,7 +1052,7 @@ $totalAppointment = $appointmentController->getTotalAppointments();
         </div>
     </div>
 
-    <div id="appointments-modal" class="modal">
+    <!-- <div id="appointments-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>All Appointment Requests</h2>
@@ -1073,7 +1094,7 @@ $totalAppointment = $appointmentController->getTotalAppointments();
                 </table>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div id="schedule-modal" class="modal">
         <div class="modal-content">

@@ -142,6 +142,10 @@ class PatientModel{
         return $result->fetch_assoc();
     }
 
+    // public function getApproveAppointment(){
+    //     $sql    
+    // }
+
 
 
 }   

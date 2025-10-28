@@ -767,7 +767,7 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>18</h3>
+                        <h3> </h3>
                         <p>Today's Appointments</p>
                     </div>
                 </div>

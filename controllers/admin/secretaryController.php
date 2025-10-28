@@ -26,7 +26,11 @@ class SecretaryController {
     $department = $data['department'];
 
     return $this->model->updateSecretaryProfile($user_id, $name, $email, $phone, $address, $department);
-}
+    }
+
+     public function getAppointmentsForSecretary($secretaryUserId) {
+        return $this->model->getAppointmentsForAssignedDoctorByUserId(intval($secretaryUserId));
+    }
 }
 
 ?>

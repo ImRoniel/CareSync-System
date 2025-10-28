@@ -38,24 +38,20 @@ class AdminModel {
     }
 
 
-    
-    /**
-     * Get admin by user ID
-     */
-    public function getAdminByUserId($userId) {
-        $sql = "SELECT admins.*, users.name, users.email, users.role 
-                FROM admins 
-                JOIN users ON admins.user_id = users.id 
-                WHERE admins.user_id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $admin = $result->fetch_assoc();
-        $stmt->close();
+    // public function getAdminByUserId($userId) {
+    //     $sql = "SELECT admins.*, users.name, users.email, users.role 
+    //             FROM admins 
+    //             JOIN users ON admins.user_id = users.id 
+    //             WHERE admins.user_id = ?";
+    //     $stmt = $this->conn->prepare($sql);
+    //     $stmt->bind_param("i", $userId);
+    //     $stmt->execute();
+    //     $result = $stmt->get_result();
+    //     $admin = $result->fetch_assoc();
+    //     $stmt->close();
         
-        return $admin;
-    }
+    //     return $admin;
+    // }
     
     /**
      * Get all admins with user information
@@ -129,6 +125,48 @@ class AdminModel {
         }
         $stmt->close();
         return false;
+    }
+
+
+    public function getAdminByUserId($user_id) {
+        $sql = "
+            SELECT 
+                u.id, u.name, u.email, u.role,
+                a.admin_id, a.phone, a.address, a.department, a.employment_date, a.access_level
+            FROM users u
+            JOIN admins a ON u.id = a.user_id
+            WHERE u.id = ?
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc(); 
+    }
+
+    public function updateAdminProfile($user_id, $name, $email, $phone, $address, $department) {
+        // Update users table
+        $sql = "
+            UPDATE users 
+            SET name = ?, email = ?
+            WHERE id = ?;
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssi", $name, $email, $user_id);
+        $stmt->execute();
+
+        // Update admin table
+        $sql2 = "
+            UPDATE admins
+            SET phone = ?, address = ?, department = ?
+            WHERE user_id = ?;
+        ";
+
+        $stmt2 = $this->conn->prepare($sql2);
+        $stmt2->bind_param("sssi", $phone, $address, $department, $user_id);
+        return $stmt2->execute();
     }
 
     

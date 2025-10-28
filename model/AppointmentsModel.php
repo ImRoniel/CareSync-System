@@ -403,7 +403,9 @@ class appointmentsModel{
         return $this->conn->execute($sql, [$status, $appointmentId]);
     }
 
-    
+    public function updatePatientAppointment($patientId){
+        
+    }
 
 }
 ?>

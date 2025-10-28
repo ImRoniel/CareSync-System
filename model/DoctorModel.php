@@ -32,7 +32,7 @@ class DoctorModel {
                 d.years_experience, 
                 d.assigned_secretary_id,
                 su.name AS secretary_name
-            FROM users u
+            FROM users u    
             JOIN doctors d 
                 ON u.id = d.user_id
             LEFT JOIN secretaries s 
