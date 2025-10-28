@@ -705,6 +705,7 @@ $totalAppointment = $appointmentController->getTotalAppointments();
             h2 { font-size: 1.75rem; }
         }
     </style>
+    <link rel="stylesheet" href="../../assets/css/Animation.css">
 </head>
 <body>
     <header>

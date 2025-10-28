@@ -846,6 +846,7 @@ $patient2 = $patientController->getPatientById2($patientId);
             }
         }
     </style>
+    <link rel="stylesheet" href="../../assets/css/Animation.css">
 </head>
 <body>
     <header>

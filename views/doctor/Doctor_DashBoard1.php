@@ -701,6 +701,7 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
             }
         }
     </style>
+    <link rel="stylesheet" href="../../assets/css/Animation.css">
 </head>
 <body>
     <header>
@@ -845,11 +846,11 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
                                             <?php if ($appointment['status'] === 'pending'): ?>
                                                 <button class="btn btn-sm btn-success" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'approved')">Approve</button>
                                                 <button class="btn btn-sm btn-danger" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'cancelled')">Cancel</button>
-                                            <?php elseif ($appointment['status'] === 'approved'): ?>
-                                                <button class="btn btn-sm btn-primary" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'completed')">Complete</button>
+                                                <?php elseif ($appointment['status'] === 'approved'): ?>
+                                                    <button class="btn btn-sm btn-primary" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'completed')">Complete</button>
                                                 <button class="btn btn-sm btn-warning" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">Details</button>
                                             <?php else: ?>
-                                             
+                                                <button class="btn btn-sm btn-secondary" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">View</button>
                                             <?php endif; ?>
                                         </td>
                                     </tr>

@@ -1020,6 +1020,7 @@ $appointments = $appointmentsController->getAppointments();
             }
         }
     </style>
+    <link rel="stylesheet" href="../../assets/css/Animation.css">
 </head>
 <body>
     <header>
