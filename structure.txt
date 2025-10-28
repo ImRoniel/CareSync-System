@@ -1,6 +1,7 @@
 Folder PATH listing for volume OS
 Volume serial number is 68C5-E9B1
 C:.
+¦   Admin DashBoard (3).html
 ¦   book_appointment.php
 ¦   caresync_db (12).sql
 ¦   CONTRIBUTING.md
@@ -8,12 +9,14 @@ C:.
 ¦   generate_hash.php
 ¦   index.php
 ¦   LICENSE
+¦   Patient DashBoard.html
 ¦   README.md
 ¦   structure.txt
 ¦   test_simple.php
 ¦   
 +---assets
 ¦   +---css
+¦   ¦       Animation.css
 ¦   ¦       index.css
 ¦   ¦       login.css
 ¦   ¦       PatientDashboard.css
@@ -35,6 +38,7 @@ C:.
 ¦   ¦       patientController.php
 ¦   ¦       search_user.php
 ¦   ¦       secretaryController.php
+¦   ¦       UpdateAdminProfile.php
 ¦   ¦       userController.php
 ¦   ¦       
 ¦   +---appointment
@@ -42,6 +46,7 @@ C:.
 ¦   ¦       book_appointment_action.php
 ¦   ¦       
 ¦   +---auth
+¦   ¦       AuthController.php
 ¦   ¦       AuthSession.php
 ¦   ¦       logout.php
 ¦   ¦       process_login.php
@@ -54,7 +59,9 @@ C:.
 ¦   +---patients
 ¦   ¦       UpdatePatientProfile.php
 ¦   ¦       
+¦   +---profile
 ¦   +---secretaries
+¦           AppointmentActions.php
 ¦           UpdateSecretaryProfile.php
 ¦           
 +---flowchart
@@ -62,6 +69,8 @@ C:.
 ¦       appointment-erd
 ¦       appointment_erd.drawnio
 ¦       importantcss.txt
+¦       newFlowSystem.txt
+¦       newSystemFlow.jpg
 ¦       psuedocode
 ¦       
 +---Learning Fundamental
@@ -96,6 +105,7 @@ C:.
     +---admin
     ¦   ¦   Admin_Dashboard1.php
     ¦   ¦   doctor_list.php
+    ¦   ¦   edit_admin.php
     ¦   ¦   edit_doctor.php
     ¦   ¦   edit_patient.php
     ¦   ¦   edit_secretary.php

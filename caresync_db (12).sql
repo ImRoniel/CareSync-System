@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 27, 2025 at 07:30 PM
+-- Generation Time: Oct 28, 2025 at 02:46 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,7 +60,6 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`admin_id`, `user_id`, `phone`, `address`, `department`, `employment_date`, `access_level`) VALUES
-(2, 97, NULL, NULL, NULL, NULL, 'admin'),
 (3, 98, '09307701803', 'sapa pequena burgos pangasinan', 'engineering department', '2018-06-13', 'super_admin');
 
 -- --------------------------------------------------------
@@ -92,7 +91,9 @@ INSERT INTO `appointments` (`appointment_id`, `patient_id`, `doctor_id`, `appoin
 (2, 7, 6, '2025-10-01', '64:27:47', 'cancelled', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:17:45', '2025-10-27 10:29:37'),
 (6, 7, 6, '2025-10-01', '64:27:47', 'pending', 'hindi pumapasok yong ', 'wala pa ', 'tae', 12, '2025-10-21 03:18:00', '2025-10-21 03:18:00'),
 (12, 35, 6, '2025-10-30', '08:16:00', 'cancelled', 'sadfsadfasfasdfasdfasdfasdfsdfasdfasdfasf', NULL, NULL, 1, '2025-10-26 11:11:21', '2025-10-27 04:56:23'),
-(13, 35, 6, '2025-10-31', '10:00:00', 'pending', 'asdfadsfa', NULL, NULL, 2, '2025-10-26 11:14:28', '2025-10-27 04:40:09');
+(13, 35, 6, '2025-10-31', '10:00:00', 'pending', 'asdfadsfa', NULL, NULL, 2, '2025-10-26 11:14:28', '2025-10-27 04:40:09'),
+(14, 34, 6, '2025-10-31', '08:10:00', 'pending', 'masakit ang aking right hand', NULL, NULL, 2, '2025-10-27 20:09:31', '2025-10-27 20:09:31'),
+(15, 35, 6, '2025-10-30', '09:57:00', 'pending', 'painful hearts collecting new jar for my heeats', NULL, NULL, 1, '2025-10-28 07:56:53', '2025-10-28 07:56:53');
 
 -- --------------------------------------------------------
 
@@ -221,8 +222,7 @@ CREATE TABLE `patients` (
 INSERT INTO `patients` (`patient_id`, `user_id`, `phone`, `address`, `age`, `gender`, `blood_type`, `emergency_contact_name`, `emergency_contact_phone`, `medical_history`, `assign_doctor_id`) VALUES
 (7, 15, '09307701803', 'sapa pequena, burgos pangasinan', 19, 'Male', 'B', 'sheena banqulies', '09509947329', 'poor eyesight', NULL),
 (34, 93, '12121212121', 'tae', 12, 'Female', 'A', 'itsrawbereli', '232323232232', 'heart', NULL),
-(35, 94, '09307701803', 'manila philiphines', 19, 'Male', 'AB', 'rose', '09897634533', 'hand fracture', NULL),
-(36, 97, '12121212121', 'allabon pangasinan', 119, 'Female', 'B', 'edralin', '23232323232', 'highblodd', NULL);
+(35, 94, '09307701803', 'manila philiphines', 19, 'Male', 'AB', 'rose', '09897634533', 'hand fracture', NULL);
 
 -- --------------------------------------------------------
 
@@ -310,14 +310,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `is_active`, `created_at`) VALUES
-(15, 'roniel c carbon', 'roniel@gmail.com', '$2y$10$IP9GqVpED957DCfjkRlod.NDFaL0JBrebvSP7s0v0jW6gg4ZWltnq', 'secretary', 1, '2025-10-12 15:57:03'),
-(89, 'roniel', 'r@gmal.com', '$2y$10$bpiNP2ARi0P87FfFplHF2OBE5LJbjopjLgrviswTC4EhmcCUWSEzm', 'doctor', 1, '2025-10-19 16:14:20'),
-(91, 'name test ', 'test@gmail.com', '$2y$10$MUUa16QgZTO/QhmU73u4QOfipT4ylpL1gxkgMMPNnrkB8vAtIiJf6', 'secretary', 1, '2025-10-25 17:38:48'),
-(92, 'test doctor', 'testdoc@gmail.com', '$2y$10$dMrBXDStpTHkuGxKmwdixeYJwkM7pcDls6hgyxpwydRxY1grOu0gm', 'doctor', 1, '2025-10-25 17:44:38'),
-(93, 'patient test', 'patienttest@gmail.com', '$2y$10$Y7jg/v3.F7JmrM3n7zUtHOg6yxuR95lbY8sTSgsgvQ2ghDX9VQQq6', 'patient', 1, '2025-10-25 18:23:08'),
-(94, 'testpatient', 'testPatient@gmail.com', '$2y$10$YvnU99NkMhjn7j6kshy34.ZHICw0s3AI8T2V2RVKdSqHynHjSKfZ2', 'patient', 1, '2025-10-26 10:24:01'),
-(95, 'test secretary ', 'testSecretary@gmail.com', '$2y$10$QmI/xY.pC.kx4LHeTgCUwuwzTjakBMi59RGXIxMf8iGfhIxZ1ndyG', 'secretary', 1, '2025-10-26 12:32:12'),
-(97, 'mamang', 'mamang@gmail.com', '$2y$10$gdQDRctiYPLZf6/6ewWYKuwezgygHVai60.JrrBN.gr0u2kUNuCxW', 'admin', 1, '2025-10-27 06:57:44'),
+(15, 'roniel c carbon lodi', 'roniel@gmail.com', '$2y$10$NMYU/oXfCSyTzktAf07MfOFKAZ5IUCY5F4M1qO68oKn166FjVZC5C', 'secretary', 1, '2025-10-12 15:57:03'),
+(89, 'roniel', 'r@gmal.com', '$2y$10$y0OUE7Ytmgx9NUGmW6hClOoR4Ci8Dr.Hcae/bdeZzi1f6gPY192NK', 'doctor', 1, '2025-10-19 16:14:20'),
+(91, 'name test hehe AASF', 'test@gmail.com', '$2y$10$bPinPT99a8IVQNBiPDMONO82EZgvVN45U09YSmG.5hUlzhKWYd0fK', 'secretary', 1, '2025-10-25 17:38:48'),
+(92, 'test doctor', 'testdoc@gmail.com', '$2y$10$CxNr1343PAKa2ApWCn0ONuYWqaX8djagSoIEhSZSy46v79Goju416', 'doctor', 1, '2025-10-25 17:44:38'),
+(93, 'patient test', 'patienttest@gmail.com', '$2y$10$KpiujKTttfBeE5xIh37xSe1o5LR9w1axPtogkBPdSwsE4eO5VTGXa', 'patient', 1, '2025-10-25 18:23:08'),
+(94, 'testpatient', 'testPatient@gmail.com', '$2y$10$SA4/nyIbgsNry4fOp7aQFOidZK143ok/6eBfM1WgRga3jR6KsJ51y', 'patient', 1, '2025-10-26 10:24:01'),
+(95, 'test secretary ', 'testSecretary@gmail.com', '$2y$10$N0yfzSiwfHqpmRhLJNSQDudpPFLP.S0cDeYcPIbVexsg5U.6OZzX6', 'secretary', 1, '2025-10-26 12:32:12'),
 (98, 'roniel c carbon', 'roniel3@gmail.com', '$2y$10$1NGLRDll54yGlB9nMa67vu0MKelhzDrTAO7k5PoC0QQQQm6ZRBeXK', 'admin', 1, '2025-10-27 10:12:11');
 
 -- --------------------------------------------------------
@@ -451,7 +450,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `billing`
@@ -481,7 +480,7 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `patients`
