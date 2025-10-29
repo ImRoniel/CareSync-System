@@ -779,45 +779,12 @@ if (isset($secretaryId)) {
                     </div>
                 </div>
             </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="total-appointments">48</h3>
-                        <p>Total Appointments</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="queue-count">8</h3>
-                        <p>Patients in Queue</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-prescription"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="prescription-count">15</h3>
-                        <p>Prescriptions to Process</p>
-                    </div>
-                </div>
-            </div>
-            
             <div class="dashboard-grid">
                 <div class="left-column">
                     <div class="card">
                         <div class="card-header">
                             <h2>Appointment Requests</h2>
-                            <button class="btn btn-secondary" onclick="showPage('appointments')">Digitize Prescription</button>
+                            <button class="btn btn-secondary" onclick="showPage('appointments')">Completed Conssulataion. Start Digitizing?</button>
                         </div>
                         
                         <table class="appointments-table">
@@ -827,7 +794,7 @@ if (isset($secretaryId)) {
                                     <th>Preferred Date</th>
                                     <th>Time</th>
                                     <!-- <th>Doctor</th>     -->
-                                    <th>Status</th>
+                                    <!-- <th>Status</th> -->
                                     <th>Actions</th>
                                 </tr>
                             </thead>

@@ -740,9 +740,9 @@ if (isset($doctorId)) {
                 
                 <nav class="nav-links">
                     <a onclick="showPage('dashboard')">Dashboard</a>
-                    <a onclick="showPage('schedule')">Schedule</a>
+                    <!-- <a onclick="showPage('schedule')">Schedule</a>
                     <a onclick="showPage('patients')">Patients</a>
-                    <a onclick="showPage('prescriptions')">Prescriptions</a>
+                    <a onclick="showPage('prescriptions')">Prescriptions</a> -->
                     <!-- <a onclick="showPage('reports')">Reports</a> -->
                 </nav>
                 
@@ -786,39 +786,6 @@ if (isset($doctorId)) {
                     </div>
                 </div>
             </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3> </h3>
-                        <p>Today's Appointments</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>142</h3>
-                        <p>Total Patients</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-prescription"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>24</h3>
-                        <p>Prescriptions Today</p>
-                    </div>
-                </div>
-            </div>
-            
             <div class="dashboard-grid">
                 <div class="left-column">
                     <div class="card">
@@ -860,17 +827,17 @@ if (isset($doctorId)) {
                                         <td>
                                             <?php if ($appointment['status'] === 'approved'): ?>
                                                 <button class="btn btn-sm btn-primary" onclick="startConsultation(<?php echo $appointment['appointment_id']; ?>)">
-                                                    Start Consultation
+                                                    Completed Consultation
                                                 </button>
-                                                <button class="btn btn-sm btn-warning" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">
+                                                <!-- <button class="btn btn-sm btn-warning" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">
                                                     Details
-                                                </button>
+                                                </button> -->
                                             <?php elseif ($appointment['status'] === 'completed'): ?>
                                                 <button class="btn btn-sm btn-success" disabled>Completed</button>
                                             <?php else: ?>
-                                                <button class="btn btn-sm btn-secondary" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">
+                                                <!-- <button class="btn btn-sm btn-secondary" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">
                                                     View
-                                                </button>
+                                                </button> -->
                                             <?php endif; ?>
                                         </td>
                                     </tr>

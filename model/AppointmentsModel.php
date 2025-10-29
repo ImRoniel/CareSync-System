@@ -575,7 +575,6 @@ class appointmentsModel{
                 INNER JOIN doctors d ON a.doctor_id = d.doctor_id
                 INNER JOIN secretaries s ON d.doctor_id = s.assigned_doctor_id
                 WHERE s.secretary_id = ?
-                AND a.status = 'pending'
                 ORDER BY a.appointment_date ASC, a.appointment_time ASC
             ";
             
@@ -612,7 +611,7 @@ class appointmentsModel{
                     INNER JOIN users u ON p.user_id = u.id
                     WHERE a.doctor_id = ?
                     AND a.appointment_date = CURDATE()
-                    AND a.status IN ('approved', 'completed', 'cancelled')
+                    OR a.status IN ('approved', 'completed', 'cancelled')
                     ORDER BY a.queue_number ASC, a.appointment_time ASC
             ";
             
@@ -696,7 +695,7 @@ class appointmentsModel{
             INNER JOIN patients p ON a.patient_id = p.patient_id
             INNER JOIN users u ON p.user_id = u.id
             WHERE a.doctor_id = ?
-            AND a.status = 'pending'  // ONLY PENDING STATUS
+            or a.status = 'pending'  
             ORDER BY a.appointment_date ASC, a.appointment_time ASC
         ";
         
