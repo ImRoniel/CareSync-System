@@ -91,5 +91,9 @@ class PatientController{
             return ['success' => false, 'message' => 'Failed to update patient'];
         }
     }
+
+    public function getPatientById2($patientId){
+        return $this->model->getPatientByUserId2($patientId);
+    }
 }
 ?>
