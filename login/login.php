@@ -565,8 +565,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p style="text-align: center; margin-bottom: 16px; color: var(--text-medium);">Or sign up as:</p>
                     <div class="role-buttons">
                         <a href="../signup/signup.php?role=patient" class="role-btn">Patient</a>
-                        <a href="../signup/signup.php?role=doctor" class="role-btn">Doctor</a>
-                        <a href="../signup/signup.php?role=secretary" class="role-btn">Secretary</a>
+                        <!-- <a href="../signup/signup.php?role=doctor" class="role-btn">Doctor</a>
+                        <a href="../signup/signup.php?role=secretary" class="role-btn">Secretary</a> -->
                     </div>
                 </div>
             </div>

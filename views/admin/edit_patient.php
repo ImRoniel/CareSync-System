@@ -11,7 +11,7 @@ $message = "";
 
 // 2. Create controller and fetch patient data
 $patientController = new PatientController($conn);
-$patient = $patientController->getPatientById2($id);
+$patient = $patientController->getPatientById($id);
 
 if (!$patient) {
     die("Patient not found.");

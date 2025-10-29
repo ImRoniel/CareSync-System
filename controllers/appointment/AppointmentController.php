@@ -127,10 +127,6 @@ class AppointmentController {
         return $this->model->getUpcomingAppointmentsCount($patientId);
     }
 
-    public function getUpcomingAppointmentsForPatientController($patientId) {
-        return $this->model->getUpcomingAppointmentsForPatient($patientId);
-    }
-
     public function getTotalAppointments(){
         return $this->model->getTotalAppointments();
     }
@@ -434,124 +430,11 @@ class AppointmentController {
         $result = $this->appointmentsModel->rejectAppointment($appointment_id, $this->secretary_id);
         echo json_encode($result);
     }
-
-    public function getAppointmentRequests() {
-        header('Content-Type: application/json');
-        
-        if (!$this->secretary_id) {
-            echo json_encode([]);
-            return;
-        }
-
-        $appointments = $this->appointmentsModel->getAppointmentRequestsForSecretary($this->secretary_id);
-        echo json_encode($appointments);
-    }
-
-    public function getTodaysCompletedAppointments($doctor_id){
-        require_once __DIR__ . '/../../model/AppointmentsModel.php';
-        
-        $appointmentsModel = new AppointmentsModel($this->model);
-
-        try {
-            $completedAppointments = $appointmentsModel->getTodaysCompletedAppointment($doctor_id);
-            
-            if (!empty($completedAppointments)) {
-                return [
-                    'success' => true,
-                    'data' => $completedAppointments
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'No completed appointments found for today.'
-                ];
-            }
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Error fetching completed appointments: ' . $e->getMessage()
-            ];
-        }
-    }
-
-     public function createPrescription($prescription_data) {
-        try {
-            $query = "
-                INSERT INTO prescriptions 
-                (appointment_id, doctor_id, patient_id, medicine_name, dosage, 
-                 frequency, duration, instructions, diagnosis, prescription_text, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active')
-            ";
-            
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param(
-                "iiisssssss", 
-                $prescription_data['appointment_id'],
-                $prescription_data['doctor_id'],
-                $prescription_data['patient_id'],
-                $prescription_data['medicine_name'],
-                $prescription_data['dosage'],
-                $prescription_data['frequency'],
-                $prescription_data['duration'],
-                $prescription_data['instructions'],
-                $prescription_data['diagnosis'],
-                $prescription_data['prescription_text']
-            );
-            
-            $result = $stmt->execute();
-            $prescription_id = $stmt->insert_id;
-            $stmt->close();
-            
-            if ($result) {
-                return ['success' => true, 'prescription_id' => $prescription_id];
-            } else {
-                return ['success' => false, 'message' => 'Failed to create prescription'];
-            }
-            
-        } catch (Exception $e) {
-            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
-        }
-    }
-
-    public function getPatientPrescriptions($patient_id) {
-        try {
-            $query = "
-                SELECT 
-                    p.prescription_id,
-                    p.medicine_name,
-                    p.dosage,
-                    p.frequency,
-                    p.duration,
-                    p.instructions,
-                    p.diagnosis,
-                    p.prescription_text,
-                    p.created_at,
-                    u.name as doctor_name,
-                    d.specialization
-                FROM prescriptions p
-                INNER JOIN doctors d ON p.doctor_id = d.doctor_id
-                INNER JOIN users u ON d.user_id = u.id
-                WHERE p.patient_id = ?
-                ORDER BY p.created_at DESC
-            ";
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->bind_param("i", $patient_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $prescriptions = $result->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
-            
-            return $prescriptions;
-            
-        } catch (Exception $e) {
-            return [];
-        }
-    }
+}
 
     
 
-}
+
 
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action'])) {

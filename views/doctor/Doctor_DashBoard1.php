@@ -26,7 +26,7 @@ $userId = intval($_SESSION['user_id']); // This is from users table
 // Get the actual doctor_id from doctors table
 $doctorController = new DoctorController($conn);
 $doctor = $doctorController->getDoctorData($userId);
-
+// $secretary = $secretaryController->getSecretaryData($secretaryId);
 // Check if we got doctor data and get the doctor_id
 if ($doctor && isset($doctor['doctor_id'])) {
     $doctorId = $doctor['doctor_id']; // This is what we need for the query
@@ -1334,46 +1334,49 @@ if (isset($doctorId)) {
     <div id="edit-profile-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Edit Profile</h2>
-                <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
+            <h2>Edit Profile</h2>
+            <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
             </div>
             <div class="modal-body">
-                <form id="edit-profile-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit-first-name">First Name</label>
-                            <input type="text" id="edit-first-name" class="form-control" value="Name" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="edit-last-name">Last Name</label>
-                            <input type="text" id="edit-last-name" class="form-control" value="Here" required>
-                        </div>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-name">Full Name</label>
+                    <input type="text" id="edit-name" name="name" class="form-control"
+                            value="<?= htmlspecialchars($doctor['name']) ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-email">Email</label>
+                    <input type="email" id="edit-email" name="email" class="form-control"
+                            value="<?= htmlspecialchars($doctor['email']) ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-phone">Phone</label>
+                    <input type="tel" id="edit-phone" name="phone" class="form-control"
+                            value="<?= htmlspecialchars($doctor['phone']) ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-address">Address</label>
+                    <input type="text" id="edit-address" name="address" class="form-control"
+                            value="<?= htmlspecialchars($doctor['address'] ?? '') ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-department">Department</label>
+                    <input type="text" id="edit-department" name="department" class="form-control"
+                            value="<?= htmlspecialchars($doctor['department'] ?? '') ?>">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-email">Email</label>
-                        <input type="email" id="edit-email" class="form-control" value="email@caresync.com" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-specialization">Specialization</label>
-                        <input type="text" id="edit-specialization" class="form-control" value="Cardiologist" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit-phone">Phone</label>
-                        <input type="tel" id="edit-phone" class="form-control" value="Phone Here">
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+            </form>
             </div>
         </div>
-    </div>
+        </div>
 
     <footer>
         <div class="container">
@@ -1537,6 +1540,31 @@ if (isset($doctorId)) {
             })
             .catch(err => alert("Error: " + err));
         }
+
+        document.getElementById("edit-profile-form").addEventListener("submit", function(e) {
+            e.preventDefault(); // Stop normal reload
+
+            const formData = new FormData(this);
+
+            fetch("../../controllers/doctor/update_doctor.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                alert("Profile updated successfully!");
+                closeModal('edit-profile-modal');
+                location.reload(); // refresh to show updated info
+                } else {
+                alert("Failed to update: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("Something went wrong. Check console for details.");
+            });
+            });
     </script>
 </body>
 </html>

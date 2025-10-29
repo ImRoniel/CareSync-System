@@ -37,11 +37,11 @@ if ($patientInternalId) {
     $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCountController($patientInternalId);
 }
 
-// Fetch upcoming appointments including 'approved' (checked-in)
-$appointments = [];
-if ($patientInternalId) {
-    $appointments = $appointmentsController->getUpcomingAppointmentsForPatientController($patientInternalId);
-}
+// // Fetch upcoming appointments including 'approved' (checked-in)
+// $appointments = [];
+// if ($patientInternalId) {
+//     $appointments = $appointmentsController->getUpcomingAppointmentsForPatientController($patientInternalId);
+// }
 
 // Fetch prescriptions by patient_id
 $prescriptions = [];
@@ -943,13 +943,13 @@ $activePrescriptionsCount = is_array($prescriptions) ? count($prescriptions) : 0
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
                     <div class="stat-info">
                         <h3></h3>
                         <p>Pending Bills</p>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
@@ -1127,9 +1127,9 @@ $activePrescriptionsCount = is_array($prescriptions) ? count($prescriptions) : 0
                                     <?php if (!empty($p['instructions'])): ?><p><strong>Instructions:</strong> <?= htmlspecialchars($p['instructions']) ?></p><?php endif; ?>
                                     <?php if (!empty($p['diagnosis'])): ?><p><strong>Diagnosis:</strong> <?= htmlspecialchars($p['diagnosis']) ?></p><?php endif; ?>
                                 </div>
-                                <div class="form-actions">
+                                <!-- <div class="form-actions">
                                     <button class="btn btn-primary" onclick="showModal('request-refill-modal')">Request Refill</button>
-                                </div>
+                                </div> -->
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -1140,7 +1140,7 @@ $activePrescriptionsCount = is_array($prescriptions) ? count($prescriptions) : 0
                 </ul>
             </div>
             
-            <div class="card">
+            <!-- <div class="card">
                 <div class="card-header">
                     <h2>Prescription History</h2>
                 </div>
@@ -1158,7 +1158,7 @@ $activePrescriptionsCount = is_array($prescriptions) ? count($prescriptions) : 0
                         </div>
                     </li>
                 </ul>
-            </div>
+            </div> -->
         </div>
     </section>
 

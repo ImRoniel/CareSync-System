@@ -18,6 +18,16 @@ class DoctorController {
     public function getDoctorData($user_id) {
         return $this->model->getDoctorByUserId($user_id);
     }
-}
+
+    public function updateDoctor($user_id, $data) {
+        $name = $data['name'];
+        $email = $data['email'];
+        $phone = $data['phone'];
+        $address = $data['address'];
+        $department = $data['department'];
+
+        return $this->model->updateDoctorProfile($user_id, $name, $email, $phone, $address, $department);
+    }
+    }
 
 ?>

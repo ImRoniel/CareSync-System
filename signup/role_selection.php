@@ -182,7 +182,7 @@
                     <div class="btn btn-primary">Continue as Patient</div>
                 </a>
                 
-                Doctor Card
+                <!-- Doctor Card
                 <a href="signup.php?role=doctor" class="role-card">
                     <div class="role-icon">
                         <i class="fas fa-user-md"></i>
@@ -190,17 +190,17 @@
                     <h3>I Am a Doctor</h3>
                     <p class="role-description">View your schedules, patient details, and billing updates</p>
                     <div class="btn btn-primary">Continue as Doctor</div>
-                </a>
+                </a> -->
                 
                 <!-- Secretary Card -->
-                <a href="signup.php?role=secretary" class="role-card">
+                <!-- <a href="signup.php?role=secretary" class="role-card">
                     <div class="role-icon">
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <h3>I Am a Secretary</h3>
                     <p class="role-description">Manage appointments, handle patients records, and digitize prescription</p>
                     <div class="btn btn-primary">Continue as Secretary</div>
-                </a>
+                </a> -->
             </div>
 
             <div class="login-link">

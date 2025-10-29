@@ -655,7 +655,7 @@
         <div class="container">
             <div class="hero-content">
                 <h1>Streamline Your Clinic Operations</h1>
-                <p>CareSync is a comprehensive clinic management system that integrates patient scheduling, digital prescriptions, and billing into one seamless platform. Save time, reduce errors, and improve patient care.</p>
+                <p>CareSync is a comprehensive clinic management system that integrates patient scheduling, and digital prescription into one seamless platform. Save time, reduce errors, and improve patient care.</p>
                 <div class="hero-actions">
                     <a href="#features" class="btn btn-primary btn-large">Learn More</a>
                     <a href="signup/signup.php" class="btn btn-secondary">Get Started</a>
@@ -852,7 +852,7 @@
                     <a href="signup/signup.php?role=patient" class="btn btn-primary">Continue as Patient</a>
                 </div>
                 
-                <div class="role-card" onclick="location.href='signup/signup.php?role=doctor'">
+                <!-- <div class="role-card" onclick="location.href='signup/signup.php?role=doctor'">
                     <div class="role-icon">
                         <i class="fas fa-user-md"></i>
                     </div>
@@ -868,7 +868,7 @@
                     <h3>I Am a Secretary</h3>
                     <p class="role-description">Manage appointments, handle patients records, and digitize prescription</p>
                     <a href="signup/signup.php?role=secretary" class="btn btn-primary">Continue as Secretary</a>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
