@@ -1514,6 +1514,29 @@ if (isset($doctorId)) {
             alert('Profile updated successfully!');
             closeModal('edit-profile-modal');
         });
+
+        function startConsultation(appointmentId) {
+            if (!confirm("Mark this consultation as completed?")) return;
+
+            fetch("../../controllers/appointment/mark_completed.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "appointment_id=" + appointmentId
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    // Reload the tables to reflect changes
+                    location.reload();
+                } else {
+                    alert("Failed: " + data.message);
+                }
+            })
+            .catch(err => alert("Error: " + err));
+        }
     </script>
 </body>
 </html>

@@ -611,6 +611,7 @@ class appointmentsModel{
                     INNER JOIN users u ON p.user_id = u.id
                     WHERE a.doctor_id = ?
                     AND a.appointment_date = CURDATE()
+                    AND a.status = 'completed'
                     OR a.status IN ('approved', 'completed', 'cancelled')
                     ORDER BY a.queue_number ASC, a.appointment_time ASC
             ";
@@ -701,6 +702,92 @@ class appointmentsModel{
         
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $assigned_doctor_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $appointments = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        
+        return $appointments;
+        
+    } catch (Exception $e) {
+        return [];
+    }
+}
+    public function getTodaysCompletedAppointment($doctor_id) {
+        try {
+            $query = "
+                    SELECT 
+                        a.appointment_id,
+                        a.patient_id,
+                        u.name as patient_name,
+                        a.appointment_date,
+                        a.appointment_time,
+                        a.status,
+                        a.queue_number,
+                        a.reason
+                    FROM appointments a
+                    INNER JOIN patients p ON a.patient_id = p.patient_id
+                    INNER JOIN users u ON p.user_id = u.id
+                    WHERE a.doctor_id = ?
+                    AND a.status = 'completed'
+                    ORDER BY a.queue_number ASC, a.appointment_time ASC
+            ";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("i", $doctor_id);
+            var_dump($doctor_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $appointments = $result->fetch_all(MYSQLI_ASSOC);
+            var_dump($stmt->error);
+            var_dump($result);
+            $stmt->close();
+            
+            return $appointments;
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function getTodaysCompletedAppointmentsForSecretary($secretary_id) {
+    try {
+        // First get the assigned doctor ID for this secretary
+        $doctorQuery = "SELECT assigned_doctor_id FROM secretaries WHERE secretary_id = ?";
+        $stmt = $this->conn->prepare($doctorQuery);
+        $stmt->bind_param("i", $secretary_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $secretaryData = $result->fetch_assoc();
+        $stmt->close();
+        
+        if (!$secretaryData || !$secretaryData['assigned_doctor_id']) {
+            return []; // Secretary not assigned to any doctor
+        }
+        
+        $doctor_id = $secretaryData['assigned_doctor_id'];
+        
+        // Now get completed appointments for that doctor
+        $query = "
+            SELECT 
+                a.appointment_id,
+                a.patient_id,
+                u.name as patient_name,
+                a.appointment_date,
+                a.appointment_time,
+                a.status,
+                a.queue_number,
+                a.reason
+            FROM appointments a
+            INNER JOIN patients p ON a.patient_id = p.patient_id
+            INNER JOIN users u ON p.user_id = u.id
+            WHERE a.doctor_id = ?
+            AND a.status = 'completed'
+            ORDER BY a.queue_number ASC, a.appointment_time ASC
+        ";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $doctor_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $appointments = $result->fetch_all(MYSQLI_ASSOC);

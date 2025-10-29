@@ -48,13 +48,36 @@ $totalAppointment = $appointmentController->getTotalAppointments();
 $appointmentRequests = [];
 if (isset($secretaryId)) {
     $appointmentModel = new AppointmentsModel($conn);
-    
     // Use a method that only gets pending appointments
     $appointmentRequests = $appointmentModel->getPendingAppointmentsForSecretary($secretaryId);
-    
     // DEBUG
     echo "<!-- Secretary ID: $secretaryId -->";
     echo "<!-- Pending appointments found: " . count($appointmentRequests) . " -->";
+}
+
+$completedAppointments = [];
+if (isset($secretaryId)) {
+    $appointmentModel = new AppointmentsModel($conn);
+    
+    // First, get the doctor ID that this secretary is assigned to
+    $doctorQuery = "SELECT assigned_doctor_id FROM secretaries WHERE secretary_id = ?";
+    $stmt = $conn->prepare($doctorQuery);
+    $stmt->bind_param("i", $secretaryId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $secretaryData = $result->fetch_assoc();
+    $stmt->close();
+    
+    if ($secretaryData && $secretaryData['assigned_doctor_id']) {
+        $doctor_id = $secretaryData['assigned_doctor_id'];
+        $completedAppointments = $appointmentModel->getTodaysCompletedAppointment($doctor_id);
+        
+        echo "<!-- Secretary ID: $secretaryId -->";
+        echo "<!-- Assigned Doctor ID: $doctor_id -->";
+        echo "<!-- Completed appointments found: " . count($completedAppointments) . " -->";
+    } else {
+        echo "<!-- Secretary is not assigned to any doctor -->";
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -866,33 +889,28 @@ if (isset($secretaryId)) {
                 <table class="appointments-table">
                     <thead>
                         <tr>
-                            <th>Time</th>
                             <th>Patient</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>9:00 AM</td>
-                            <td>Name here</td>
-                            <td>Dr. Name here</td>
-                            <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-secondary" onclick="showModal('schedule-modal')">Edit</button>
-                                <button class="btn btn-sm btn-danger">Cancel</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>10:30 AM</td>
-                            <td>Name here</td>
-                            <td>Dr. Name here</td>
-                            <td><span class="status-badge status-waiting">Waiting</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-secondary" onclick="showModal('schedule-modal')">Edit</button>
-                                <button class="btn btn-sm btn-danger">Cancel</button>
-                            </td>
-                        </tr>
+                        <?php if (empty($completedAppointments)): ?>
+                            <tr><td colspan="4" class="text-center">No completed consultations yet</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($completedAppointments as $c): ?>
+                                <tr>
+                                    <td><?php echo date('g:i A', strtotime($c['appointment_time'])); ?></td>
+                                    <td><?php echo htmlspecialchars($c['patient_name']); ?></td>
+                                    <td><span class="status-badge status-completed">Completed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="showPrescriptionModal(<?php echo $c['appointment_id']; ?>)">
+                                            Create Prescription
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

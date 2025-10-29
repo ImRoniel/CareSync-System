@@ -443,6 +443,33 @@ class AppointmentController {
         echo json_encode($appointments);
     }
 
+    public function getTodaysCompletedAppointments($doctor_id){
+        require_once __DIR__ . '/../../model/AppointmentsModel.php';
+        
+        $appointmentsModel = new AppointmentsModel($this->model);
+
+        try {
+            $completedAppointments = $appointmentsModel->getTodaysCompletedAppointment($doctor_id);
+            
+            if (!empty($completedAppointments)) {
+                return [
+                    'success' => true,
+                    'data' => $completedAppointments
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'No completed appointments found for today.'
+                ];
+            }
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error fetching completed appointments: ' . $e->getMessage()
+            ];
+        }
+    }
+
     
 
 }
