@@ -765,10 +765,7 @@ if (isset($secretaryId)) {
                 
                 <nav class="nav-links">
                     <a onclick="showPage('dashboard')">Dashboard</a>
-                    <a onclick="showPage('appointments')">Appointments</a>
-                    <a onclick="showPage('patients')">Patients</a>
-                    <a onclick="showPage('queue')">Queue</a>
-                    <a onclick="showPage('billing')">Billing</a>
+                    <a onclick="showPage('appointments')">Digitize Prescreption</a>
                 </nav>
                 
                 <div class="nav-actions">
@@ -900,11 +897,11 @@ if (isset($secretaryId)) {
                         <?php else: ?>
                             <?php foreach ($completedAppointments as $c): ?>
                                 <tr>
-                                    <td><?php echo date('g:i A', strtotime($c['appointment_time'])); ?></td>
                                     <td><?php echo htmlspecialchars($c['patient_name']); ?></td>
+                                    <td><?php echo date('g:i A', strtotime($c['appointment_time'])); ?></td>
                                     <td><span class="status-badge status-completed">Completed</span></td>
                                     <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="showPrescriptionModal(<?php echo $c['appointment_id']; ?>)">
+                                        <button class="btn btn-sm btn-secondary" onclick="showPrescriptionModal(<?php echo (int)$c['appointment_id']; ?>, <?php echo (int)$c['patient_id']; ?>, '<?php echo htmlspecialchars($c['patient_name'], ENT_QUOTES); ?>')">
                                             Create Prescription
                                         </button>
                                     </td>
@@ -1203,24 +1200,46 @@ if (isset($secretaryId)) {
             </div>
             <div class="modal-body">
                 <form id="prescription-form">
+                    <input type="hidden" id="prescription-appointment-id" name="appointment_id">
+                    <input type="hidden" id="prescription-patient-id" name="patient_id">
                     <div class="form-group">
                         <label for="prescription-patient">Patient Name</label>
-                        <input type="text" id="prescription-patient" class="form-control" required>
+                        <input type="text" id="prescription-patient" class="form-control" disabled>
                     </div>
                     
                     <div class="form-group">
                         <label for="medication">Medication</label>
-                        <input type="text" id="medication" class="form-control" required>
+                        <input type="text" id="medication" name="medicine_name" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="dosage">Dosage</label>
-                        <input type="text" id="dosage" class="form-control" required>
+                        <input type="text" id="dosage" name="dosage" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
+                        <label for="frequency">Frequency</label>
+                        <input type="text" id="frequency" name="frequency" class="form-control" placeholder="e.g., 2x daily">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Duration</label>
+                        <input type="text" id="duration" name="duration" class="form-control" placeholder="e.g., 7 days">
+                    </div>
+
+                    <div class="form-group">
                         <label for="instructions">Instructions</label>
-                        <textarea id="instructions" class="form-control" rows="3"></textarea>
+                        <textarea id="instructions" name="instructions" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="diagnosis">Diagnosis</label>
+                        <input type="text" id="diagnosis" name="diagnosis" class="form-control" placeholder="Optional">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prescription_text">Notes</label>
+                        <textarea id="prescription_text" name="prescription_text" class="form-control" rows="3" placeholder="Optional"></textarea>
                     </div>
                     
                     <div class="form-actions">
@@ -1479,6 +1498,39 @@ if (isset($secretaryId)) {
                 navLinks.style.padding = '20px';
                 navLinks.style.boxShadow = 'var(--shadow-md)';
             }
+        });
+
+        function showPrescriptionModal(appointmentId, patientId, patientName) {
+            document.getElementById('prescription-appointment-id').value = appointmentId;
+            document.getElementById('prescription-patient-id').value = patientId;
+            document.getElementById('prescription-patient').value = patientName;
+            showModal('prescription-modal');
+        }
+
+        document.getElementById('prescription-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formEl = document.getElementById('prescription-form');
+            const formData = new FormData(formEl);
+
+            fetch('../../controllers/secretaries/PrescriptionActions.php?action=create', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Prescription created successfully');
+                    closeModal('prescription-modal');
+                    formEl.reset();
+                } else {
+                    alert('Failed to create prescription: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Network error while creating prescription');
+            });
         });
         document.getElementById("edit-profile-form").addEventListener("submit", function(e) {
             e.preventDefault(); // Stop normal reload

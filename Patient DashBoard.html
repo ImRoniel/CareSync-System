@@ -857,28 +857,9 @@
                             <button class="btn btn-secondary" onclick="showPage('prescriptions')">View All</button>
                         </div>
                         
-                        <ul class="prescription-list">
-                            <li class="prescription-item">
-                                <div class="prescription-header">
-                                    <span class="prescription-doctor">Dr. Name here</span>
-                                    <span class="prescription-date">Date Here</span>
-                                </div>
-                                <div class="prescription-details">
-                                    <p><strong>Medication:</strong> Medication Here</p>
-                                    <p><strong>Dosage:</strong> Dosage Here</p>
-                                    <p><strong>Refills:</strong> Refills Here</p>
-                                </div>
-                            </li>
-                            <li class="prescription-item">
-                                <div class="prescription-header">
-                                    <span class="prescription-doctor">Dr. Name here</span>
-                                    <span class="prescription-date">Date Here</span>
-                                </div>
-                                <div class="prescription-details">
-                                    <p><strong>Medication:</strong> Medication Here</p>
-                                    <p><strong>Dosage:</strong> Dosage Here</p>
-                                    <p><strong>Refills:</strong> Refills Here</p>
-                                </div>
+                        <ul class="prescription-list" id="current-prescriptions-list">
+                            <li class="prescription-item" id="current-prescriptions-empty">
+                                <p>No prescription.</p>
                             </li>
                         </ul>
                     </div>
@@ -1025,25 +1006,8 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
+                    <tbody id="appointment-history-body">
+                        <tr><td colspan="4">No appointment history.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1101,19 +1065,8 @@
                 <div class="card-header">
                     <h2>Prescription History</h2>
                 </div>
-                <ul class="prescription-list">
-                    <li class="prescription-item">
-                        <div class="prescription-header">
-                            <span class="prescription-doctor">Dr. Name here</span>
-                            <span class="prescription-date">Date Here</span>
-                        </div>
-                        <div class="prescription-details">
-                            <p><strong>Medication:</strong> Medication Here</p>
-                            <p><strong>Dosage:</strong> Dosage Here</p>
-                            <p><strong>Instructions:</strong> Instructions Here</p>
-                            <p><strong>Status:</strong> Status Here</p>
-                        </div>
-                    </li>
+                <ul class="prescription-list" id="prescription-history-list">
+                    <li class="prescription-item"><p>No history.</p></li>
                 </ul>
             </div>
         </div>
@@ -1734,6 +1687,133 @@
             alert('Prescription refill request submitted!');
             closeModal('request-refill-modal');
         });
+        
+        // Populate Active (Current) Prescriptions is already handled above
+        
+        // Populate Prescription History
+        (function loadPrescriptionHistory(){
+            const listEl = document.getElementById('prescription-history-list');
+            if (!listEl) return;
+            fetch('/CareSync-System/controllers/patients/GetPrescriptionHistory.php', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(items => {
+                    while (listEl.firstChild) listEl.removeChild(listEl.firstChild);
+                    if (!items || !items.length) {
+                        const li = document.createElement('li');
+                        li.className = 'prescription-item';
+                        li.innerHTML = '<p>No history.</p>';
+                        listEl.appendChild(li);
+                        return;
+                    }
+                    items.forEach(p => {
+                        const li = document.createElement('li');
+                        li.className = 'prescription-item';
+                        li.innerHTML = `
+                            <div class="prescription-header">
+                                <span class="prescription-doctor">${escapeHtml(p.doctor_name || '')}</span>
+                                <span class="prescription-date">${escapeHtml(p.created_at || '')}</span>
+                            </div>
+                            <div class="prescription-details">
+                                <p><strong>Medication:</strong> ${escapeHtml(p.medicine_name || '')}</p>
+                                <p><strong>Dosage:</strong> ${escapeHtml(p.dosage || '')}</p>
+                                ${p.instructions ? `<p><strong>Instructions:</strong> ${escapeHtml(p.instructions)}</p>` : ''}
+                                <p><strong>Status:</strong> ${escapeHtml(p.status || '')}</p>
+                            </div>
+                        `;
+                        listEl.appendChild(li);
+                    });
+                })
+                .catch(() => {
+                    // Leave fallback
+                });
+        })();
+
+        // Populate Appointment History
+        (function loadAppointmentHistory(){
+            const tbody = document.getElementById('appointment-history-body');
+            if (!tbody) return;
+            fetch('/CareSync-System/controllers/patients/GetAppointmentHistory.php', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(items => {
+                    while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+                    if (!items || !items.length) {
+                        const tr = document.createElement('tr');
+                        const td = document.createElement('td');
+                        td.colSpan = 4;
+                        td.textContent = 'No appointment history.';
+                        tr.appendChild(td);
+                        tbody.appendChild(tr);
+                        return;
+                    }
+                    items.forEach(a => {
+                        const tr = document.createElement('tr');
+                        const status = (a.status_label || '').toLowerCase();
+                        let badge = 'status-pending';
+                        if (status === 'confirmed') badge = 'status-confirmed';
+                        else if (status === 'completed') badge = 'status-completed';
+                        else if (status === 'cancelled') badge = 'status-cancelled';
+                        tr.innerHTML = `
+                            <td>${escapeHtml(a.doctor_name || '')}</td>
+                            <td>${escapeHtml(a.date_time || '')}</td>
+                            <td>${escapeHtml(a.type || '')}</td>
+                            <td><span class="status-badge ${badge}">${escapeHtml(a.status_label || '')}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(() => {
+                    // Leave fallback
+                });
+        })();
+        
+        // Populate Current Prescriptions with active prescriptions
+        (function loadActivePrescriptions(){
+            const listEl = document.getElementById('current-prescriptions-list');
+            if (!listEl) return;
+            fetch('/CareSync-System/controllers/patients/GetActivePrescriptions.php', { credentials: 'same-origin' })
+                .then(r => r.json())
+                .then(items => {
+                    while (listEl.firstChild) listEl.removeChild(listEl.firstChild);
+                    if (!items || !items.length) {
+                        const li = document.createElement('li');
+                        li.className = 'prescription-item';
+                        li.innerHTML = '<p>No prescription.</p>';
+                        listEl.appendChild(li);
+                        return;
+                    }
+                    items.forEach(p => {
+                        const li = document.createElement('li');
+                        li.className = 'prescription-item';
+                        li.innerHTML = `
+                            <div class="prescription-header">
+                                <span class="prescription-doctor">${escapeHtml(p.doctor_name || '')}</span>
+                                <span class="prescription-date">${escapeHtml(p.created_at || '')}</span>
+                            </div>
+                            <div class="prescription-details">
+                                <p><strong>Medication:</strong> ${escapeHtml(p.medicine_name || '')}</p>
+                                <p><strong>Dosage:</strong> ${escapeHtml(p.dosage || '')}</p>
+                                ${p.frequency ? `<p><strong>Frequency:</strong> ${escapeHtml(p.frequency)}</p>` : ''}
+                                ${p.duration ? `<p><strong>Duration:</strong> ${escapeHtml(p.duration)}</p>` : ''}
+                                ${p.instructions ? `<p><strong>Instructions:</strong> ${escapeHtml(p.instructions)}</p>` : ''}
+                                ${p.diagnosis ? `<p><strong>Diagnosis:</strong> ${escapeHtml(p.diagnosis)}</p>` : ''}
+                            </div>
+                        `;
+                        listEl.appendChild(li);
+                    });
+                })
+                .catch(() => {
+                    // Leave fallback
+                });
+        })();
+
+        function escapeHtml(str){
+            return String(str)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;')
+                .replace(/'/g,'&#039;');
+        }
         
         document.getElementById('request-records-form').addEventListener('submit', function(e) {
             e.preventDefault();

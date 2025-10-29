@@ -63,7 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $address = trim($_POST['address']);
         $department = trim($_POST['department']);
         $employment_date = trim($_POST['employment_date']);
-        $assigned_doctor_id = trim($_POST['assigned_doctor_id']);
+        // Optional during signup; may be assigned later by admin
+        $assigned_doctor_id = isset($_POST['assigned_doctor_id']) ? trim($_POST['assigned_doctor_id']) : null;
     }
 
     // Check if email already exists

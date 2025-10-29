@@ -10,6 +10,7 @@ require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../controllers/admin/patientController.php';
 require_once __DIR__ . '/../../model/PatientModel.php';
+require_once __DIR__ . '/../../model/PrescriptionModel.php';
 require_once __DIR__ . '/../../controllers/appointment/AppointmentController.php';
 if (empty($_SESSION['user_id'])) {
     header("Location: ../../login/login.php");
@@ -22,14 +23,34 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'patient') {
 }
 
 
-$patientId = $_SESSION['user_id']; // a variable for a user id
+$patientId = $_SESSION['user_id']; // user_id
 
 $patientController = new PatientController($conn); //intamces of appointment controller
 $patient2 = $patientController->getPatientById2($patientId);
 $appointmentsController = new AppointmentController($conn); // intances of appointmetn controller
+$prescriptionModel = new PrescriptionModel($conn);
 
-$upcomingAppointmentsCount = 0; // a dynamic variable 
-$upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCountController($patientId);
+$upcomingAppointmentsCount = 0; // a dynamic variable
+// Use the real patient_id for queries
+$patientInternalId = $patient2['patient_id'] ?? null;
+if ($patientInternalId) {
+    $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCountController($patientInternalId);
+}
+
+// Fetch upcoming appointments including 'approved' (checked-in)
+$appointments = [];
+if ($patientInternalId) {
+    $appointments = $appointmentsController->getUpcomingAppointmentsForPatientController($patientInternalId);
+}
+
+// Fetch prescriptions by patient_id
+$prescriptions = [];
+if ($patientInternalId) {
+    $prescriptions = $prescriptionModel->getPrescriptionsByPatientId($patientInternalId);
+}
+
+// Count active prescriptions for dashboard stats card
+$activePrescriptionsCount = is_array($prescriptions) ? count($prescriptions) : 0;
 
 ?>
 
@@ -917,7 +938,7 @@ $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCou
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-prescription"></i></div>
                     <div class="stat-info">
-                        <h3></h3>
+                        <h3><?= htmlspecialchars($activePrescriptionsCount) ?></h3>
                         <p>Active Prescriptions</p>
                     </div>
                 </div>
@@ -993,28 +1014,30 @@ $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCou
                         </div>
                         
                         <ul class="prescription-list">
-                            <li class="prescription-item">
-                                <div class="prescription-header">
-                                    <span class="prescription-doctor">Dr. Name here</span>
-                                    <span class="prescription-date">Date Here</span>
-                                </div>
-                                <div class="prescription-details">
-                                    <p><strong>Medication:</strong> Medication Here</p>
-                                    <p><strong>Dosage:</strong> Dosage Here</p>
-                                    <p><strong>Refills:</strong> Refills Here</p>
-                                </div>
-                            </li>
-                            <li class="prescription-item">
-                                <div class="prescription-header">
-                                    <span class="prescription-doctor">Dr. Name here</span>
-                                    <span class="prescription-date">Date Here</span>
-                                </div>
-                                <div class="prescription-details">
-                                    <p><strong>Medication:</strong> Medication Here</p>
-                                    <p><strong>Dosage:</strong> Dosage Here</p>
-                                    <p><strong>Refills:</strong> Refills Here</p>
-                                </div>
-                            </li>
+                            <?php 
+                                $currentList = is_array($prescriptions) ? array_slice($prescriptions, 0, 3) : [];
+                            ?>
+                            <?php if (!empty($currentList)): ?>
+                                <?php foreach ($currentList as $p): ?>
+                                    <li class="prescription-item">
+                                        <div class="prescription-header">
+                                            <span class="prescription-doctor"><?= htmlspecialchars($p['doctor_name']) ?></span>
+                                            <span class="prescription-date"><?= htmlspecialchars($p['created_at']) ?></span>
+                                        </div>
+                                        <div class="prescription-details">
+                                            <p><strong>Medication:</strong> <?= htmlspecialchars($p['medicine_name']) ?></p>
+                                            <p><strong>Dosage:</strong> <?= htmlspecialchars($p['dosage']) ?></p>
+                                            <?php if (!empty($p['frequency'])): ?><p><strong>Frequency:</strong> <?= htmlspecialchars($p['frequency']) ?></p><?php endif; ?>
+                                            <?php if (!empty($p['duration'])): ?><p><strong>Duration:</strong> <?= htmlspecialchars($p['duration']) ?></p><?php endif; ?>
+                                            <?php if (!empty($p['instructions'])): ?><p><strong>Instructions:</strong> <?= htmlspecialchars($p['instructions']) ?></p><?php endif; ?>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="prescription-item">
+                                    <p>No prescription.</p>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </div>
                 </div>
@@ -1078,41 +1101,7 @@ $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCou
                 </table>
             </div>
            
-            <div class="card">
-                <div class="card-header">
-                    <h2>Appointment History</h2>
-                </div>
-                <table class="appointments-table">
-                    <thead>
-                        <tr>
-                            <th>Doctor</th>
-                            <th>Date & Time</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>Dr. Name here</td>
-                            <td>Date Here - Time Here</td>
-                            <td>Type Here</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            
         </div>
     </section>
 
@@ -1128,14 +1117,15 @@ $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCou
                             <li class="prescription-item">
                                 <div class="prescription-header">
                                     <span class="prescription-doctor"><?= htmlspecialchars($p['doctor_name']) ?></span>
-                                    <span class="prescription-date"><?= htmlspecialchars($p['date_prescribed']) ?></span>
+                                    <span class="prescription-date"><?= htmlspecialchars($p['created_at']) ?></span>
                                 </div>
                                 <div class="prescription-details">
-                                    <p><strong>Medication:</strong> <?= htmlspecialchars($p['medication']) ?></p>
+                                    <p><strong>Medication:</strong> <?= htmlspecialchars($p['medicine_name']) ?></p>
                                     <p><strong>Dosage:</strong> <?= htmlspecialchars($p['dosage']) ?></p>
-                                    <p><strong>Instructions:</strong> <?= htmlspecialchars($p['instructions']) ?></p>
-                                    <p><strong>Refills:</strong> <?= htmlspecialchars($p['refills']) ?></p>
-                                    <p><strong>Expires:</strong> <?= htmlspecialchars($p['expires']) ?></p>
+                                    <?php if (!empty($p['frequency'])): ?><p><strong>Frequency:</strong> <?= htmlspecialchars($p['frequency']) ?></p><?php endif; ?>
+                                    <?php if (!empty($p['duration'])): ?><p><strong>Duration:</strong> <?= htmlspecialchars($p['duration']) ?></p><?php endif; ?>
+                                    <?php if (!empty($p['instructions'])): ?><p><strong>Instructions:</strong> <?= htmlspecialchars($p['instructions']) ?></p><?php endif; ?>
+                                    <?php if (!empty($p['diagnosis'])): ?><p><strong>Diagnosis:</strong> <?= htmlspecialchars($p['diagnosis']) ?></p><?php endif; ?>
                                 </div>
                                 <div class="form-actions">
                                     <button class="btn btn-primary" onclick="showModal('request-refill-modal')">Request Refill</button>
@@ -1144,7 +1134,7 @@ $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCou
                         <?php endforeach; ?>
                     <?php else: ?>
                         <li class="prescription-item">
-                            <p>No active prescriptions found.</p>
+                            <p>No prescription.</p>
                         </li>
                     <?php endif; ?>
                 </ul>

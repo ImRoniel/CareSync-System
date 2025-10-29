@@ -182,7 +182,7 @@
                     <div class="btn btn-primary">Continue as Patient</div>
                 </a>
                 
-                <!-- Doctor Card -->
+                Doctor Card
                 <a href="signup.php?role=doctor" class="role-card">
                     <div class="role-icon">
                         <i class="fas fa-user-md"></i>

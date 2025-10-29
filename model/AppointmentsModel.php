@@ -190,6 +190,52 @@ class appointmentsModel{
         return $row['upcoming_count'] ?? 0;
     }
 
+    /**
+     * Get upcoming appointments for a patient where status is pending or approved (checked-in)
+     */
+    public function getUpcomingAppointmentsForPatient($patientId) {
+        $sql = "
+            SELECT 
+                a.appointment_id,
+                a.appointment_date,
+                a.appointment_time,
+                a.status,
+                COALESCE(u_d.name, '') AS doctor_name,
+                COALESCE(a.reason, 'Consultation') AS type
+            FROM appointments a
+            LEFT JOIN doctors d ON d.doctor_id = a.doctor_id
+            LEFT JOIN users u_d ON u_d.id = d.user_id
+            WHERE a.patient_id = ?
+              AND (
+                    a.appointment_date > CURDATE()
+                 OR (a.appointment_date = CURDATE() AND a.appointment_time >= CURTIME())
+              )
+              AND a.status IN ('pending','approved')
+            ORDER BY a.appointment_date ASC, a.appointment_time ASC
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return [];
+        }
+        $stmt->bind_param("i", $patientId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $appointments = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['date_time'] = $row['appointment_date'] . ' ' . $row['appointment_time'];
+            // Normalize status label for UI consistency
+            if ($row['status'] === 'approved') {
+                $row['status'] = 'Confirmed';
+            } else {
+                $row['status'] = ucfirst($row['status']);
+            }
+            $appointments[] = $row;
+        }
+        $stmt->close();
+        return $appointments;
+    }
+
     //appointment statistic for a specififc user
     public function getAppointmentStats($patientId) {
         $sql = "SELECT 
@@ -797,6 +843,47 @@ class appointmentsModel{
         
     } catch (Exception $e) {
         return [];
+    }
+}
+    public function getAppointmentDetails($appointment_id, $secretary_id) {
+    try {
+        // Verify the secretary has access to this appointment
+        $query = "
+            SELECT 
+                a.appointment_id,
+                a.patient_id,
+                a.doctor_id,
+                a.reason,
+                a.diagnosis,
+                a.notes,
+                up.name as patient_name,
+                ud.name as doctor_name,
+                p.age,
+                p.gender,
+                p.blood_type,
+                p.medical_history
+            FROM appointments a
+            INNER JOIN patients p ON a.patient_id = p.patient_id
+            INNER JOIN users up ON p.user_id = up.id
+            INNER JOIN doctors d ON a.doctor_id = d.doctor_id
+            INNER JOIN users ud ON d.user_id = ud.id
+            INNER JOIN secretaries s ON d.doctor_id = s.assigned_doctor_id
+            WHERE a.appointment_id = ?
+            AND s.secretary_id = ?
+            AND a.status = 'completed'
+        ";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("ii", $appointment_id, $secretary_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $appointment = $result->fetch_assoc();
+        $stmt->close();
+        
+        return $appointment;
+        
+    } catch (Exception $e) {
+        return null;
     }
 }
 
