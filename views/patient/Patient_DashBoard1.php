@@ -38,10 +38,10 @@ if ($patientInternalId) {
 }
 
 // // Fetch upcoming appointments including 'approved' (checked-in)
-// $appointments = [];
-// if ($patientInternalId) {
-//     $appointments = $appointmentsController->getUpcomingAppointmentsForPatientController($patientInternalId);
-// }
+$appointments = [];
+if ($patientInternalId) {
+    $appointments = $appointmentsController->getUpcomingAppointmentsForPatientController($patientInternalId);
+}
 
 // Fetch prescriptions by patient_id
 $prescriptions = [];

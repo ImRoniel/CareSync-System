@@ -430,9 +430,16 @@ class AppointmentController {
         $result = $this->appointmentsModel->rejectAppointment($appointment_id, $this->secretary_id);
         echo json_encode($result);
     }
+
+    public function getUpcomingAppointmentsForPatient($patientId) {
+    return $this->model->getUpcomingAppointmentsForPatient($patientId);
+    }
+
+    public function getUpcomingAppointmentsForPatientController($patientId) {
+        return $this->model->getUpcomingAppointmentsForPatient($patientId);        return $this->model->getUpcomingAppointmentsForPatient($patientId);
+    }
 }
 
-    
 
 
 
