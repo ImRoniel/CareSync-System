@@ -8,11 +8,13 @@ class AppointmentController {
      private $model;
      private $appointmentsModel;
     private $doctorModel;
+    private $secretary_id;
     
     public function __construct($conn) {
         $this->model = new appointmentsModel($conn);
         $this->appointmentsModel = new AppointmentsModel($conn);
         $this->doctorModel = new DoctorModel($conn);
+        $this->secretary_id = $_SESSION['user']['secretary_id'] ?? $_SESSION['secretary_id'] ?? null;
     }
     
      public function getTodayAppointments() {
@@ -381,6 +383,67 @@ class AppointmentController {
             ];
         }
     }
+    public function checkInAppointment() {
+        header('Content-Type: application/json');
+        
+        if (!$this->secretary_id) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $appointment_id = filter_input(INPUT_POST, 'appointment_id', FILTER_VALIDATE_INT);
+        
+        if (!$appointment_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid appointment ID']);
+            return;
+        }
+
+        $result = $this->appointmentsModel->checkInAppointment($appointment_id, $this->secretary_id);
+        echo json_encode($result);
+    }
+
+    public function rejectAppointment() {
+        header('Content-Type: application/json');
+        
+        if (!$this->secretary_id) {
+            echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            return;
+        }
+
+        $appointment_id = filter_input(INPUT_POST, 'appointment_id', FILTER_VALIDATE_INT);
+        
+        if (!$appointment_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid appointment ID']);
+            return;
+        }
+
+        $result = $this->appointmentsModel->rejectAppointment($appointment_id, $this->secretary_id);
+        echo json_encode($result);
+    }
+
+    public function getAppointmentRequests() {
+        header('Content-Type: application/json');
+        
+        if (!$this->secretary_id) {
+            echo json_encode([]);
+            return;
+        }
+
+        $appointments = $this->appointmentsModel->getAppointmentRequestsForSecretary($this->secretary_id);
+        echo json_encode($appointments);
+    }
+
+    
 
 }
 

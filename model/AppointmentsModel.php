@@ -407,5 +407,312 @@ class appointmentsModel{
         
     }
 
+    public function checkInAppointment($appointment_id, $secretary_id) {
+        try {
+            // First, get the secretary's assigned doctor
+            $secretaryQuery = "SELECT assigned_doctor_id FROM secretaries WHERE secretary_id = ?";
+            $stmt = $this->conn->prepare($secretaryQuery);
+            $stmt->bind_param("i", $secretary_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $secretary = $result->fetch_assoc();
+            $stmt->close();
+            
+            if (!$secretary || !$secretary['assigned_doctor_id']) {
+                return ['success' => false, 'message' => 'Secretary not assigned to any doctor'];
+            }
+            
+            $assigned_doctor_id = $secretary['assigned_doctor_id'];
+            
+            // Verify the appointment belongs to the secretary's assigned doctor
+            // REMOVED the status check to see the appointment regardless of status
+            $verifyQuery = "
+                SELECT appointment_id, status 
+                FROM appointments 
+                WHERE appointment_id = ? 
+                AND doctor_id = ?
+            ";
+            
+            $stmt = $this->conn->prepare($verifyQuery);
+            $stmt->bind_param("ii", $appointment_id, $assigned_doctor_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $appointment = $result->fetch_assoc();
+            $stmt->close();
+            
+            if (!$appointment) {
+                return ['success' => false, 'message' => 'Appointment not found or not assigned to your doctor'];
+            }
+
+            // Check the current status and handle accordingly
+            $current_status = $appointment['status'];
+            
+            if ($current_status === 'cancelled') {
+                // If cancelled, change to approved
+                $new_status = 'approved';
+                $message = 'Cancelled appointment has been approved';
+            } elseif ($current_status === 'pending') {
+                // If pending, change to approved
+                $new_status = 'approved';
+                $message = 'Appointment checked in successfully';
+            } elseif ($current_status === 'approved') {
+                return ['success' => false, 'message' => 'Appointment is already approved'];
+            } elseif ($current_status === 'completed') {
+                return ['success' => false, 'message' => 'Appointment is already completed'];
+            } else {
+                return ['success' => false, 'message' => 'Unknown appointment status: ' . $current_status];
+            }
+
+            // Update appointment status
+            $updateQuery = "
+                UPDATE appointments 
+                SET status = ?, 
+                    updated_at = CURRENT_TIMESTAMP 
+                WHERE appointment_id = ?
+            ";
+            
+            $stmt = $this->conn->prepare($updateQuery);
+            $stmt->bind_param("si", $new_status, $appointment_id);
+            $result = $stmt->execute();
+            $stmt->close();
+            
+            if ($result) {
+                return ['success' => true, 'message' => $message];
+            } else {
+                return ['success' => false, 'message' => 'Failed to update appointment'];
+            }
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function rejectAppointment($appointment_id, $secretary_id) {
+        try {
+            // First, get the secretary's assigned doctor
+            $secretaryQuery = "SELECT assigned_doctor_id FROM secretaries WHERE secretary_id = ?";
+            $stmt = $this->conn->prepare($secretaryQuery);
+            $stmt->bind_param("i", $secretary_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $secretary = $result->fetch_assoc();
+            $stmt->close();
+            
+            if (!$secretary || !$secretary['assigned_doctor_id']) {
+                return ['success' => false, 'message' => 'Secretary not assigned to any doctor'];
+            }
+            
+            $assigned_doctor_id = $secretary['assigned_doctor_id'];
+            
+            // Verify the appointment belongs to the secretary's assigned doctor
+            // REMOVED the status check
+            $verifyQuery = "
+                SELECT appointment_id, status 
+                FROM appointments 
+                WHERE appointment_id = ? 
+                AND doctor_id = ?
+            ";
+            
+            $stmt = $this->conn->prepare($verifyQuery);
+            $stmt->bind_param("ii", $appointment_id, $assigned_doctor_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $appointment = $result->fetch_assoc();
+            $stmt->close();
+            
+            if (!$appointment) {
+                return ['success' => false, 'message' => 'Appointment not found or not assigned to your doctor'];
+            }
+
+            // Check the current status
+            $current_status = $appointment['status'];
+            
+            if ($current_status === 'cancelled') {
+                return ['success' => false, 'message' => 'Appointment is already cancelled'];
+            } elseif ($current_status === 'completed') {
+                return ['success' => false, 'message' => 'Cannot reject a completed appointment'];
+            }
+
+            // Update appointment status to cancelled
+            $updateQuery = "
+                UPDATE appointments 
+                SET status = 'cancelled', 
+                    updated_at = CURRENT_TIMESTAMP 
+                WHERE appointment_id = ?
+            ";
+            
+            $stmt = $this->conn->prepare($updateQuery);
+            $stmt->bind_param("i", $appointment_id);
+            $result = $stmt->execute();
+            $stmt->close();
+            
+            if ($result) {
+                return ['success' => true, 'message' => 'Appointment rejected successfully'];
+            } else {
+                return ['success' => false, 'message' => 'Failed to reject appointment'];
+            }
+            
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+    // Get appointment requests for secretary (pending appointments)
+    public function getAppointmentRequestsForSecretary($secretary_id) {
+        try {
+            $query = "
+                SELECT 
+                    a.appointment_id,
+                    a.patient_id,
+                    u.name as patient_name,
+                    a.appointment_date,
+                    a.appointment_time,
+                    a.status,
+                    a.queue_number,
+                    a.reason
+                FROM appointments a
+                INNER JOIN patients p ON a.patient_id = p.patient_id
+                INNER JOIN users u ON p.user_id = u.id
+                INNER JOIN doctors d ON a.doctor_id = d.doctor_id
+                INNER JOIN secretaries s ON d.doctor_id = s.assigned_doctor_id
+                WHERE s.secretary_id = ?
+                AND a.status = 'pending'
+                ORDER BY a.appointment_date ASC, a.appointment_time ASC
+            ";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("i", $secretary_id);
+            var_dump($secretary_id);    
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $appointments = $result->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            
+            return $appointments;
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    // Get today's appointments for doctor (approved appointments that secretary checked in)
+    public function getTodaysAppointmentsForDoctor($doctor_id) {
+        try {
+            $query = "
+                    SELECT 
+                        a.appointment_id,
+                        a.patient_id,
+                        u.name as patient_name,
+                        a.appointment_date,
+                        a.appointment_time,
+                        a.status,
+                        a.queue_number,
+                        a.reason
+                    FROM appointments a
+                    INNER JOIN patients p ON a.patient_id = p.patient_id
+                    INNER JOIN users u ON p.user_id = u.id
+                    WHERE a.doctor_id = ?
+                    AND a.appointment_date = CURDATE()
+                    AND a.status IN ('approved', 'completed', 'cancelled')
+                    ORDER BY a.queue_number ASC, a.appointment_time ASC
+            ";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("i", $doctor_id);
+            var_dump($doctor_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $appointments = $result->fetch_all(MYSQLI_ASSOC);
+            var_dump($stmt->error);
+            var_dump($result);
+            $stmt->close();
+            
+            return $appointments;
+            
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    private function logActivity($appointment_id, $secretary_id, $action) {
+        try {
+            // Get actor_user_id from secretaries table
+            $userQuery = "SELECT user_id FROM secretaries WHERE secretary_id = ?";
+            $stmt = $this->conn->prepare($userQuery);
+            $stmt->bind_param("i", $secretary_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $secretary = $result->fetch_assoc();
+            $stmt->close();
+            
+            if ($secretary) {
+                $actor_user_id = $secretary['user_id'];
+                $message = $action === 'checked_in' ? 'Appointment checked in by secretary' : 'Appointment rejected by secretary';
+                
+                $activityQuery = "
+                    INSERT INTO activity_logs 
+                    (actor_user_id, secretary_id, appointment_id, activity_type, activity_message, created_at)
+                    VALUES (?, ?, ?, 'appointment', ?, CURRENT_TIMESTAMP)
+                ";
+                
+                $stmt = $this->conn->prepare($activityQuery);
+                $stmt->bind_param("iiis", $actor_user_id, $secretary_id, $appointment_id, $message);
+                $stmt->execute();
+                $stmt->close();
+            }
+        } catch (Exception $e) {
+            error_log("Activity log error: " . $e->getMessage());
+        }
+    }
+
+    public function getPendingAppointmentsForSecretary($secretary_id) {
+    try {
+        // First, get the secretary's assigned doctor
+        $secretaryQuery = "SELECT assigned_doctor_id FROM secretaries WHERE secretary_id = ?";
+        $stmt = $this->conn->prepare($secretaryQuery);
+        $stmt->bind_param("i", $secretary_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $secretary = $result->fetch_assoc();
+        $stmt->close();
+        
+        if (!$secretary || !$secretary['assigned_doctor_id']) {
+            return [];
+        }
+        
+        $assigned_doctor_id = $secretary['assigned_doctor_id'];
+        
+        // Only get PENDING appointments
+        $query = "
+            SELECT 
+                a.appointment_id,
+                a.patient_id,
+                u.name as patient_name,
+                a.appointment_date,
+                a.appointment_time,
+                a.status,
+                a.queue_number,
+                a.reason
+            FROM appointments a
+            INNER JOIN patients p ON a.patient_id = p.patient_id
+            INNER JOIN users u ON p.user_id = u.id
+            WHERE a.doctor_id = ?
+            AND a.status = 'pending'  // ONLY PENDING STATUS
+            ORDER BY a.appointment_date ASC, a.appointment_time ASC
+        ";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("i", $assigned_doctor_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $appointments = $result->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        
+        return $appointments;
+        
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
 }
 ?>

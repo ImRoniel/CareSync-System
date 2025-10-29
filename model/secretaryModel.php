@@ -131,6 +131,10 @@ class SecretaryModel {
         return $rows; // always an array (possibly empty)
     }
 
+    public function checkInPatienToDoctor($Appointment){
+        
+    }
+
     
 
 }

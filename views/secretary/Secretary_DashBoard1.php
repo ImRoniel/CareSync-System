@@ -21,25 +21,42 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'secretary') {
     exit;
 }
 
-$secretaryId = intval($_SESSION['user_id']); //sanitizing 
+$userId = intval($_SESSION['user_id']); // This is from users table
 
-
+// Get the actual secretary_id from secretaries table
 $secretaryController = new SecretaryController($conn);
-$secretary = $secretaryController->getSecretaryData($secretaryId);
+$secretary = $secretaryController->getSecretaryData($userId);
+
+// Check if we got secretary data and get the secretary_id
+if ($secretary && isset($secretary['secretary_id'])) {
+    $secretaryId = $secretary['secretary_id']; // This is what we need for the query
+} else {
+    // Fallback: try to get secretary_id directly
+    $query = "SELECT secretary_id FROM secretaries WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $secretaryData = $result->fetch_assoc();
+    $secretaryId = $secretaryData['secretary_id'] ?? null;
+    $stmt->close();
+}
 
 $appointmentController = new AppointmentController($conn);
 $totalAppointment = $appointmentController->getTotalAppointments();
-
-$appointmentRequests = $secretaryController->getAppointmentsForSecretary($secretaryId);
-// Safe default if null
-if (!is_array($appointmentRequests)) {
-    $appointmentRequests = [];
+// In Secretary_Dashboard1.php - update the query to only get pending appointments
+$appointmentRequests = [];
+if (isset($secretaryId)) {
+    $appointmentModel = new AppointmentsModel($conn);
+    
+    // Use a method that only gets pending appointments
+    $appointmentRequests = $appointmentModel->getPendingAppointmentsForSecretary($secretaryId);
+    
+    // DEBUG
+    echo "<!-- Secretary ID: $secretaryId -->";
+    echo "<!-- Pending appointments found: " . count($appointmentRequests) . " -->";
 }
-
-
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -808,6 +825,7 @@ if (!is_array($appointmentRequests)) {
                                 <tr>
                                     <th>Patient</th>
                                     <th>Preferred Date</th>
+                                    <th>Time</th>
                                     <!-- <th>Doctor</th>     -->
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -816,32 +834,45 @@ if (!is_array($appointmentRequests)) {
                             <tbody>
                                 <?php if (empty($appointmentRequests)): ?>
                                     <tr>
-                                        <td colspan="4">No appointment requests.</td>
+                                        <td colspan="6">No appointment requests.</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($appointmentRequests as $AppointmentRequest): ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($AppointmentRequest['name'] ?? '') ?></td>
+                                            <td><?= htmlspecialchars($AppointmentRequest['patient_name'] ?? '') ?></td>
                                             <td>
                                                 <?php
                                                     $date = $AppointmentRequest['appointment_date'] ?? '';
                                                     echo $date ? htmlspecialchars(date('M j, Y', strtotime($date))) : '';
                                                 ?>
                                             </td>
+                                             <td>
+                                                <?php
+                                                    $time = $AppointmentRequest['appointment_time'] ?? '';
+                                                    echo $time ? htmlspecialchars(date('g:i A', strtotime($time))) : '';
+                                                ?>
+                                            </td>
                                             <td>
                                                 <?php
                                                     $status = strtolower($AppointmentRequest['status'] ?? '');
                                                     $badgeClass = 'status-pending';
-                                                    if ($status === 'approved' || $status === 'confirmed') $badgeClass = 'status-confirmed';
+                                                    if ($status === 'approved') $badgeClass = 'status-confirmed';
                                                     elseif ($status === 'completed') $badgeClass = 'status-waiting';
+                                                    elseif ($status === 'cancelled') $badgeClass = 'status-cancelled';
                                                 ?>
                                                 <span class="status-badge <?= $badgeClass ?>">
-                                                    <?= htmlspecialchars($AppointmentRequest['status'] ? ucfirst($AppointmentRequest['status']) : 'Review') ?>
+                                                    <?= htmlspecialchars(ucfirst($AppointmentRequest['status'])) ?>
                                                 </span>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-primary" data-appointment-id="<?= intval($AppointmentRequest['appointment_id'] ?? 0) ?>">Check in</button>
-                                                <button class="btn btn-sm btn-danger" data-appointment-id="<?= intval($AppointmentRequest['appointment_id'] ?? 0) ?>">Reject</button>
+                                                <button class="btn btn-sm btn-primary" 
+                                                        onclick="checkInAppointment(<?= $AppointmentRequest['appointment_id'] ?>)">
+                                                    Check in
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" 
+                                                        onclick="rejectAppointment(<?= $AppointmentRequest['appointment_id'] ?>)">
+                                                    Reject
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -1488,6 +1519,86 @@ if (!is_array($appointmentRequests)) {
                 alert("Something went wrong. Check console for details.");
             });
             });
+            // Check in appointment
+        // Check in appointment
+        // Check in appointment
+        function checkInAppointment(appointmentId) {
+            if (!confirm('Are you sure you want to check in this appointment? This will send it to the doctor.')) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('appointment_id', appointmentId);
+
+            fetch('../../controllers/appointment/ajax/checkin_appointment.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data); // Debug log
+                if (data.success) {
+                    alert(data.message);
+                    // Remove the row from the table
+                    const row = document.getElementById('appointment-' + appointmentId);
+                    if (row) {
+                        row.remove();
+                    }
+                    // Reload the table if empty
+                    reloadIfEmpty();
+                } else {
+                    alert('Error: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('An error occurred while checking in the appointment: ' + error.message);
+            });
+        }
+        // Reject appointment
+        function rejectAppointment(appointmentId) {
+            if (!confirm('Are you sure you want to reject this appointment?')) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('appointment_id', appointmentId);
+
+            fetch('../../controllers/appointment/ajax/reject_appointment.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data); // Debug log
+                if (data.success) {
+                    alert(data.message);
+                    // Remove the row from the table
+                    const row = document.getElementById('appointment-' + appointmentId);
+                    if (row) {
+                        row.remove();
+                    }
+                    // Reload the table if empty
+                    reloadIfEmpty();
+                } else {
+                    alert('Error: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('An error occurred while rejecting the appointment: ' + error.message);
+            });
+        }
     </script>
 </body>
 </html>

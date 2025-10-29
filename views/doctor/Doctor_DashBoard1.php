@@ -10,6 +10,7 @@ require_once $sessionPath;
 require_once __DIR__ . '/../../config/db_connect.php';
 require_once __DIR__ . '/../../controllers/admin/DoctorController.php';
 require_once '../../controllers/appointment/AppointmentController.php';
+
 if (empty($_SESSION['user_id'])) {
     header("Location: ../../login/login.php");
     exit;
@@ -20,15 +21,40 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'doctor') {
     exit;
 }
 
-$doctorId = intval($_SESSION['user_id']); 
+$userId = intval($_SESSION['user_id']); // This is from users table
+
+// Get the actual doctor_id from doctors table
 $doctorController = new DoctorController($conn);
-$doctor = $doctorController->getDoctorData($doctorId);
+$doctor = $doctorController->getDoctorData($userId);
 
-
+// Check if we got doctor data and get the doctor_id
+if ($doctor && isset($doctor['doctor_id'])) {
+    $doctorId = $doctor['doctor_id']; // This is what we need for the query
+} else {
+    // Fallback: try to get doctor_id directly
+    $query = "SELECT doctor_id FROM doctors WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $doctorData = $result->fetch_assoc();
+    $doctorId = $doctorData['doctor_id'] ?? null;
+    $stmt->close();
+}
 
 $appointmentController = new AppointmentController($conn);
 $appointmentsData = $appointmentController->getDoctorAppointments();
-$todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointments'] : [];
+
+$todaysAppointments = [];
+if (isset($doctorId)) {
+    $appointmentModel = new AppointmentsModel($conn);
+    $todaysAppointments = $appointmentModel->getTodaysAppointmentsForDoctor($doctorId);
+    
+    // DEBUG: Check what we're getting
+    echo "<!-- User ID: $userId -->";
+    echo "<!-- Doctor ID: " . ($doctorId ?? 'NOT FOUND') . " -->";
+    echo "<!-- Appointments found: " . count($todaysAppointments) . " -->";
+}
 ?>
 
 <!DOCTYPE html>
@@ -798,16 +824,6 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
                     <div class="card">
                         <div class="card-header">
                             <h2>My Appointments</h2>
-                            <div class="filter-options">
-                                <select id="appointment-filter" onchange="filterAppointments()">
-                                    <option value="all">All Appointments</option>
-                                    <option value="today">Today Only</option>
-                                    <option value="upcoming">Upcoming</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="completed">Completed</option>
-                                </select>
-                                <button class="btn btn-secondary" onclick="showPage('schedule')">View Schedule</button>
-                            </div>
                         </div>
                         
                         <table class="appointments-table">
@@ -825,7 +841,7 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
                             <tbody id="appointments-tbody">
                                 <?php if (empty($todaysAppointments)): ?>
                                     <tr>
-                                        <td colspan="7" class="text-center">No appointments found</td>
+                                        <td colspan="6" class="text-center">No appointments found</td>
                                     </tr>
                                 <?php else: ?>
                                     <?php foreach ($todaysAppointments as $appointment): ?>
@@ -835,7 +851,6 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
                                         <td><?php echo htmlspecialchars($appointment['patient_name']); ?></td>
                                         <td><?php echo date('M j, Y', strtotime($appointment['appointment_date'])); ?></td>
                                         <td><?php echo date('g:i A', strtotime($appointment['appointment_time'])); ?></td>
-                       
                                         <td>
                                             <span class="status-badge status-<?php echo $appointment['status']; ?>">
                                                 <?php echo ucfirst($appointment['status']); ?>
@@ -843,14 +858,19 @@ $todaysAppointments = $appointmentsData['success'] ? $appointmentsData['appointm
                                         </td>
                                         <td><?php echo $appointment['queue_number'] ?: 'N/A'; ?></td>
                                         <td>
-                                            <?php if ($appointment['status'] === 'pending'): ?>
-                                                <button class="btn btn-sm btn-success" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'approved')">Approve</button>
-                                                <button class="btn btn-sm btn-danger" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'cancelled')">Cancel</button>
-                                                <?php elseif ($appointment['status'] === 'approved'): ?>
-                                                    <button class="btn btn-sm btn-primary" onclick="updateAppointmentStatus(<?php echo $appointment['appointment_id']; ?>, 'completed')">Complete</button>
-                                                <button class="btn btn-sm btn-warning" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">Details</button>
+                                            <?php if ($appointment['status'] === 'approved'): ?>
+                                                <button class="btn btn-sm btn-primary" onclick="startConsultation(<?php echo $appointment['appointment_id']; ?>)">
+                                                    Start Consultation
+                                                </button>
+                                                <button class="btn btn-sm btn-warning" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">
+                                                    Details
+                                                </button>
+                                            <?php elseif ($appointment['status'] === 'completed'): ?>
+                                                <button class="btn btn-sm btn-success" disabled>Completed</button>
                                             <?php else: ?>
-                                                <button class="btn btn-sm btn-secondary" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">View</button>
+                                                <button class="btn btn-sm btn-secondary" onclick="showAppointmentDetails(<?php echo $appointment['appointment_id']; ?>)">
+                                                    View
+                                                </button>
                                             <?php endif; ?>
                                         </td>
                                     </tr>

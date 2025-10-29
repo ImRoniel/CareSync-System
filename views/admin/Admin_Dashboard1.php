@@ -448,7 +448,7 @@ $appointments = $appointmentsController->getAppointments();
         
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
         
@@ -1139,7 +1139,7 @@ $appointments = $appointmentsController->getAppointments();
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- <div class="stat-card">
                     <div class="stat-icon">
                         <i class="fas fa-dollar-sign"></i>
                     </div>
@@ -1147,7 +1147,7 @@ $appointments = $appointmentsController->getAppointments();
                         <h3>$3,240</h3>
                         <p>Revenue This Week</p>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             
@@ -1187,33 +1187,33 @@ $appointments = $appointmentsController->getAppointments();
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <?php if($resultSystemOver->num_rows > 0): ?>
-                                            <?php while ($row = $resultSystemOver->fetch_assoc()): ?>
-                                                <tr>
-                                                    <td><?= htmlspecialchars($row['name']); ?></td>
-                                                    <td><?= htmlspecialchars($row['email']); ?></td>
-                                                    <td><?= htmlspecialchars($row['role']); ?></td>
-                                                    <!-- <td><span class="status-badge status-active">Active</span></td> -->
-                                                    <td><?= htmlspecialchars($row['created_at']); ?></td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
-                                                            Edit
-                                                        </button>
+                                        <tbody>
+                                            <?php if($resultSystemOver->num_rows > 0): ?>
+                                                <?php while ($row = $resultSystemOver->fetch_assoc()): ?>
+                                                    <tr>
+                                                        <td><?= htmlspecialchars($row['name']); ?></td>
+                                                        <td><?= htmlspecialchars($row['email']); ?></td>
+                                                        <td><?= htmlspecialchars($row['role']); ?></td>
+                                                        <!-- <td><span class="status-badge status-active">Active</span></td> -->
+                                                        <td><?= htmlspecialchars($row['created_at']); ?></td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-secondary" onclick="window.location.href='/Caresync-System/views/admin/edit_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
+                                                                Edit
+                                                            </button>
 
-                                                        <button class="btn btn-sm btn-danger"
-                                                                 onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='/Caresync-System/controllers/admin/delete_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
-                                                            Delete
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <?php endwhile; ?> 
-                                        <?php else: ?>     
-                                            <tr>    
-                                                <td colspan="6" style="text-align: center;">No users found</td>
-                                            </tr>  
-                                        <?php endif; ?>
-                                    </tbody>
+                                                            <button class="btn btn-sm btn-danger"
+                                                                    onclick="if(confirm('Are you sure you want to delete this user?')) window.location.href='/Caresync-System/controllers/admin/delete_user.php?id=<?= htmlspecialchars($row['id']) ?>'">
+                                                                Delete
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <?php endwhile; ?> 
+                                            <?php else: ?>     
+                                                <tr>    
+                                                    <td colspan="6" style="text-align: center;">No users found</td>
+                                                </tr>  
+                                            <?php endif; ?>
+                                        </tbody>
                                 </table>
                             </div>
                         </div>
@@ -1438,7 +1438,7 @@ $appointments = $appointmentsController->getAppointments();
                     </div>
                 </div>
                 
-                <div class="right-column">
+                <!-- <div class="right-column">
                     <div class="card">
                         <div class="card-header">
                             <h2>Upcoming Appointments</h2>
@@ -1479,7 +1479,7 @@ $appointments = $appointmentsController->getAppointments();
                             </li>
                         </ul>
                     </div>                    
-                </div>
+                </div> -->
             </div>
         </div>
     </section>

@@ -57,14 +57,14 @@ if (!$appointment) {
         .time-slot {
             padding: 10px;
             margin: 5px 0;
-            border: 2px solid #e9ecef;
+            border: 2px solid #CFCFCF;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         .time-slot:hover {
-            border-color: #2E603D;
-            background-color: #f8f9fa;
+            border-color: #2E8949;
+            background-color: #f5f7f9;
         }
         .time-slot.selected {
             border-color: #2E8949;
@@ -72,23 +72,58 @@ if (!$appointment) {
             color: white;
         }
         .calendar-header {
-            background: linear-gradient(135deg, #AD5057 0%,  #2E8949 100%);
+            background: linear-gradient(135deg, #AD5057 0%, #2E8949 100%);
             color: white;
             border-radius: 10px 10px 0 0;
             padding: 15px;
         }
+        .btn-primary {
+            background-color: #2E8949;
+            border-color: #2E8949;
+        }
+        .btn-primary:hover {
+            background-color: #2E603D;
+            border-color: #2E603D;
+        }
+        .btn-secondary {
+            background-color: #CFCFCF;
+            border-color: #CFCFCF;
+            color: #111814;
+        }
+        .btn-secondary:hover {
+            background-color: #AD5057;
+            border-color: #AD5057;
+            color: white;
+        }
+        .card-header.bg-primary {
+            background-color: #2E8949 !important;
+        }
+        .alert-success {
+            background-color: #2E8949;
+            color: white;
+            border-color: #2E603D;
+        }
+        .alert-danger {
+            background-color: #AD5057;
+            color: white;
+            border-color: #8a4047;
+        }
+        .badge.bg-warning {
+            background-color: #AD5057 !important;
+            color: white;
+        }
+        .border-bottom {
+            border-bottom-color: #CFCFCF !important;
+        }
     </style>
 </head>
-<body>
+<body style="background-color: #f5f7f9;">
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <?php include '../../views/admin/partials/sidebar.php'; ?>
-            
             <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <main class="col-12 px-md-4">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Reschedule Appointment</h1>
+                    <h1 class="h2" style="color: #2E603D;">Reschedule Appointment</h1>
                     <a href="Admin_Dashboard1.php" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Back to Dashboard
                     </a>
@@ -146,7 +181,7 @@ if (!$appointment) {
 
                                 <!-- Date Selection -->
                                 <div class="mb-4">
-                                    <label for="new_date" class="form-label fw-bold">Select Date:</label>
+                                    <label for="new_date" class="form-label fw-bold" style="color: #2E603D;">Select Date:</label>
                                     <input type="date" 
                                            class="form-control form-control-lg" 
                                            id="new_date" 
@@ -157,7 +192,7 @@ if (!$appointment) {
 
                                 <!-- Time Selection -->
                                 <div class="mb-4">
-                                    <label class="form-label fw-bold">Select Time:</label>
+                                    <label class="form-label fw-bold" style="color: #2E603D;">Select Time:</label>
                                     <div class="time-slots">
                                         <div class="row">
                                             <?php
