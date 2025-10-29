@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../../config/db_connect.php';
-session_start();
+require_once __DIR__ . '/../../model/PatientModel.php';
+require_once __DIR__ . '/../../controllers/admin/patientController.php';
+require_once __DIR__ . '/../../controllers/auth/session.php';
 
 header('Content-Type: application/json');
 
@@ -9,18 +11,25 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
-$name = $_POST['name'] ?? '';
-$email = $_POST['email'] ?? '';
-$phone = $_POST['phone'] ?? '';
-$address = $_POST['address'] ?? '';
+$user_id = intval($_SESSION['user_id']);
 
-$sql = "UPDATE patients SET name=?, email=?, phone=?, address=? WHERE user_id=?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ssssi", $name, $email, $phone, $address, $user_id);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $address = $_POST['address'] ?? '';
 
-if ($stmt->execute()) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Database update failed']);
+    $controller = new PatientController($conn);
+    $success = $controller-> updatePatient($user_id, [
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'address' => $address,
+    ]);
+
+    echo json_encode(['success' => $success]);
+    exit;
 }
+
+echo json_encode(['success' => false, 'message' => 'Invalid request']);
+?>

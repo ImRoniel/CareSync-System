@@ -25,13 +25,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'patient') {
 $patientId = $_SESSION['user_id']; // a variable for a user id
 
 $patientController = new PatientController($conn); //intamces of appointment controller
-$patient = $patientController->getPatientById($patientId);
+$patient2 = $patientController->getPatientById2($patientId);
 $appointmentsController = new AppointmentController($conn); // intances of appointmetn controller
 
 $upcomingAppointmentsCount = 0; // a dynamic variable 
 $upcomingAppointmentsCount = $appointmentsController->getUpcomingAppointmentsCountController($patientId);
 
-$patient2 = $patientController->getPatientById2($patientId);
 ?>
 
 <!DOCTYPE html>
@@ -862,7 +861,7 @@ $patient2 = $patientController->getPatientById2($patientId);
                     <a onclick="showPage('appointments')">Appointments</a>
                     <a onclick="showPage('prescriptions')">Prescriptions</a>
                     <!-- <a onclick="showPage('health-records')">Health Records</a> -->
-                    <a onclick="showPage('billing')">Billing</a>
+                    <!-- <a onclick="showPage('billing')">Billing</a> -->
                 </nav>
                 
                 <div class="nav-actions">
@@ -1614,11 +1613,11 @@ $patient2 = $patientController->getPatientById2($patientId);
             </div>
             <div class="modal-body">
                 <div class="user-info">
-                    <div class="user-avatar"><?= strtoupper(substr($patient['name'], 0, 2)) ?></div>
+                    <div class="user-avatar"><?= strtoupper(substr($patient2['name'], 0, 2)) ?></div>
                     <div>
-                        <h3><?= htmlspecialchars($patient['name']) ?></h3>
+                        <h3><?= htmlspecialchars($patient2['name']) ?></h3>
                         <p>Patient</p>
-                        <p><?= htmlspecialchars($patient['email']) ?></p>
+                        <p><?= htmlspecialchars($patient2['email']) ?></p>
                     </div>
                 </div>
                 
@@ -1633,43 +1632,42 @@ $patient2 = $patientController->getPatientById2($patientId);
     <div id="edit-profile-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Edit Profile</h2>
-                <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
+            <h2>Edit Profile</h2>
+            <span class="close" onclick="closeModal('edit-profile-modal')">&times;</span>
             </div>
             <div class="modal-body">
-                <form method="POST" action="">
-                    <div class="form-group">
-                        <label for="edit-name">Full Name</label>
-                        <input type="text" id="edit-name" name="name" class="form-control"
-                            value="<?= htmlspecialchars($patient['name']) ?>" required>
-                    </div>
+            <form id="edit-profile-form">
+                <div class="form-group">
+                    <label for="edit-name">Full Name</label>
+                    <input type="text" id="edit-name" name="name" class="form-control"
+                            value="<?= htmlspecialchars($patient2['name']) ?>" required>
+                </div>
 
-                    <div class="form-group">
-                        <label for="edit-email">Email</label>
-                        <input type="email" id="edit-email" name="email" class="form-control"
-                            value="<?= htmlspecialchars($patient['email']) ?>" required>
-                    </div>
+                <div class="form-group">
+                    <label for="edit-email">Email</label>
+                    <input type="email" id="edit-email" name="email" class="form-control"
+                            value="<?= htmlspecialchars($patient2['email']) ?>" required>
+                </div>
 
-                    <div class="form-group">
-                        <label for="edit-phone">Phone</label>
-                        <input type="tel" id="edit-phone" name="phone" class="form-control"
-                            value="<?= htmlspecialchars($patient['phone']) ?>">
-                    </div>
+                <div class="form-group">
+                    <label for="edit-phone">Phone</label>
+                    <input type="tel" id="edit-phone" name="phone" class="form-control"
+                            value="<?= htmlspecialchars($patient2['phone']) ?>">
+                </div>
 
-                    <div class="form-group">
-                        <label for="edit-address">Address</label>
-                        <input type="text" id="edit-address" name="address" class="form-control"
-                            value="<?= htmlspecialchars($patient['address']) ?>">
+                <div class="form-group">
+                    <label for="edit-address">Address</label>
+                    <input type="text" id="edit-address" name="address" class="form-control"
+                            value="<?= htmlspecialchars($patient2['address'] ?? '') ?>">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-profile-modal')">Cancel</button>
-                        <button type="submit" name="save_changes" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
+            </form>
             </div>
         </div>
-    </div>
+        </div>
 
 
     <footer>
@@ -1713,7 +1711,35 @@ $patient2 = $patientController->getPatientById2($patientId);
         </div>
     </footer>
 
-    <script src="../../assets/js/PatientDashboard.js"></script>
+    <script src="../../assets/js/PatientDashboard.js">
+
+        document.getElementById("edit-profile-form").addEventListener("submit", function(e) {
+            e.preventDefault(); // Stop normal reload
+
+            const formData = new FormData(this);
+
+            fetch("../../controllers/patients/UpdatePatientProfile.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                alert("Profile updated successfully!");
+                closeModal('edit-profile-modal');
+                location.reload(); // refresh to show updated info
+                } else {
+                alert("Failed to update: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                alert("Something went wrong. Check console for details.");
+            });
+        });
+    
+    </script>
+    
                             
 </body>
 </html>
