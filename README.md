@@ -19,10 +19,25 @@ Software Requirement:
 
 Follow these step, if you want it to run in your local:
 1. clone the repository:
-   open git bash
-   copy and paste this line one by one
-   cd C:\xampp\htdocs
-   git clone 
+   a. open git bash
+      copy and paste this line one by one
+   b. cd C:\xampp\htdocs
+   c. git clone https://github.com/ImRoniel/CareSync-System.git
+
+2. setting up the database:
+   a. after cloning go to C:\xampp\htdocs\CareSync-System
+   b. open xammp
+   c. check apache and mysql
+   d. open any web browser then paste this: http://localhost/phpmyadmin/
+   e. create a database, named: caresync_db
+   f. click the database you created, then click export at the top bar
+   g. open the location where the caresync_db is stored which is this path C:\xampp\htdocs\CareSync-System
+   h. then export. and done.
+
+3. running the System to your Local:
+   a. make sure the xammp apache and mysql is checked
+   b. open any web browser then paste this: http://localhost/Caresync-System/
+   c. enjoy our system.   
 
 
   
